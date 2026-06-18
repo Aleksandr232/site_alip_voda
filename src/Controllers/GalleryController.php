@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Controllers;
 
+use App\Config;
 use App\Http\Request;
 use App\Http\Response;
 use App\Services\GalleryService;
@@ -42,7 +43,13 @@ final class GalleryController
         } catch (RuntimeException $e) {
             Response::error($e->getMessage(), 401);
         } catch (Throwable $e) {
-            Response::error('Ошибка загрузки галереи', 500);
+            error_log('Gallery list: ' . $e->getMessage());
+            Response::error(
+                Config::get('APP_ENV', 'local') !== 'production'
+                    ? $e->getMessage()
+                    : 'Ошибка загрузки галереи',
+                500
+            );
         }
     }
 

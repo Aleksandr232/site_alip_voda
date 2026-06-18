@@ -13,14 +13,14 @@ final class GalleryService
     private const STATUSES = ['published', 'hidden'];
 
     public function __construct(
-        private readonly GalleryRepository $gallery = new GalleryRepository(),
         private readonly ImageUploadService $uploader,
+        private readonly GalleryRepository $gallery = new GalleryRepository(),
     ) {
     }
 
     public static function createDefault(string $projectRoot): self
     {
-        return new self(uploader: ImageUploadService::galleryDir($projectRoot));
+        return new self(ImageUploadService::galleryDir($projectRoot));
     }
 
     /** @return GalleryItem[] */

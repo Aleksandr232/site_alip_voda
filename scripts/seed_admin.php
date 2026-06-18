@@ -11,7 +11,7 @@ require $root . '/bootstrap.php';
 Config::load($root);
 
 $name = $argv[1] ?? 'Администратор';
-$email = $argv[2] ?? 'admin@alip-voda.ru';
+$email = $argv[2] ?? 'admin@skyclin.ru';
 $password = $argv[3] ?? 'admin123';
 
 $users = new UserRepository();

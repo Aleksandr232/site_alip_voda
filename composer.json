@@ -1,6 +1,6 @@
 {
-  "name": "alip-voda/site",
-  "description": "Алип Вода — сайт и REST API",
+  "name": "skyclin/site",
+  "description": "СкайКлин — сайт и REST API",
   "require": {
     "php": ">=8.2"
   },

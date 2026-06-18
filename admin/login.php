@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Вход — Алип Вода Admin</title>
+  <title>Вход — СкайКлин Admin</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -15,7 +15,7 @@
     <div class="login-card">
       <div class="login-card__logo">
         <span class="logo__icon" aria-hidden="true">▲</span>
-        Алип<span>Вода</span>
+        Скай<span>Клин</span>
       </div>
       <h1 id="auth-title">Вход в админ-панель</h1>
       <p class="login-card__subtitle" id="auth-subtitle">Управление контентом сайта</p>
@@ -30,7 +30,7 @@
       <form class="login-form auth-form auth-form--active" id="login-form" data-auth-panel="login">
         <label>
           <span>Email</span>
-          <input type="email" name="email" required placeholder="admin@alip-voda.ru" autocomplete="username">
+          <input type="email" name="email" required placeholder="admin@skyclin.ru" autocomplete="username">
         </label>
         <label>
           <span>Пароль</span>
@@ -52,7 +52,7 @@
         </label>
         <label>
           <span>Email</span>
-          <input type="email" name="email" required placeholder="admin@alip-voda.ru" autocomplete="username">
+          <input type="email" name="email" required placeholder="admin@skyclin.ru" autocomplete="username">
         </label>
         <label>
           <span>Пароль</span>

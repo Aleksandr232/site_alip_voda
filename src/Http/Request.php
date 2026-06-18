@@ -38,8 +38,10 @@ final class Request
     {
         $uri = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH) ?: '/';
 
-        if (str_starts_with($uri, '/api')) {
-            $uri = substr($uri, 4) ?: '/';
+        // /api/health или /папка-сайта/api/health
+        if (preg_match('#/api(?:/(.*))?$#', $uri, $matches)) {
+            $tail = trim($matches[1] ?? '', '/');
+            $uri = $tail !== '' ? '/' . $tail : '/';
         } else {
             $scriptDir = rtrim(str_replace('\\', '/', dirname($_SERVER['SCRIPT_NAME'] ?? '')), '/');
             if ($scriptDir !== '' && $scriptDir !== '/' && str_starts_with($uri, $scriptDir)) {

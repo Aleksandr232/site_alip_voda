@@ -29,27 +29,34 @@ SQL,
     public static function ensure(): array
     {
         if (Config::get('DB_AUTO_INSTALL', 'true') !== 'true') {
-            return ['skipped' => true, 'tables' => []];
+            return ['skipped' => true, 'tables' => [], 'created' => []];
         }
 
         $pdo = self::connect();
         $created = [];
+        $existing = [];
 
         foreach (self::$tables as $table => $sql) {
-            if (!self::tableExists($pdo, $table)) {
-                $pdo->exec($sql);
-                $created[] = $table;
-                continue;
-            }
-
-            // Таблица есть — на всякий случай применяем IF NOT EXISTS
+            $exists = self::tableExists($pdo, $table);
             $pdo->exec($sql);
+
+            if ($exists) {
+                $existing[] = $table;
+            } else {
+                $created[] = $table;
+            }
+        }
+
+        $status = [];
+        foreach (array_keys(self::$tables) as $table) {
+            $status[$table] = true;
         }
 
         return [
             'skipped' => false,
-            'tables' => array_keys(self::$tables),
+            'tables' => $status,
             'created' => $created,
+            'existing' => $existing,
         ];
     }
 

@@ -8,7 +8,7 @@ use App\Database\Installer;
 
 $root = dirname(__DIR__);
 
-require $root . '/vendor/autoload.php';
+require $root . '/bootstrap.php';
 Config::load($root);
 
 try {

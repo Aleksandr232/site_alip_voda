@@ -10,9 +10,18 @@ use App\Http\Router;
 
 $root = dirname(__DIR__);
 
-require $root . '/vendor/autoload.php';
-
-Config::load($root);
+try {
+    require $root . '/bootstrap.php';
+    Config::load($root);
+} catch (Throwable $e) {
+    http_response_code(500);
+    header('Content-Type: application/json; charset=utf-8');
+    echo json_encode([
+        'success' => false,
+        'message' => 'Bootstrap error: ' . $e->getMessage(),
+    ], JSON_UNESCAPED_UNICODE);
+    exit;
+}
 
 header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Headers: Content-Type, Authorization');
@@ -38,15 +47,13 @@ $router->get('/health', function () {
         $install = \App\Database\Installer::ensure();
         \App\Database::connection();
         $payload['database'] = 'connected';
-        $payload['tables'] = \App\Database\Installer::status();
+        $payload['tables'] = $install['tables'] ?? [];
         if (!empty($install['created'])) {
             $payload['tables_created'] = $install['created'];
         }
     } catch (Throwable $e) {
         $payload['database'] = 'error';
-        $payload['database_message'] = Config::get('APP_ENV', 'local') === 'local'
-            ? $e->getMessage()
-            : 'connection failed';
+        $payload['database_message'] = $e->getMessage();
     }
 
     Response::success($payload);
@@ -60,7 +67,7 @@ $router->get('/install', function () {
         Response::success([
             'message' => 'База данных и таблицы проверены',
             'database' => Config::require('DB_NAME'),
-            'tables' => \App\Database\Installer::status(),
+            'tables' => $result['tables'] ?? [],
             'created' => $result['created'] ?? [],
         ]);
     } catch (Throwable $e) {

@@ -7,7 +7,7 @@ use App\Repositories\UserRepository;
 
 $root = dirname(__DIR__);
 
-require $root . '/vendor/autoload.php';
+require $root . '/bootstrap.php';
 Config::load($root);
 
 $name = $argv[1] ?? 'Администратор';

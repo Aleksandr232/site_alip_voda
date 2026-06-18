@@ -12,14 +12,26 @@ require $root . '/vendor/autoload.php';
 Config::load($root);
 
 try {
-    Installer::ensure();
+    $result = Installer::ensure();
     Database::connection();
-    echo "База данных готова: " . Config::require('DB_NAME') . PHP_EOL;
-    echo "Таблица users создана (если её ещё не было)." . PHP_EOL;
+
+    echo 'База данных: ' . Config::require('DB_NAME') . PHP_EOL;
     echo PHP_EOL;
-    echo "Дальше создайте администратора:" . PHP_EOL;
-    echo "  php scripts/seed_admin.php" . PHP_EOL;
-    echo "или зарегистрируйтесь на странице /login" . PHP_EOL;
+
+    $status = Installer::status();
+    foreach ($status as $table => $exists) {
+        echo sprintf("  %-20s %s\n", $table, $exists ? 'OK' : 'НЕТ');
+    }
+
+    if (!empty($result['created'])) {
+        echo PHP_EOL . 'Созданы таблицы: ' . implode(', ', $result['created']) . PHP_EOL;
+    } else {
+        echo PHP_EOL . 'Все таблицы уже существуют.' . PHP_EOL;
+    }
+
+    echo PHP_EOL . 'Создайте администратора:' . PHP_EOL;
+    echo '  php scripts/seed_admin.php' . PHP_EOL;
+    echo '  или зарегистрируйтесь на /login' . PHP_EOL;
 } catch (Throwable $e) {
     fwrite(STDERR, 'Ошибка: ' . $e->getMessage() . PHP_EOL);
     exit(1);

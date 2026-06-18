@@ -1,3 +1,6 @@
+-- Опционально: таблицы создаются автоматически через API (DB_AUTO_INSTALL=true)
+-- Ручной импорт нужен только если автосоздание отключено.
+
 CREATE DATABASE IF NOT EXISTS alip_voda
   CHARACTER SET utf8mb4
   COLLATE utf8mb4_unicode_ci;

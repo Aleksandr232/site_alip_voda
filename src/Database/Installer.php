@@ -10,49 +10,129 @@ use PDOException;
 
 final class Installer
 {
-    public static function ensure(): void
+    /** @var array<string, string> */
+    private static array $tables = [
+        'users' => <<<'SQL'
+CREATE TABLE IF NOT EXISTS users (
+    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(100) NOT NULL,
+    email VARCHAR(255) NOT NULL,
+    password_hash VARCHAR(255) NOT NULL,
+    role ENUM('admin', 'editor') NOT NULL DEFAULT 'editor',
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    UNIQUE KEY uk_users_email (email)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+SQL,
+    ];
+
+    public static function ensure(): array
     {
         if (Config::get('DB_AUTO_INSTALL', 'true') !== 'true') {
-            return;
+            return ['skipped' => true, 'tables' => []];
         }
 
+        $pdo = self::connect();
+        $created = [];
+
+        foreach (self::$tables as $table => $sql) {
+            if (!self::tableExists($pdo, $table)) {
+                $pdo->exec($sql);
+                $created[] = $table;
+                continue;
+            }
+
+            // Таблица есть — на всякий случай применяем IF NOT EXISTS
+            $pdo->exec($sql);
+        }
+
+        return [
+            'skipped' => false,
+            'tables' => array_keys(self::$tables),
+            'created' => $created,
+        ];
+    }
+
+    public static function status(): array
+    {
+        $pdo = self::connect();
+        $tables = [];
+
+        foreach (array_keys(self::$tables) as $table) {
+            $tables[$table] = self::tableExists($pdo, $table);
+        }
+
+        return $tables;
+    }
+
+    private static function connect(): PDO
+    {
         $host = Config::get('DB_HOST', '127.0.0.1');
         $port = Config::get('DB_PORT', '3306');
         $name = Config::require('DB_NAME');
         $user = Config::require('DB_USER');
         $pass = Config::get('DB_PASS', '');
 
-        $serverDsn = sprintf('mysql:host=%s;port=%s;charset=utf8mb4', $host, $port);
-
         try {
-            $pdo = new PDO($serverDsn, $user, $pass, [
-                PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
-            ]);
+            return self::createConnection($host, $port, $name, $user, $pass, true);
         } catch (PDOException $e) {
-            throw new \RuntimeException('Не удалось подключиться к MySQL: ' . $e->getMessage(), 0, $e);
+            if (!self::isUnknownDatabase($e)) {
+                throw new \RuntimeException('Не удалось подключиться к MySQL: ' . $e->getMessage(), 0, $e);
+            }
         }
 
-        $dbName = self::quoteIdentifier($name);
-        $pdo->exec(
-            "CREATE DATABASE IF NOT EXISTS {$dbName}
-             CHARACTER SET utf8mb4
-             COLLATE utf8mb4_unicode_ci"
-        );
+        try {
+            $server = self::createConnection($host, $port, $name, $user, $pass, false);
+            $dbName = self::quoteIdentifier($name);
+            $server->exec(
+                "CREATE DATABASE IF NOT EXISTS {$dbName}
+                 CHARACTER SET utf8mb4
+                 COLLATE utf8mb4_unicode_ci"
+            );
+        } catch (PDOException $e) {
+            throw new \RuntimeException(
+                'База данных не найдена и не удалось создать её автоматически. ' .
+                'Создайте базу в панели хостинга или проверьте DB_NAME в .env. ' .
+                $e->getMessage(),
+                0,
+                $e
+            );
+        }
 
-        $pdo->exec("USE {$dbName}");
+        return self::createConnection($host, $port, $name, $user, $pass, true);
+    }
 
-        $pdo->exec(
-            'CREATE TABLE IF NOT EXISTS users (
-                id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-                name VARCHAR(100) NOT NULL,
-                email VARCHAR(255) NOT NULL,
-                password_hash VARCHAR(255) NOT NULL,
-                role ENUM(\'admin\', \'editor\') NOT NULL DEFAULT \'editor\',
-                created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-                UNIQUE KEY uk_users_email (email)
-            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci'
+    private static function createConnection(
+        string $host,
+        string $port,
+        string $name,
+        string $user,
+        string $pass,
+        bool $withDatabase
+    ): PDO {
+        $dsn = $withDatabase
+            ? sprintf('mysql:host=%s;port=%s;dbname=%s;charset=utf8mb4', $host, $port, $name)
+            : sprintf('mysql:host=%s;port=%s;charset=utf8mb4', $host, $port);
+
+        return new PDO($dsn, $user, $pass, [
+            PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+        ]);
+    }
+
+    private static function tableExists(PDO $pdo, string $table): bool
+    {
+        $stmt = $pdo->prepare(
+            'SELECT COUNT(*) FROM information_schema.tables
+             WHERE table_schema = DATABASE() AND table_name = :table'
         );
+        $stmt->execute(['table' => $table]);
+
+        return (int) $stmt->fetchColumn() > 0;
+    }
+
+    private static function isUnknownDatabase(PDOException $e): bool
+    {
+        return str_contains($e->getMessage(), 'Unknown database');
     }
 
     private static function quoteIdentifier(string $value): string

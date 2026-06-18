@@ -35,9 +35,13 @@ $router->get('/health', function () {
     $payload = ['status' => 'ok', 'php' => PHP_VERSION];
 
     try {
-        \App\Database\Installer::ensure();
+        $install = \App\Database\Installer::ensure();
         \App\Database::connection();
         $payload['database'] = 'connected';
+        $payload['tables'] = \App\Database\Installer::status();
+        if (!empty($install['created'])) {
+            $payload['tables_created'] = $install['created'];
+        }
     } catch (Throwable $e) {
         $payload['database'] = 'error';
         $payload['database_message'] = Config::get('APP_ENV', 'local') === 'local'
@@ -46,6 +50,27 @@ $router->get('/health', function () {
     }
 
     Response::success($payload);
+});
+
+$router->get('/install', function () {
+    try {
+        $result = \App\Database\Installer::ensure();
+        \App\Database::connection();
+
+        Response::success([
+            'message' => 'База данных и таблицы проверены',
+            'database' => Config::require('DB_NAME'),
+            'tables' => \App\Database\Installer::status(),
+            'created' => $result['created'] ?? [],
+        ]);
+    } catch (Throwable $e) {
+        Response::error(
+            Config::get('APP_ENV', 'local') === 'local'
+                ? $e->getMessage()
+                : 'Ошибка установки базы данных',
+            500
+        );
+    }
 });
 
 try {

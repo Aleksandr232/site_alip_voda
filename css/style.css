@@ -513,6 +513,11 @@ h1, h2, h3, p {
   gap: 24px;
 }
 
+.compare-wrap {
+  display: flex;
+  flex-direction: column;
+}
+
 .compare {
   position: relative;
   aspect-ratio: 4 / 3;
@@ -613,11 +618,28 @@ h1, h2, h3, p {
 }
 
 .gallery__note,
+.gallery__loading,
 .partners__note {
   margin-top: 24px;
   font-size: 0.875rem;
   color: var(--text-muted);
   text-align: center;
+}
+
+.compare__caption {
+  margin-top: 12px;
+}
+
+.compare__caption h3 {
+  font-size: 1rem;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+
+.compare__caption p {
+  font-size: 0.875rem;
+  color: var(--text-muted);
+  line-height: 1.5;
 }
 
 .gallery__note code,

@@ -29,6 +29,8 @@
     }
   });
 
+  // Галерея «до/после» загружается из API в js/gallery.js
+
   const form = document.getElementById("contact-form");
   if (form) {
     form.addEventListener("submit", async (e) => {

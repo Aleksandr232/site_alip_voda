@@ -189,39 +189,9 @@
           <h2>До и после наших работ</h2>
           <p class="section__desc">Перетащите ползунок, чтобы сравнить состояние до и после мойки.</p>
         </div>
-        <div class="gallery">
-          <div class="compare" data-compare>
-            <img class="compare__img compare__img--after" src="https://images.unsplash.com/photo-1449824913935-59a10b8d2000?w=900&q=80" alt="Фасад после мойки">
-            <img class="compare__img compare__img--before" src="https://images.unsplash.com/photo-1514565131-fce0801e5785?w=900&q=80" alt="Фасад до мойки">
-            <input type="range" class="compare__slider" min="0" max="100" value="50" aria-label="Сравнение до и после">
-            <div class="compare__handle" aria-hidden="true">
-              <span></span>
-            </div>
-            <span class="compare__label compare__label--before">До</span>
-            <span class="compare__label compare__label--after">После</span>
-          </div>
-          <div class="compare" data-compare>
-            <img class="compare__img compare__img--after" src="https://images.unsplash.com/photo-1497366216548-37526070297c?w=900&q=80" alt="Окна после мойки">
-            <img class="compare__img compare__img--before" src="https://images.unsplash.com/photo-1497366754035-f200968a6e72?w=900&q=80" alt="Окна до мойки">
-            <input type="range" class="compare__slider" min="0" max="100" value="50" aria-label="Сравнение до и после">
-            <div class="compare__handle" aria-hidden="true">
-              <span></span>
-            </div>
-            <span class="compare__label compare__label--before">До</span>
-            <span class="compare__label compare__label--after">После</span>
-          </div>
-          <div class="compare" data-compare>
-            <img class="compare__img compare__img--after" src="https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=900&q=80" alt="Жилой комплекс после мойки">
-            <img class="compare__img compare__img--before" src="https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?w=900&q=80" alt="Жилой комплекс до мойки">
-            <input type="range" class="compare__slider" min="0" max="100" value="50" aria-label="Сравнение до и после">
-            <div class="compare__handle" aria-hidden="true">
-              <span></span>
-            </div>
-            <span class="compare__label compare__label--before">До</span>
-            <span class="compare__label compare__label--after">После</span>
-          </div>
+        <div class="gallery" id="gallery-container">
+          <p class="gallery__loading">Загрузка…</p>
         </div>
-        <p class="gallery__note">* Замените фотографии в папке <code>images/</code> на реальные снимки ваших объектов.</p>
       </div>
     </section>
 
@@ -444,6 +414,7 @@
     </div>
   </footer>
 
-  <script src="js/main.js?v=3"></script>
+  <script src="js/main.js?v=4"></script>
+  <script src="js/gallery.js?v=1"></script>
 </body>
 </html>

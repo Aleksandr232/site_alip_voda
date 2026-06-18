@@ -1,2 +1,4 @@
 /vendor/
 composer.lock
+/uploads/gallery/*
+!/uploads/gallery/.gitkeep

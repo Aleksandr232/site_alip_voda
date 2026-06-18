@@ -49,6 +49,20 @@ CREATE TABLE IF NOT EXISTS requests (
     CONSTRAINT fk_requests_client FOREIGN KEY (client_id) REFERENCES clients (id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
 SQL,
+        'gallery_items' => <<<'SQL'
+CREATE TABLE IF NOT EXISTS gallery_items (
+    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    title VARCHAR(200) NOT NULL,
+    description TEXT NULL,
+    before_image VARCHAR(500) NOT NULL,
+    after_image VARCHAR(500) NOT NULL,
+    sort_order INT UNSIGNED NOT NULL DEFAULT 0,
+    status ENUM('published', 'hidden') NOT NULL DEFAULT 'published',
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    KEY idx_gallery_status_sort (status, sort_order)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+SQL,
     ];
 
     public static function ensure(): array

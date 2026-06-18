@@ -94,6 +94,33 @@ const Auth = (() => {
     return data;
   }
 
+  async function apiUpload(endpoint, formData) {
+    const headers = { Accept: "application/json" };
+    const token = getToken();
+    if (token) {
+      headers.Authorization = `Bearer ${token}`;
+    }
+
+    const response = await fetch(`${apiBase()}${endpoint}`, {
+      method: "POST",
+      headers,
+      body: formData,
+    });
+
+    let data = {};
+    try {
+      data = await response.json();
+    } catch {
+      data = {};
+    }
+
+    if (!response.ok) {
+      throw new Error(data.message || "Ошибка загрузки");
+    }
+
+    return data;
+  }
+
   async function login(email, password, remember = false) {
     const data = await apiRequest("/auth/login", {
       method: "POST",
@@ -318,6 +345,7 @@ const Auth = (() => {
     getUser,
     logout,
     apiRequest,
+    apiUpload,
     apiBase,
   };
 })();

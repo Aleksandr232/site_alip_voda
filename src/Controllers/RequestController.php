@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Controllers;
 
+use App\Config;
 use App\Http\Request;
 use App\Http\Response;
 use App\Services\RequestService;
@@ -35,7 +36,13 @@ final class RequestController
         } catch (InvalidArgumentException $e) {
             Response::error($e->getMessage(), 422);
         } catch (Throwable $e) {
-            Response::error('Не удалось отправить заявку', 500);
+            error_log('Request create failed: ' . $e->getMessage());
+            Response::error(
+                Config::get('APP_ENV', 'local') !== 'production'
+                    ? $e->getMessage()
+                    : 'Не удалось отправить заявку',
+                500
+            );
         }
     }
 

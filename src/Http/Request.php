@@ -62,13 +62,20 @@ final class Request
         $contentType = $_SERVER['CONTENT_TYPE'] ?? $_SERVER['HTTP_CONTENT_TYPE'] ?? '';
         $raw = file_get_contents('php://input') ?: '';
 
-        if (str_contains($contentType, 'application/json')) {
+        $trimmed = ltrim($raw);
+        $looksJson = $trimmed !== '' && ($trimmed[0] === '{' || $trimmed[0] === '[');
+
+        if (str_contains($contentType, 'application/json') || $looksJson) {
             if ($raw === '') {
                 return [];
             }
 
             $decoded = json_decode($raw, true);
-            return is_array($decoded) ? $decoded : [];
+            if (!is_array($decoded)) {
+                return [];
+            }
+
+            return $decoded;
         }
 
         return $_POST;

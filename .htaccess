@@ -1,4 +1,5 @@
 RewriteEngine On
+RewriteBase /
 
 # API
 RewriteRule ^api(?:/(.*))?$ api/index.php [QSA,L]

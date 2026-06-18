@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Services;
 
-use App\Config;
 use App\Models\ServiceRequest;
 use App\Repositories\ClientRepository;
 use App\Repositories\RequestRepository;
@@ -68,9 +67,7 @@ final class RequestService
         try {
             $this->mail->sendNewRequestNotification($request);
         } catch (\Throwable $e) {
-            if (Config::get('APP_ENV', 'local') === 'local') {
-                error_log('Mail error: ' . $e->getMessage());
-            }
+            error_log('Mail error: ' . $e->getMessage());
         }
 
         return $request;

@@ -37,11 +37,19 @@
       const submitBtn = form.querySelector('button[type="submit"]');
       const data = new FormData(form);
       const payload = {
-        name: data.get("name"),
-        phone: data.get("phone"),
-        type: data.get("type"),
-        message: data.get("message"),
+        name: String(data.get("name") || "").trim(),
+        phone: String(data.get("phone") || "").trim(),
+        type: String(data.get("type") || "").trim(),
+        message: String(data.get("message") || "").trim(),
       };
+
+      if (!payload.name || !payload.phone) {
+        alert("Заполните имя и телефон");
+        return;
+      }
+
+      const apiSubmit =
+        document.querySelector('meta[name="api-submit"]')?.content || "/api/requests.php";
 
       if (submitBtn) {
         submitBtn.disabled = true;
@@ -49,8 +57,7 @@
       }
 
       try {
-        const apiUrl = new URL("api/requests", window.location.href).pathname;
-        const response = await fetch(apiUrl, {
+        const response = await fetch(apiSubmit, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -59,10 +66,21 @@
           body: JSON.stringify(payload),
         });
 
-        const result = await response.json().catch(() => ({}));
+        const contentType = response.headers.get("content-type") || "";
+        if (!contentType.includes("application/json")) {
+          throw new Error(
+            "Сервер не ответил JSON. Проверьте, что на хостинг загружены папки api/ и src/, и откройте /api/install"
+          );
+        }
 
-        if (!response.ok) {
-          throw new Error(result.message || "Не удалось отправить заявку");
+        const result = await response.json();
+
+        if (!response.ok || result.success !== true) {
+          throw new Error(result.message || `Ошибка сервера (${response.status})`);
+        }
+
+        if (!result.request?.id) {
+          throw new Error("Заявка не сохранилась на сервере. Откройте /api/install для проверки базы.");
         }
 
         alert(result.message || `Спасибо, ${payload.name}! Заявка принята.`);

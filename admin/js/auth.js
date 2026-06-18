@@ -311,6 +311,8 @@ const Auth = (() => {
     initLogout,
     getUser,
     logout,
+    apiRequest,
+    apiBase,
   };
 })();
 

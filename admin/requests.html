@@ -62,13 +62,13 @@
       <div class="admin-content">
         <div class="admin-toolbar">
           <div class="admin-search">
-            <input type="search" placeholder="Поиск по имени или телефону…">
+            <input type="search" id="requests-search" placeholder="Поиск по имени или телефону…">
           </div>
-          <div class="admin-filters">
-            <button class="blog-filter blog-filter--active" type="button">Все</button>
-            <button class="blog-filter" type="button">Новые</button>
-            <button class="blog-filter" type="button">В работе</button>
-            <button class="blog-filter" type="button">Обработаны</button>
+          <div class="admin-filters" id="requests-filters">
+            <button class="blog-filter blog-filter--active" type="button" data-status="all">Все</button>
+            <button class="blog-filter" type="button" data-status="new">Новые</button>
+            <button class="blog-filter" type="button" data-status="in-progress">В работе</button>
+            <button class="blog-filter" type="button" data-status="done">Обработаны</button>
           </div>
         </div>
 
@@ -87,57 +87,9 @@
                     <th></th>
                   </tr>
                 </thead>
-                <tbody>
+                <tbody id="requests-tbody">
                   <tr>
-                    <td>17.06.2026<br><small style="color:var(--text-muted)">14:32</small></td>
-                    <td><strong>Иван Петров</strong></td>
-                    <td><a href="tel:+79001234567">+7 900 123-45-67</a></td>
-                    <td>Мойка фасада</td>
-                    <td style="max-width:200px;font-size:0.875rem;color:var(--text-muted)">ЖК на Ленина, 24 этажа</td>
-                    <td>
-                      <select style="padding:6px 10px;border-radius:8px;border:1px solid var(--border);font:inherit">
-                        <option selected>Новая</option>
-                        <option>В работе</option>
-                        <option>Обработана</option>
-                      </select>
-                    </td>
-                    <td>
-                      <button class="btn--icon btn--icon-danger" title="Удалить">✕</button>
-                    </td>
-                  </tr>
-                  <tr>
-                    <td>16.06.2026<br><small style="color:var(--text-muted)">10:15</small></td>
-                    <td><strong>Мария Соколова</strong></td>
-                    <td><a href="tel:+79007654321">+7 900 765-43-21</a></td>
-                    <td>Мойка окон</td>
-                    <td style="max-width:200px;font-size:0.875rem;color:var(--text-muted)">Офис, 12 этаж</td>
-                    <td>
-                      <select style="padding:6px 10px;border-radius:8px;border:1px solid var(--border);font:inherit">
-                        <option>Новая</option>
-                        <option selected>В работе</option>
-                        <option>Обработана</option>
-                      </select>
-                    </td>
-                    <td>
-                      <button class="btn--icon btn--icon-danger" title="Удалить">✕</button>
-                    </td>
-                  </tr>
-                  <tr>
-                    <td>15.06.2026<br><small style="color:var(--text-muted)">16:48</small></td>
-                    <td><strong>ООО «Строй»</strong></td>
-                    <td><a href="tel:+74951234567">+7 495 123-45-67</a></td>
-                    <td>Комплекс работ</td>
-                    <td style="max-width:200px;font-size:0.875rem;color:var(--text-muted)">Бизнес-центр, 8000 м²</td>
-                    <td>
-                      <select style="padding:6px 10px;border-radius:8px;border:1px solid var(--border);font:inherit">
-                        <option>Новая</option>
-                        <option>В работе</option>
-                        <option selected>Обработана</option>
-                      </select>
-                    </td>
-                    <td>
-                      <button class="btn--icon btn--icon-danger" title="Удалить">✕</button>
-                    </td>
+                    <td colspan="7" style="text-align:center;padding:32px;color:var(--text-muted)">Загрузка…</td>
                   </tr>
                 </tbody>
               </table>
@@ -148,7 +100,8 @@
     </div>
   </div>
 
-  <script src="js/auth.js"></script>
-  <script src="js/admin.js"></script>
+  <script src="../admin/js/auth.js"></script>
+  <script src="../admin/js/admin.js"></script>
+  <script src="../admin/js/requests.js"></script>
 </body>
 </html>

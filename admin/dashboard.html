@@ -24,7 +24,7 @@
         <div class="admin-nav__group">
           <p class="admin-nav__label">Главное</p>
           <a href="dashboard" class="is-active"><span class="admin-nav__icon">◫</span> Дашборд</a>
-          <a href="requests"><span class="admin-nav__icon">✉</span> Заявки <span class="badge badge--primary" style="margin-left:auto">3</span></a>
+          <a href="requests"><span class="admin-nav__icon">✉</span> Заявки <span class="badge badge--primary" id="nav-requests-badge" style="margin-left:auto" hidden>0</span></a>
         </div>
         <div class="admin-nav__group">
           <p class="admin-nav__label">Контент</p>
@@ -66,8 +66,13 @@
         <div class="stats-grid">
           <div class="stat-card">
             <p class="stat-card__label">Новые заявки</p>
-            <p class="stat-card__value">3</p>
-            <p class="stat-card__change">+2 за сегодня</p>
+            <p class="stat-card__value" id="stat-new-requests">—</p>
+            <p class="stat-card__change">С сайта</p>
+          </div>
+          <div class="stat-card">
+            <p class="stat-card__label">Клиенты</p>
+            <p class="stat-card__value" id="stat-clients">—</p>
+            <p class="stat-card__change">В базе</p>
           </div>
           <div class="stat-card">
             <p class="stat-card__label">Статьи в блоге</p>
@@ -103,24 +108,9 @@
                       <th>Статус</th>
                     </tr>
                   </thead>
-                  <tbody>
+                  <tbody id="dashboard-requests-tbody">
                     <tr>
-                      <td>Иван Петров</td>
-                      <td>Мойка фасада</td>
-                      <td>17.06.2026</td>
-                      <td><span class="badge badge--warning">Новая</span></td>
-                    </tr>
-                    <tr>
-                      <td>Мария Соколова</td>
-                      <td>Мойка окон</td>
-                      <td>16.06.2026</td>
-                      <td><span class="badge badge--primary">В работе</span></td>
-                    </tr>
-                    <tr>
-                      <td>ООО «Строй»</td>
-                      <td>Комплекс работ</td>
-                      <td>15.06.2026</td>
-                      <td><span class="badge badge--success">Обработана</span></td>
+                      <td colspan="4" style="text-align:center;padding:24px;color:var(--text-muted)">Загрузка…</td>
                     </tr>
                   </tbody>
                 </table>
@@ -148,5 +138,6 @@
 
   <script src="../admin/js/auth.js"></script>
   <script src="../admin/js/admin.js"></script>
+  <script src="../admin/js/dashboard.js"></script>
 </body>
 </html>

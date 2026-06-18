@@ -31,12 +31,50 @@
 
   const form = document.getElementById("contact-form");
   if (form) {
-    form.addEventListener("submit", (e) => {
+    form.addEventListener("submit", async (e) => {
       e.preventDefault();
+
+      const submitBtn = form.querySelector('button[type="submit"]');
       const data = new FormData(form);
-      const name = data.get("name");
-      alert(`Спасибо, ${name}! Заявка принята. Мы свяжемся с вами в ближайшее время.`);
-      form.reset();
+      const payload = {
+        name: data.get("name"),
+        phone: data.get("phone"),
+        type: data.get("type"),
+        message: data.get("message"),
+      };
+
+      if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.textContent = "Отправка…";
+      }
+
+      try {
+        const apiUrl = new URL("api/requests", window.location.href).pathname;
+        const response = await fetch(apiUrl, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Accept: "application/json",
+          },
+          body: JSON.stringify(payload),
+        });
+
+        const result = await response.json().catch(() => ({}));
+
+        if (!response.ok) {
+          throw new Error(result.message || "Не удалось отправить заявку");
+        }
+
+        alert(result.message || `Спасибо, ${payload.name}! Заявка принята.`);
+        form.reset();
+      } catch (error) {
+        alert(error.message || "Ошибка отправки. Попробуйте позже или позвоните нам.");
+      } finally {
+        if (submitBtn) {
+          submitBtn.disabled = false;
+          submitBtn.textContent = "Отправить заявку";
+        }
+      }
     });
   }
 

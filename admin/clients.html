@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="api-base" content="/api">
-  <title>Заявки — СкайКлин Admin</title>
+  <title>Клиенты — СкайКлин Admin</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -25,19 +25,19 @@
         <div class="admin-nav__group">
           <p class="admin-nav__label">Главное</p>
           <a href="dashboard"><span class="admin-nav__icon">◫</span> Дашборд</a>
-          <a href="requests" class="is-active"><span class="admin-nav__icon">✉</span> Заявки</a>
-          <a href="clients"><span class="admin-nav__icon">👤</span> Клиенты</a>
+          <a href="requests"><span class="admin-nav__icon">✉</span> Заявки</a>
+          <a href="clients" class="is-active"><span class="admin-nav__icon">👤</span> Клиенты</a>
         </div>
         <div class="admin-nav__group">
           <p class="admin-nav__label">Контент</p>
           <a href="posts"><span class="admin-nav__icon">📝</span> Блог</a>
           <a href="reviews"><span class="admin-nav__icon">★</span> Отзывы</a>
           <a href="gallery"><span class="admin-nav__icon">🖼</span> До и после</a>
-          <a href="partners.html"><span class="admin-nav__icon">🤝</span> Партнёры</a>
+          <a href="partners"><span class="admin-nav__icon">🤝</span> Партнёры</a>
         </div>
         <div class="admin-nav__group">
           <p class="admin-nav__label">Система</p>
-          <a href="settings.html"><span class="admin-nav__icon">⚙</span> Настройки</a>
+          <a href="settings"><span class="admin-nav__icon">⚙</span> Настройки</a>
           <a href="../" target="_blank"><span class="admin-nav__icon">↗</span> Открыть сайт</a>
         </div>
       </nav>
@@ -57,20 +57,14 @@
       <header class="admin-topbar">
         <div class="admin-topbar__left">
           <button class="admin-burger" id="admin-burger" aria-label="Меню"><span></span><span></span><span></span></button>
-          <h1>Заявки с сайта</h1>
+          <h1>Клиенты</h1>
         </div>
       </header>
 
       <div class="admin-content">
         <div class="admin-toolbar">
           <div class="admin-search">
-            <input type="search" id="requests-search" placeholder="Поиск по имени или телефону…">
-          </div>
-          <div class="admin-filters" id="requests-filters">
-            <button class="blog-filter blog-filter--active" type="button" data-status="all">Все</button>
-            <button class="blog-filter" type="button" data-status="new">Новые</button>
-            <button class="blog-filter" type="button" data-status="in-progress">В работе</button>
-            <button class="blog-filter" type="button" data-status="done">Обработаны</button>
+            <input type="search" id="clients-search" placeholder="Поиск по имени, телефону или email…">
           </div>
         </div>
 
@@ -80,18 +74,16 @@
               <table class="admin-table">
                 <thead>
                   <tr>
-                    <th>Дата</th>
-                    <th>Клиент</th>
+                    <th>Имя</th>
                     <th>Телефон</th>
-                    <th>Услуга</th>
-                    <th>Комментарий</th>
-                    <th>Статус</th>
-                    <th></th>
+                    <th>Email</th>
+                    <th>Добавлен</th>
+                    <th>Заявок</th>
                   </tr>
                 </thead>
-                <tbody id="requests-tbody">
+                <tbody id="clients-tbody">
                   <tr>
-                    <td colspan="7" style="text-align:center;padding:32px;color:var(--text-muted)">Загрузка…</td>
+                    <td colspan="5" style="text-align:center;padding:32px;color:var(--text-muted)">Загрузка…</td>
                   </tr>
                 </tbody>
               </table>
@@ -104,6 +96,6 @@
 
   <script src="/admin/js/auth.js?v=4"></script>
   <script src="/admin/js/admin.js?v=4"></script>
-  <script src="/admin/js/requests.js?v=4"></script>
+  <script src="/admin/js/clients.js?v=4"></script>
 </body>
 </html>

@@ -20,7 +20,7 @@
     if (!newCountEl && !tbody) return;
 
     try {
-      const data = await Auth.apiRequest("/requests/stats");
+      const data = await Auth.apiRequest("/requests.php?stats=1");
       const stats = data.stats || {};
 
       if (newCountEl) newCountEl.textContent = String(stats.new ?? 0);
@@ -33,7 +33,7 @@
       }
 
       if (tbody) {
-        const list = await Auth.apiRequest("/requests");
+        const list = await Auth.apiRequest("/requests.php");
         const items = (list.requests || []).slice(0, 5);
 
         if (!items.length) {

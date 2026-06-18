@@ -26,10 +26,11 @@ final class MailService
         }
 
         $fromName = Config::get('MAIL_FROM_NAME', 'СкайКлин');
-        $subject = 'Новая заявка с сайта — ' . $request->serviceLabel;
+        $subject = 'Новая заявка: ' . $request->serviceLabel . ' — ' . $request->clientName;
 
-        $body = $this->buildBody($request);
-        $this->send($from, $fromName, $recipients, $subject, $body);
+        $textBody = $this->buildTextBody($request);
+        $htmlBody = $this->buildHtmlBody($request);
+        $this->send($from, $fromName, $recipients, $subject, $textBody, $htmlBody);
     }
 
     /** @return string[] */
@@ -46,7 +47,7 @@ final class MailService
         ), static fn (string $email) => filter_var($email, FILTER_VALIDATE_EMAIL)));
     }
 
-    private function buildBody(ServiceRequest $request): string
+    private function buildTextBody(ServiceRequest $request): string
     {
         $lines = [
             'Поступила новая заявка с сайта СкайКлин.',
@@ -57,15 +58,54 @@ final class MailService
             'Комментарий: ' . ($request->message ?: '—'),
             '',
             'Дата: ' . $request->createdAt,
-            'ID заявки: ' . $request->id,
+            'Номер заявки: #' . $request->id,
         ];
 
         return implode("\n", $lines);
     }
 
-    /** @param string[] $to */
-    private function send(string $from, string $fromName, array $to, string $subject, string $body): void
+    private function buildHtmlBody(ServiceRequest $request): string
     {
+        $name = htmlspecialchars($request->clientName, ENT_QUOTES, 'UTF-8');
+        $phone = htmlspecialchars($request->clientPhone, ENT_QUOTES, 'UTF-8');
+        $service = htmlspecialchars($request->serviceLabel, ENT_QUOTES, 'UTF-8');
+        $message = htmlspecialchars($request->message ?: '—', ENT_QUOTES, 'UTF-8');
+        $date = htmlspecialchars($request->createdAt, ENT_QUOTES, 'UTF-8');
+
+        return <<<HTML
+<!DOCTYPE html>
+<html lang="ru">
+<body style="margin:0;padding:20px;font-family:Arial,sans-serif;background:#f5f7fa;color:#1a1a1a">
+  <table width="100%" cellpadding="0" cellspacing="0" style="max-width:560px;margin:0 auto;background:#fff;border-radius:12px;border:1px solid #e5e7eb">
+    <tr>
+      <td style="padding:24px 28px">
+        <h2 style="margin:0 0 16px;font-size:20px">Новая заявка с сайта</h2>
+        <p style="margin:0 0 20px;color:#6b7280">СкайКлин — уведомление для администратора</p>
+        <table width="100%" cellpadding="0" cellspacing="0" style="font-size:15px;line-height:1.6">
+          <tr><td style="padding:8px 0;color:#6b7280;width:120px">Клиент</td><td style="padding:8px 0"><strong>{$name}</strong></td></tr>
+          <tr><td style="padding:8px 0;color:#6b7280">Телефон</td><td style="padding:8px 0"><a href="tel:{$phone}" style="color:#2563eb">{$phone}</a></td></tr>
+          <tr><td style="padding:8px 0;color:#6b7280">Услуга</td><td style="padding:8px 0">{$service}</td></tr>
+          <tr><td style="padding:8px 0;color:#6b7280;vertical-align:top">Комментарий</td><td style="padding:8px 0">{$message}</td></tr>
+          <tr><td style="padding:8px 0;color:#6b7280">Дата</td><td style="padding:8px 0">{$date}</td></tr>
+          <tr><td style="padding:8px 0;color:#6b7280">Заявка</td><td style="padding:8px 0">#{$request->id}</td></tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>
+HTML;
+    }
+
+    /** @param string[] $to */
+    private function send(
+        string $from,
+        string $fromName,
+        array $to,
+        string $subject,
+        string $textBody,
+        string $htmlBody
+    ): void {
         $host = Config::require('MAIL_HOST');
         $port = (int) Config::get('MAIL_PORT', '465');
         $username = Config::require('MAIL_USERNAME');
@@ -91,7 +131,7 @@ final class MailService
 
         try {
             $this->expect($socket, 220);
-            $this->command($socket, 'EHLO ' . $this->hostname());
+            $this->command($socket, 'EHLO ' . $this->ehloDomain($from));
             $this->expect($socket, 250);
 
             $this->command($socket, 'AUTH LOGIN');
@@ -112,18 +152,38 @@ final class MailService
             $this->command($socket, 'DATA');
             $this->expect($socket, 354);
 
-            $encodedSubject = '=?UTF-8?B?' . base64_encode($subject) . '?=';
-            $encodedFromName = '=?UTF-8?B?' . base64_encode($fromName) . '?=';
-            $message = implode("\r\n", [
+            $boundary = 'skyclin_' . bin2hex(random_bytes(8));
+            $domain = $this->ehloDomain($from);
+            $messageId = sprintf('<%s@%s>', bin2hex(random_bytes(12)), $domain);
+            $date = gmdate('D, d M Y H:i:s') . ' +0000';
+
+            $encodedSubject = $this->encodeHeader($subject);
+            $encodedFromName = $this->encodeHeader($fromName);
+
+            $headers = [
+                'Date: ' . $date,
+                'Message-ID: ' . $messageId,
                 'From: ' . $encodedFromName . ' <' . $from . '>',
                 'To: ' . implode(', ', $to),
+                'Reply-To: ' . $from,
                 'Subject: ' . $encodedSubject,
                 'MIME-Version: 1.0',
-                'Content-Type: text/plain; charset=UTF-8',
-                'Content-Transfer-Encoding: 8bit',
-                '',
-                $this->dotStuff($body),
-            ]) . "\r\n.";
+                'Content-Type: multipart/alternative; boundary="' . $boundary . '"',
+                'Auto-Submitted: auto-generated',
+                'X-Auto-Response-Suppress: All',
+            ];
+
+            $body = "--{$boundary}\r\n"
+                . "Content-Type: text/plain; charset=UTF-8\r\n"
+                . "Content-Transfer-Encoding: quoted-printable\r\n\r\n"
+                . $this->quotedPrintable($textBody) . "\r\n"
+                . "--{$boundary}\r\n"
+                . "Content-Type: text/html; charset=UTF-8\r\n"
+                . "Content-Transfer-Encoding: quoted-printable\r\n\r\n"
+                . $this->quotedPrintable($htmlBody) . "\r\n"
+                . "--{$boundary}--";
+
+            $message = implode("\r\n", $headers) . "\r\n\r\n" . $body . "\r\n.";
 
             fwrite($socket, $message . "\r\n");
             $this->expect($socket, 250);
@@ -135,9 +195,32 @@ final class MailService
         }
     }
 
-    private function hostname(): string
+    private function ehloDomain(string $from): string
     {
+        $configured = Config::get('MAIL_EHLO_DOMAIN');
+        if ($configured) {
+            return $configured;
+        }
+
+        if (str_contains($from, '@')) {
+            return substr($from, strpos($from, '@') + 1);
+        }
+
         return $_SERVER['SERVER_NAME'] ?? 'localhost';
+    }
+
+    private function encodeHeader(string $value): string
+    {
+        return '=?UTF-8?B?' . base64_encode($value) . '?=';
+    }
+
+    private function quotedPrintable(string $text): string
+    {
+        if (function_exists('quoted_printable_encode')) {
+            return quoted_printable_encode($text);
+        }
+
+        return $text;
     }
 
     private function command($socket, string $line): void
@@ -158,20 +241,5 @@ final class MailService
         if (!str_starts_with($response, (string) $code)) {
             throw new \RuntimeException('SMTP error: ' . trim($response));
         }
-    }
-
-    private function dotStuff(string $text): string
-    {
-        $lines = preg_split("/\r\n|\n|\r/", $text) ?: [];
-        $result = [];
-
-        foreach ($lines as $line) {
-            if (str_starts_with($line, '.')) {
-                $line = '.' . $line;
-            }
-            $result[] = $line;
-        }
-
-        return implode("\r\n", $result);
     }
 }

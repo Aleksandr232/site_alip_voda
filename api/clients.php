@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 use App\Config;
-use App\Controllers\RequestController;
+use App\Controllers\ClientController;
 use App\Http\Request;
 use App\Http\Response;
 
@@ -25,7 +25,7 @@ try {
 header('Content-Type: application/json; charset=utf-8');
 header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Headers: Content-Type, Authorization');
-header('Access-Control-Allow-Methods: GET, POST, OPTIONS');
+header('Access-Control-Allow-Methods: GET, OPTIONS');
 
 $method = strtoupper($_SERVER['REQUEST_METHOD'] ?? 'GET');
 
@@ -34,39 +34,19 @@ if ($method === 'OPTIONS') {
     exit;
 }
 
-$controller = new RequestController();
-$request = Request::fromGlobals();
+if ($method !== 'GET') {
+    Response::error('Используйте GET', 405);
+    exit;
+}
 
 try {
-    if ($method === 'GET') {
-        if (isset($_GET['stats'])) {
-            $controller->stats($request);
-        } else {
-            $controller->list($request);
-        }
-        exit;
-    }
-
-    if ($method === 'POST') {
-        $action = (string) ($request->body['action'] ?? '');
-
-        if ($action === 'update') {
-            $controller->updateStatus($request);
-        } elseif ($action === 'delete') {
-            $controller->delete($request);
-        } else {
-            $controller->create($request);
-        }
-        exit;
-    }
-
-    Response::error('Метод не поддерживается', 405);
+    (new ClientController())->list(Request::fromGlobals());
 } catch (Throwable $e) {
-    error_log('api/requests.php: ' . $e->getMessage());
+    error_log('api/clients.php: ' . $e->getMessage());
     Response::error(
         Config::get('APP_ENV', 'local') !== 'production'
             ? $e->getMessage()
-            : 'Ошибка API заявок',
+            : 'Ошибка загрузки клиентов',
         500
     );
 }

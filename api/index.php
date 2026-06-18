@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use App\Config;
 use App\Controllers\AuthController;
+use App\Controllers\ClientController;
 use App\Controllers\RequestController;
 use App\Http\Request;
 use App\Http\Response;
@@ -36,6 +37,7 @@ if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'OPTIONS') {
 $request = Request::fromGlobals();
 $auth = new AuthController();
 $requests = new RequestController();
+$clients = new ClientController();
 $router = new Router();
 
 $router->post('/auth/register', fn (Request $req) => $auth->register($req));
@@ -47,6 +49,7 @@ $router->get('/requests', fn (Request $req) => $requests->list($req));
 $router->get('/requests/stats', fn (Request $req) => $requests->stats($req));
 $router->post('/requests/update', fn (Request $req) => $requests->updateStatus($req));
 $router->post('/requests/delete', fn (Request $req) => $requests->delete($req));
+$router->get('/clients', fn (Request $req) => $clients->list($req));
 $router->get('/health', function () {
     $payload = ['status' => 'ok', 'php' => PHP_VERSION];
 

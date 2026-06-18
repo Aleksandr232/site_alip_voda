@@ -101,23 +101,23 @@
 
   async function loadRequests() {
     const query = currentFilter ? `?status=${encodeURIComponent(currentFilter)}` : "";
-    const data = await Auth.apiRequest(`/requests${query}`);
+    const data = await Auth.apiRequest(`/requests.php${query}`);
     allRequests = data.requests || [];
     applyFilters();
   }
 
   async function updateStatus(id, status) {
-    await Auth.apiRequest("/requests/update", {
+    await Auth.apiRequest("/requests.php", {
       method: "POST",
-      body: JSON.stringify({ id, status }),
+      body: JSON.stringify({ action: "update", id, status }),
     });
   }
 
   async function deleteRequest(id) {
     if (!confirm("Удалить эту заявку?")) return;
-    await Auth.apiRequest("/requests/delete", {
+    await Auth.apiRequest("/requests.php", {
       method: "POST",
-      body: JSON.stringify({ id }),
+      body: JSON.stringify({ action: "delete", id }),
     });
     allRequests = allRequests.filter((item) => item.id !== id);
     applyFilters();

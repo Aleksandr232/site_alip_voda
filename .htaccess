@@ -1,6 +1,10 @@
 RewriteEngine On
 RewriteBase /
 
+# Передаём Authorization в PHP (нужно для JWT на Apache)
+RewriteCond %{HTTP:Authorization} .
+RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
+
 # API
 RewriteRule ^api(?:/(.*))?$ api/index.php [QSA,L]
 
@@ -17,6 +21,7 @@ RewriteRule ^article/?$ blog-article.html [L]
 RewriteRule ^login/?$ admin/login.php [L]
 RewriteRule ^dashboard/?$ admin/dashboard.html [L]
 RewriteRule ^requests/?$ admin/requests.html [L]
+RewriteRule ^clients/?$ admin/clients.html [L]
 RewriteRule ^posts/?$ admin/blog.html [L]
 RewriteRule ^reviews/?$ admin/reviews.html [L]
 RewriteRule ^gallery/?$ admin/gallery.html [L]
@@ -27,6 +32,7 @@ RewriteRule ^settings/?$ admin/settings.html [L]
 RewriteRule ^admin/login\.(php|html)$ login [R=301,L]
 RewriteRule ^admin/dashboard\.html$ dashboard [R=301,L]
 RewriteRule ^admin/requests\.html$ requests [R=301,L]
+RewriteRule ^admin/clients\.html$ clients [R=301,L]
 RewriteRule ^admin/blog\.html$ posts [R=301,L]
 RewriteRule ^admin/reviews\.html$ reviews [R=301,L]
 RewriteRule ^admin/gallery\.html$ gallery [R=301,L]

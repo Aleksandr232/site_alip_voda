@@ -6,6 +6,7 @@ const Auth = (() => {
   const ADMIN_PAGES = new Set([
     "dashboard",
     "requests",
+    "clients",
     "posts",
     "reviews",
     "gallery",
@@ -20,7 +21,12 @@ const Auth = (() => {
   }
 
   function apiBase() {
-    return new URL("../api", window.location.href).pathname.replace(/\/$/, "");
+    const meta = document.querySelector('meta[name="api-base"]')?.content;
+    if (meta) {
+      return meta.replace(/\/$/, "");
+    }
+
+    return new URL("/api", window.location.origin).pathname.replace(/\/$/, "");
   }
 
   function getToken() {

@@ -61,6 +61,34 @@ final class ClientRepository
         return (int) Database::connection()->query('SELECT COUNT(*) FROM clients')->fetchColumn();
     }
 
+    /** @return array<int, array<string, mixed>> */
+    public function allWithStats(): array
+    {
+        $stmt = Database::connection()->query(
+            'SELECT c.id, c.name, c.phone, c.email, c.created_at, c.updated_at,
+                    COUNT(r.id) AS requests_count
+             FROM clients c
+             LEFT JOIN requests r ON r.client_id = c.id
+             GROUP BY c.id, c.name, c.phone, c.email, c.created_at, c.updated_at
+             ORDER BY c.updated_at DESC'
+        );
+
+        $rows = [];
+        foreach ($stmt->fetchAll() as $row) {
+            $rows[] = [
+                'id' => (int) $row['id'],
+                'name' => $row['name'],
+                'phone' => $row['phone'],
+                'email' => $row['email'],
+                'created_at' => $row['created_at'],
+                'updated_at' => $row['updated_at'],
+                'requests_count' => (int) $row['requests_count'],
+            ];
+        }
+
+        return $rows;
+    }
+
     private function map(array $row): Client
     {
         return new Client(

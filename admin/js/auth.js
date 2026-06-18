@@ -200,22 +200,43 @@ const Auth = (() => {
     const title = document.getElementById("auth-title");
     const subtitle = document.getElementById("auth-subtitle");
 
+    function setActiveTab(mode) {
+      const isLogin = mode === "login";
+
+      tabs.forEach((tab) => {
+        tab.classList.toggle("auth-tab--active", tab.getAttribute("data-auth-tab") === mode);
+      });
+
+      if (loginForm) {
+        loginForm.hidden = !isLogin;
+        loginForm.classList.toggle("auth-form--active", isLogin);
+      }
+
+      if (registerForm) {
+        registerForm.hidden = isLogin;
+        registerForm.classList.toggle("auth-form--active", !isLogin);
+      }
+
+      if (title) {
+        title.textContent = isLogin ? "Вход в админ-панель" : "Регистрация";
+      }
+
+      if (subtitle) {
+        subtitle.textContent = isLogin
+          ? "Управление контентом сайта"
+          : "Первый пользователь получит роль администратора";
+      }
+
+      showError("");
+    }
+
     tabs.forEach((tab) => {
       tab.addEventListener("click", () => {
-        const mode = tab.getAttribute("data-auth-tab");
-        tabs.forEach((t) => t.classList.toggle("auth-tab--active", t === tab));
-        const isLogin = mode === "login";
-        loginForm.hidden = !isLogin;
-        registerForm.hidden = isLogin;
-        if (title) title.textContent = isLogin ? "Вход в админ-панель" : "Регистрация";
-        if (subtitle) {
-          subtitle.textContent = isLogin
-            ? "Управление контентом сайта"
-            : "Первый пользователь получит роль администратора";
-        }
-        showError("");
+        setActiveTab(tab.getAttribute("data-auth-tab"));
       });
     });
+
+    setActiveTab("login");
 
     if (loginForm) {
       loginForm.addEventListener("submit", async (e) => {

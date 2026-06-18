@@ -27,7 +27,7 @@
 
       <p class="auth-error" id="auth-error" hidden></p>
 
-      <form class="login-form" id="login-form">
+      <form class="login-form auth-form auth-form--active" id="login-form" data-auth-panel="login">
         <label>
           <span>Email</span>
           <input type="email" name="email" required placeholder="admin@alip-voda.ru" autocomplete="username">
@@ -45,7 +45,7 @@
         <button type="submit" class="btn btn--primary btn--full" id="auth-submit">Войти</button>
       </form>
 
-      <form class="login-form" id="register-form" hidden>
+      <form class="login-form auth-form" id="register-form" data-auth-panel="register" hidden>
         <label>
           <span>Имя</span>
           <input type="text" name="name" required placeholder="Иван Иванов" autocomplete="name">

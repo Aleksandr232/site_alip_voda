@@ -74,6 +74,10 @@ body.admin-body {
   gap: 18px;
 }
 
+.login-form[hidden] {
+  display: none !important;
+}
+
 .login-form label span {
   display: block;
   margin-bottom: 8px;

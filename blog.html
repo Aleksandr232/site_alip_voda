@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Блог Алип Вода: статьи о мойке фасадов, окон, альпинистских работах и технологиях очистки.">
+  <title>Блог — Алип Вода</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <header class="header" id="top">
+    <div class="container header__inner">
+      <a href="index.html" class="logo">
+        <span class="logo__icon" aria-hidden="true">▲</span>
+        <span class="logo__text">Алип<span>Вода</span></span>
+      </a>
+      <nav class="nav" id="nav">
+        <a href="index.html#services">Услуги</a>
+        <a href="index.html#technology">Технологии</a>
+        <a href="index.html#before-after">До и после</a>
+        <a href="index.html#reviews">Отзывы</a>
+        <a href="index.html#partners">Партнёры</a>
+        <a href="blog.html" class="nav__active">Блог</a>
+        <a href="index.html#contact" class="nav__cta">Заказать</a>
+      </nav>
+      <button class="burger" id="burger" aria-label="Открыть меню" aria-expanded="false">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+    </div>
+  </header>
+
+  <main>
+    <section class="page-hero">
+      <div class="container page-hero__inner">
+        <p class="section__label">Блог</p>
+        <h1>Статьи о мойке, фасадах и работе на высоте</h1>
+        <p class="page-hero__lead">Практические советы, разбор технологий и кейсы с реальных объектов.</p>
+      </div>
+    </section>
+
+    <section class="section section--compact">
+      <div class="container">
+        <div class="blog-filters">
+          <button class="blog-filter blog-filter--active" type="button">Все</button>
+          <button class="blog-filter" type="button">Технологии</button>
+          <button class="blog-filter" type="button">Альпинизм</button>
+          <button class="blog-filter" type="button">Кейсы</button>
+          <button class="blog-filter" type="button">Советы</button>
+        </div>
+
+        <div class="blog-grid">
+          <article class="blog-card blog-card--large">
+            <a href="blog-article.html" class="blog-card__image">
+              <img src="https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=800&q=80" alt="Мойка окон обратным осмосом">
+            </a>
+            <div class="blog-card__body">
+              <div class="blog-card__meta">
+                <span class="blog-card__tag">Технологии</span>
+                <time class="blog-card__date" datetime="2026-03-10">10 марта 2026</time>
+              </div>
+              <h2><a href="blog-article.html">Почему обратный осмос лучше обычной воды для мойки окон</a></h2>
+              <p>Разбираем, как деминерализованная вода убирает разводы и почему после неё стекло дольше остаётся чистым.</p>
+              <a href="blog-article.html" class="blog-card__link">Читать статью →</a>
+            </div>
+          </article>
+
+          <article class="blog-card">
+            <a href="blog-article.html" class="blog-card__image">
+              <img src="https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=600&q=80" alt="Альпинисты на фасаде">
+            </a>
+            <div class="blog-card__body">
+              <div class="blog-card__meta">
+                <span class="blog-card__tag">Альпинизм</span>
+                <time class="blog-card__date" datetime="2026-02-18">18 февраля 2026</time>
+              </div>
+              <h3><a href="blog-article.html">Когда выгоднее альпинисты, а не автовышка</a></h3>
+              <p>Сравниваем стоимость, сроки и безопасность двух способов доступа на высоту.</p>
+              <a href="blog-article.html" class="blog-card__link">Читать →</a>
+            </div>
+          </article>
+
+          <article class="blog-card">
+            <a href="blog-article.html" class="blog-card__image">
+              <img src="https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=600&q=80" alt="Бизнес-центр">
+            </a>
+            <div class="blog-card__body">
+              <div class="blog-card__meta">
+                <span class="blog-card__tag">Кейсы</span>
+                <time class="blog-card__date" datetime="2026-01-25">25 января 2026</time>
+              </div>
+              <h3><a href="blog-article.html">Кейс: мойка 18-этажного бизнес-центра за 3 дня</a></h3>
+              <p>Как мы спланировали работы, чтобы не мешать арендаторам и уложиться в срок.</p>
+              <a href="blog-article.html" class="blog-card__link">Читать →</a>
+            </div>
+          </article>
+
+          <article class="blog-card">
+            <a href="blog-article.html" class="blog-card__image">
+              <img src="https://images.unsplash.com/photo-1628177142898-93e36e4e3a50?w=600&q=80" alt="Мойка высокого давления">
+            </a>
+            <div class="blog-card__body">
+              <div class="blog-card__meta">
+                <span class="blog-card__tag">Технологии</span>
+                <time class="blog-card__date" datetime="2025-12-08">8 декабря 2025</time>
+              </div>
+              <h3><a href="blog-article.html">Мойка высокого давления: что нужно знать о фасадах</a></h3>
+              <p>Какое давление подходит для стекла, композита и керамогранита — без повреждений.</p>
+              <a href="blog-article.html" class="blog-card__link">Читать →</a>
+            </div>
+          </article>
+
+          <article class="blog-card">
+            <a href="blog-article.html" class="blog-card__image">
+              <img src="https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=600&q=80" alt="Жилой комплекс">
+            </a>
+            <div class="blog-card__body">
+              <div class="blog-card__meta">
+                <span class="blog-card__tag">Советы</span>
+                <time class="blog-card__date" datetime="2025-11-14">14 ноября 2025</time>
+              </div>
+              <h3><a href="blog-article.html">Как часто мыть фасад жилого комплекса</a></h3>
+              <p>Рекомендации для УК: сезонность, тип загрязнений и оптимальный график обслуживания.</p>
+              <a href="blog-article.html" class="blog-card__link">Читать →</a>
+            </div>
+          </article>
+
+          <article class="blog-card">
+            <a href="blog-article.html" class="blog-card__image">
+              <img src="https://images.unsplash.com/photo-1497366216548-37526070297c?w=600&q=80" alt="Офисные окна">
+            </a>
+            <div class="blog-card__body">
+              <div class="blog-card__meta">
+                <span class="blog-card__tag">Советы</span>
+                <time class="blog-card__date" datetime="2025-10-02">2 октября 2025</time>
+              </div>
+              <h3><a href="blog-article.html">5 признаков, что пора мыть остекление офиса</a></h3>
+              <p>На что обратить внимание до того, как грязь станет заметна арендаторам и гостям.</p>
+              <a href="blog-article.html" class="blog-card__link">Читать →</a>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section section--alt section--compact">
+      <div class="container cta-banner">
+        <div class="cta-banner__content">
+          <h2>Нужна консультация по вашему объекту?</h2>
+          <p>Расскажем, какой метод мойки подойдёт именно вам — бесплатно и без обязательств.</p>
+        </div>
+        <a href="index.html#contact" class="btn btn--primary">Оставить заявку</a>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="container footer__inner">
+      <a href="index.html" class="logo logo--footer">
+        <span class="logo__icon" aria-hidden="true">▲</span>
+        <span class="logo__text">Алип<span>Вода</span></span>
+      </a>
+      <p>© 2026 Алип Вода. Мойка фасадов и окон альпинистами.</p>
+      <div class="footer__links">
+        <a href="blog.html">Блог</a>
+        <a href="index.html#contact">Контакты</a>
+      </div>
+      <a href="#top" class="footer__top">Наверх ↑</a>
+    </div>
+  </footer>
+
+  <script src="js/main.js"></script>
+</body>
+</html>

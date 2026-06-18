@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Блог — Алип Вода Admin</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/style.css">
+  <link rel="stylesheet" href="../admin/css/admin.css">
+</head>
+<body class="admin-body">
+  <div class="admin-layout">
+    <aside class="admin-sidebar" id="admin-sidebar">
+      <div class="admin-sidebar__head">
+        <a href="dashboard" class="admin-sidebar__logo">
+          <span class="logo__icon" aria-hidden="true">▲</span>
+          Алип<span>Вода</span>
+        </a>
+        <span class="admin-sidebar__badge">Админ-панель</span>
+      </div>
+      <nav class="admin-nav">
+        <div class="admin-nav__group">
+          <p class="admin-nav__label">Главное</p>
+          <a href="dashboard"><span class="admin-nav__icon">◫</span> Дашборд</a>
+          <a href="requests"><span class="admin-nav__icon">✉</span> Заявки</a>
+        </div>
+        <div class="admin-nav__group">
+          <p class="admin-nav__label">Контент</p>
+          <a href="posts" class="is-active"><span class="admin-nav__icon">📝</span> Блог</a>
+          <a href="reviews"><span class="admin-nav__icon">★</span> Отзывы</a>
+          <a href="gallery"><span class="admin-nav__icon">🖼</span> До и после</a>
+          <a href="partners"><span class="admin-nav__icon">🤝</span> Партнёры</a>
+        </div>
+        <div class="admin-nav__group">
+          <p class="admin-nav__label">Система</p>
+          <a href="settings"><span class="admin-nav__icon">⚙</span> Настройки</a>
+          <a href="../" target="_blank"><span class="admin-nav__icon">↗</span> Открыть сайт</a>
+        </div>
+      </nav>
+      <div class="admin-sidebar__foot">
+        <div class="admin-sidebar__user">
+          <div class="admin-sidebar__avatar">АД</div>
+          <div>
+            <p class="admin-sidebar__name">Администратор</p>
+            <p class="admin-sidebar__role">admin@alip-voda.ru</p>
+          </div>
+        </div>
+        <a href="login" class="admin-sidebar__logout">Выйти</a>
+      </div>
+    </aside>
+
+    <div class="admin-main">
+      <header class="admin-topbar">
+        <div class="admin-topbar__left">
+          <button class="admin-burger" id="admin-burger" aria-label="Меню"><span></span><span></span><span></span></button>
+          <h1>Блог</h1>
+        </div>
+        <div class="admin-topbar__actions">
+          <button class="btn btn--primary btn--sm" data-modal-open="modal-blog">+ Новая статья</button>
+        </div>
+      </header>
+
+      <div class="admin-content">
+        <div class="admin-toolbar">
+          <div class="admin-search">
+            <input type="search" placeholder="Поиск статей…">
+          </div>
+          <div class="admin-filters">
+            <button class="blog-filter blog-filter--active" type="button">Все</button>
+            <button class="blog-filter" type="button">Опубликовано</button>
+            <button class="blog-filter" type="button">Черновик</button>
+          </div>
+        </div>
+
+        <div class="admin-panel">
+          <div class="admin-panel__body admin-panel__body--flush">
+            <div class="admin-table-wrap">
+              <table class="admin-table">
+                <thead>
+                  <tr>
+                    <th>Статья</th>
+                    <th>Категория</th>
+                    <th>Дата</th>
+                    <th>Статус</th>
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>
+                      <strong>Почему обратный осмос лучше обычной воды</strong>
+                    </td>
+                    <td>Технологии</td>
+                    <td>10.03.2026</td>
+                    <td><span class="badge badge--success">Опубликовано</span></td>
+                    <td>
+                      <div class="admin-table__actions">
+                        <button class="btn--icon" title="Редактировать" data-modal-open="modal-blog">✎</button>
+                        <button class="btn--icon btn--icon-danger" title="Удалить">✕</button>
+                      </div>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td><strong>Когда выгоднее альпинисты, а не автовышка</strong></td>
+                    <td>Альпинизм</td>
+                    <td>18.02.2026</td>
+                    <td><span class="badge badge--success">Опубликовано</span></td>
+                    <td>
+                      <div class="admin-table__actions">
+                        <button class="btn--icon" title="Редактировать" data-modal-open="modal-blog">✎</button>
+                        <button class="btn--icon btn--icon-danger" title="Удалить">✕</button>
+                      </div>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td><strong>Кейс: мойка 18-этажного бизнес-центра</strong></td>
+                    <td>Кейсы</td>
+                    <td>25.01.2026</td>
+                    <td><span class="badge badge--muted">Черновик</span></td>
+                    <td>
+                      <div class="admin-table__actions">
+                        <button class="btn--icon" title="Редактировать" data-modal-open="modal-blog">✎</button>
+                        <button class="btn--icon btn--icon-danger" title="Удалить">✕</button>
+                      </div>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="admin-modal-overlay" id="modal-blog">
+    <div class="admin-modal">
+      <div class="admin-modal__head">
+        <h2>Новая статья</h2>
+        <button class="admin-modal__close" data-modal-close aria-label="Закрыть">×</button>
+      </div>
+      <form class="admin-form" data-demo-submit>
+        <label>
+          <span>Заголовок</span>
+          <input type="text" name="title" required placeholder="Название статьи">
+        </label>
+        <div class="admin-form__row">
+          <label>
+            <span>Категория</span>
+            <select name="category">
+              <option>Технологии</option>
+              <option>Альпинизм</option>
+              <option>Кейсы</option>
+              <option>Советы</option>
+            </select>
+          </label>
+          <label>
+            <span>Статус</span>
+            <select name="status">
+              <option value="published">Опубликовано</option>
+              <option value="draft">Черновик</option>
+            </select>
+          </label>
+        </div>
+        <label>
+          <span>Обложка</span>
+          <input type="file" name="image" accept="image/*">
+          <p class="admin-form__hint">JPG, PNG до 5 МБ</p>
+        </label>
+        <label>
+          <span>Краткое описание</span>
+          <textarea name="excerpt" rows="2" placeholder="Текст для карточки в списке"></textarea>
+        </label>
+        <label>
+          <span>Текст статьи</span>
+          <textarea name="content" rows="8" placeholder="Полный текст статьи…"></textarea>
+        </label>
+        <div class="admin-form__actions">
+          <button type="submit" class="btn btn--primary">Сохранить</button>
+          <button type="button" class="btn btn--ghost" data-modal-close>Отмена</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="../admin/js/auth.js"></script>
+  <script src="../admin/js/admin.js"></script>
+</body>
+</html>

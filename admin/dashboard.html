@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Дашборд — Алип Вода Admin</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/style.css">
+  <link rel="stylesheet" href="../admin/css/admin.css">
+</head>
+<body class="admin-body">
+  <div class="admin-layout">
+    <aside class="admin-sidebar" id="admin-sidebar">
+      <div class="admin-sidebar__head">
+        <a href="dashboard" class="admin-sidebar__logo">
+          <span class="logo__icon" aria-hidden="true">▲</span>
+          Алип<span>Вода</span>
+        </a>
+        <span class="admin-sidebar__badge">Админ-панель</span>
+      </div>
+      <nav class="admin-nav">
+        <div class="admin-nav__group">
+          <p class="admin-nav__label">Главное</p>
+          <a href="dashboard" class="is-active"><span class="admin-nav__icon">◫</span> Дашборд</a>
+          <a href="requests"><span class="admin-nav__icon">✉</span> Заявки <span class="badge badge--primary" style="margin-left:auto">3</span></a>
+        </div>
+        <div class="admin-nav__group">
+          <p class="admin-nav__label">Контент</p>
+          <a href="posts"><span class="admin-nav__icon">📝</span> Блог</a>
+          <a href="reviews"><span class="admin-nav__icon">★</span> Отзывы</a>
+          <a href="gallery"><span class="admin-nav__icon">🖼</span> До и после</a>
+          <a href="partners"><span class="admin-nav__icon">🤝</span> Партнёры</a>
+        </div>
+        <div class="admin-nav__group">
+          <p class="admin-nav__label">Система</p>
+          <a href="settings"><span class="admin-nav__icon">⚙</span> Настройки</a>
+          <a href="../" target="_blank"><span class="admin-nav__icon">↗</span> Открыть сайт</a>
+        </div>
+      </nav>
+      <div class="admin-sidebar__foot">
+        <div class="admin-sidebar__user">
+          <div class="admin-sidebar__avatar">АД</div>
+          <div>
+            <p class="admin-sidebar__name">Администратор</p>
+            <p class="admin-sidebar__role">admin@alip-voda.ru</p>
+          </div>
+        </div>
+        <a href="login" class="admin-sidebar__logout">Выйти</a>
+      </div>
+    </aside>
+
+    <div class="admin-main">
+      <header class="admin-topbar">
+        <div class="admin-topbar__left">
+          <button class="admin-burger" id="admin-burger" aria-label="Меню"><span></span><span></span><span></span></button>
+          <h1>Дашборд</h1>
+        </div>
+        <div class="admin-topbar__actions">
+          <a href="../" class="btn btn--ghost btn--sm" target="_blank">Смотреть сайт</a>
+        </div>
+      </header>
+
+      <div class="admin-content">
+        <div class="stats-grid">
+          <div class="stat-card">
+            <p class="stat-card__label">Новые заявки</p>
+            <p class="stat-card__value">3</p>
+            <p class="stat-card__change">+2 за сегодня</p>
+          </div>
+          <div class="stat-card">
+            <p class="stat-card__label">Статьи в блоге</p>
+            <p class="stat-card__value">6</p>
+            <p class="stat-card__change">Опубликовано</p>
+          </div>
+          <div class="stat-card">
+            <p class="stat-card__label">Отзывы</p>
+            <p class="stat-card__value">4</p>
+            <p class="stat-card__change">На главной</p>
+          </div>
+          <div class="stat-card">
+            <p class="stat-card__label">Фото до/после</p>
+            <p class="stat-card__value">3</p>
+            <p class="stat-card__change">В галерее</p>
+          </div>
+        </div>
+
+        <div class="admin-grid">
+          <div class="admin-panel">
+            <div class="admin-panel__head">
+              <h2>Последние заявки</h2>
+              <a href="requests" class="btn btn--ghost btn--sm">Все заявки</a>
+            </div>
+            <div class="admin-panel__body admin-panel__body--flush">
+              <div class="admin-table-wrap">
+                <table class="admin-table">
+                  <thead>
+                    <tr>
+                      <th>Имя</th>
+                      <th>Услуга</th>
+                      <th>Дата</th>
+                      <th>Статус</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>Иван Петров</td>
+                      <td>Мойка фасада</td>
+                      <td>17.06.2026</td>
+                      <td><span class="badge badge--warning">Новая</span></td>
+                    </tr>
+                    <tr>
+                      <td>Мария Соколова</td>
+                      <td>Мойка окон</td>
+                      <td>16.06.2026</td>
+                      <td><span class="badge badge--primary">В работе</span></td>
+                    </tr>
+                    <tr>
+                      <td>ООО «Строй»</td>
+                      <td>Комплекс работ</td>
+                      <td>15.06.2026</td>
+                      <td><span class="badge badge--success">Обработана</span></td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <div class="admin-panel">
+            <div class="admin-panel__head">
+              <h2>Быстрые действия</h2>
+            </div>
+            <div class="admin-panel__body">
+              <div style="display:grid;gap:12px">
+                <a href="posts" class="btn btn--ghost btn--full" style="justify-content:flex-start">+ Добавить статью</a>
+                <a href="reviews" class="btn btn--ghost btn--full" style="justify-content:flex-start">+ Добавить отзыв</a>
+                <a href="gallery" class="btn btn--ghost btn--full" style="justify-content:flex-start">+ Загрузить фото до/после</a>
+                <a href="partners" class="btn btn--ghost btn--full" style="justify-content:flex-start">+ Добавить партнёра</a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="../admin/js/auth.js"></script>
+  <script src="../admin/js/admin.js"></script>
+</body>
+</html>

@@ -1,0 +1,37 @@
+RewriteEngine On
+
+# API
+RewriteRule ^api(?:/(.*))?$ api/index.php [QSA,L]
+
+# Статические файлы и папки — не трогаем
+RewriteCond %{REQUEST_FILENAME} -f [OR]
+RewriteCond %{REQUEST_FILENAME} -d
+RewriteRule ^ - [L]
+
+# Чистые URL
+RewriteRule ^$ index.html [L]
+RewriteRule ^blog/?$ blog.html [L]
+RewriteRule ^article/?$ blog-article.html [L]
+
+RewriteRule ^login/?$ admin/login.php [L]
+RewriteRule ^dashboard/?$ admin/dashboard.html [L]
+RewriteRule ^requests/?$ admin/requests.html [L]
+RewriteRule ^posts/?$ admin/blog.html [L]
+RewriteRule ^reviews/?$ admin/reviews.html [L]
+RewriteRule ^gallery/?$ admin/gallery.html [L]
+RewriteRule ^partners/?$ admin/partners.html [L]
+RewriteRule ^settings/?$ admin/settings.html [L]
+
+# Редиректы со старых адресов
+RewriteRule ^admin/login\.(php|html)$ login [R=301,L]
+RewriteRule ^admin/dashboard\.html$ dashboard [R=301,L]
+RewriteRule ^admin/requests\.html$ requests [R=301,L]
+RewriteRule ^admin/blog\.html$ posts [R=301,L]
+RewriteRule ^admin/reviews\.html$ reviews [R=301,L]
+RewriteRule ^admin/gallery\.html$ gallery [R=301,L]
+RewriteRule ^admin/partners\.html$ partners [R=301,L]
+RewriteRule ^admin/settings\.html$ settings [R=301,L]
+RewriteRule ^admin/?$ login [R=301,L]
+RewriteRule ^index\.html$ / [R=301,L]
+RewriteRule ^blog\.html$ blog [R=301,L]
+RewriteRule ^blog-article\.html$ article [R=301,L]

@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>До и после — Алип Вода Admin</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/style.css">
+  <link rel="stylesheet" href="../admin/css/admin.css">
+</head>
+<body class="admin-body">
+  <div class="admin-layout">
+    <aside class="admin-sidebar" id="admin-sidebar">
+      <div class="admin-sidebar__head">
+        <a href="dashboard" class="admin-sidebar__logo">
+          <span class="logo__icon" aria-hidden="true">▲</span>
+          Алип<span>Вода</span>
+        </a>
+        <span class="admin-sidebar__badge">Админ-панель</span>
+      </div>
+      <nav class="admin-nav">
+        <div class="admin-nav__group">
+          <p class="admin-nav__label">Главное</p>
+          <a href="dashboard"><span class="admin-nav__icon">◫</span> Дашборд</a>
+          <a href="requests"><span class="admin-nav__icon">✉</span> Заявки</a>
+        </div>
+        <div class="admin-nav__group">
+          <p class="admin-nav__label">Контент</p>
+          <a href="posts"><span class="admin-nav__icon">📝</span> Блог</a>
+          <a href="reviews"><span class="admin-nav__icon">★</span> Отзывы</a>
+          <a href="gallery" class="is-active"><span class="admin-nav__icon">🖼</span> До и после</a>
+          <a href="partners"><span class="admin-nav__icon">🤝</span> Партнёры</a>
+        </div>
+        <div class="admin-nav__group">
+          <p class="admin-nav__label">Система</p>
+          <a href="settings"><span class="admin-nav__icon">⚙</span> Настройки</a>
+          <a href="../" target="_blank"><span class="admin-nav__icon">↗</span> Открыть сайт</a>
+        </div>
+      </nav>
+      <div class="admin-sidebar__foot">
+        <div class="admin-sidebar__user">
+          <div class="admin-sidebar__avatar">АД</div>
+          <div>
+            <p class="admin-sidebar__name">Администратор</p>
+            <p class="admin-sidebar__role">admin@alip-voda.ru</p>
+          </div>
+        </div>
+        <a href="login" class="admin-sidebar__logout">Выйти</a>
+      </div>
+    </aside>
+
+    <div class="admin-main">
+      <header class="admin-topbar">
+        <div class="admin-topbar__left">
+          <button class="admin-burger" id="admin-burger" aria-label="Меню"><span></span><span></span><span></span></button>
+          <h1>До и после</h1>
+        </div>
+        <div class="admin-topbar__actions">
+          <button class="btn btn--primary btn--sm" data-modal-open="modal-gallery">+ Добавить пару фото</button>
+        </div>
+      </header>
+
+      <div class="admin-content">
+        <div class="admin-cards">
+          <article class="admin-item-card">
+            <div class="admin-item-card__image">
+              <img src="https://images.unsplash.com/photo-1449824913935-59a10b8d2000?w=400&q=80" alt="Фасад после">
+            </div>
+            <div class="admin-item-card__body">
+              <h3>Мойка фасада ЖК</h3>
+              <p class="admin-item-card__meta">Порядок: 1 · Опубликовано</p>
+              <div class="admin-item-card__actions">
+                <button class="btn btn--ghost btn--sm" data-modal-open="modal-gallery">Изменить</button>
+                <button class="btn btn--danger btn--sm">Удалить</button>
+              </div>
+            </div>
+          </article>
+          <article class="admin-item-card">
+            <div class="admin-item-card__image">
+              <img src="https://images.unsplash.com/photo-1497366216548-37526070297c?w=400&q=80" alt="Окна после">
+            </div>
+            <div class="admin-item-card__body">
+              <h3>Остекление бизнес-центра</h3>
+              <p class="admin-item-card__meta">Порядок: 2 · Опубликовано</p>
+              <div class="admin-item-card__actions">
+                <button class="btn btn--ghost btn--sm" data-modal-open="modal-gallery">Изменить</button>
+                <button class="btn btn--danger btn--sm">Удалить</button>
+              </div>
+            </div>
+          </article>
+          <article class="admin-item-card">
+            <div class="admin-item-card__image">
+              <img src="https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=400&q=80" alt="ЖК после">
+            </div>
+            <div class="admin-item-card__body">
+              <h3>Жилой комплекс</h3>
+              <p class="admin-item-card__meta">Порядок: 3 · Опубликовано</p>
+              <div class="admin-item-card__actions">
+                <button class="btn btn--ghost btn--sm" data-modal-open="modal-gallery">Изменить</button>
+                <button class="btn btn--danger btn--sm">Удалить</button>
+              </div>
+            </div>
+          </article>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="admin-modal-overlay" id="modal-gallery">
+    <div class="admin-modal">
+      <div class="admin-modal__head">
+        <h2>Пара фото «До / После»</h2>
+        <button class="admin-modal__close" data-modal-close>×</button>
+      </div>
+      <form class="admin-form" data-demo-submit>
+        <label>
+          <span>Название объекта</span>
+          <input type="text" name="title" required placeholder="Мойка фасада ЖК">
+        </label>
+        <div class="admin-form__row">
+          <label>
+            <span>Фото «До»</span>
+            <input type="file" name="before" accept="image/*" required>
+          </label>
+          <label>
+            <span>Фото «После»</span>
+            <input type="file" name="after" accept="image/*" required>
+          </label>
+        </div>
+        <div class="admin-form__row">
+          <label>
+            <span>Порядок на сайте</span>
+            <input type="number" name="sort" value="1" min="1">
+          </label>
+          <label>
+            <span>Статус</span>
+            <select name="status">
+              <option value="published">Опубликовано</option>
+              <option value="hidden">Скрыто</option>
+            </select>
+          </label>
+        </div>
+        <div class="admin-form__actions">
+          <button type="submit" class="btn btn--primary">Сохранить</button>
+          <button type="button" class="btn btn--ghost" data-modal-close>Отмена</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="../admin/js/auth.js"></script>
+  <script src="../admin/js/admin.js"></script>
+</body>
+</html>

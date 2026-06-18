@@ -1,0 +1,99 @@
+<?php
+
+declare(strict_types=1);
+
+namespace App\Http;
+
+final class Request
+{
+    public function __construct(
+        public readonly string $method,
+        public readonly string $path,
+        public readonly array $body,
+        public readonly array $headers,
+    ) {
+    }
+
+    public static function fromGlobals(): self
+    {
+        $method = strtoupper($_SERVER['REQUEST_METHOD'] ?? 'GET');
+        $path = self::resolvePath();
+        $body = self::parseBody($method);
+        $headers = self::parseHeaders();
+
+        return new self($method, $path, $body, $headers);
+    }
+
+    public function bearerToken(): ?string
+    {
+        $auth = $this->headers['authorization'] ?? $this->headers['Authorization'] ?? '';
+        if (preg_match('/Bearer\s+(\S+)/i', $auth, $matches)) {
+            return $matches[1];
+        }
+
+        return null;
+    }
+
+    private static function resolvePath(): string
+    {
+        $uri = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH) ?: '/';
+
+        if (str_starts_with($uri, '/api')) {
+            $uri = substr($uri, 4) ?: '/';
+        } else {
+            $scriptDir = rtrim(str_replace('\\', '/', dirname($_SERVER['SCRIPT_NAME'] ?? '')), '/');
+            if ($scriptDir !== '' && $scriptDir !== '/' && str_starts_with($uri, $scriptDir)) {
+                $uri = substr($uri, strlen($scriptDir)) ?: '/';
+            }
+        }
+
+        $uri = '/' . trim($uri, '/');
+        return $uri === '/' ? '/' : rtrim($uri, '/');
+    }
+
+    private static function parseBody(string $method): array
+    {
+        if (!in_array($method, ['POST', 'PUT', 'PATCH', 'DELETE'], true)) {
+            return [];
+        }
+
+        $contentType = $_SERVER['CONTENT_TYPE'] ?? $_SERVER['HTTP_CONTENT_TYPE'] ?? '';
+        $raw = file_get_contents('php://input') ?: '';
+
+        if (str_contains($contentType, 'application/json')) {
+            if ($raw === '') {
+                return [];
+            }
+
+            $decoded = json_decode($raw, true);
+            return is_array($decoded) ? $decoded : [];
+        }
+
+        return $_POST;
+    }
+
+    private static function parseHeaders(): array
+    {
+        $headers = [];
+        foreach ($_SERVER as $key => $value) {
+            if (str_starts_with($key, 'HTTP_')) {
+                $name = strtolower(str_replace('_', '-', substr($key, 5)));
+                $headers[$name] = $value;
+            }
+        }
+
+        if (isset($_SERVER['CONTENT_TYPE'])) {
+            $headers['content-type'] = $_SERVER['CONTENT_TYPE'];
+        }
+
+        if (isset($_SERVER['AUTHORIZATION'])) {
+            $headers['authorization'] = $_SERVER['AUTHORIZATION'];
+        } elseif (function_exists('getallheaders')) {
+            foreach (getallheaders() as $name => $value) {
+                $headers[strtolower($name)] = $value;
+            }
+        }
+
+        return $headers;
+    }
+}

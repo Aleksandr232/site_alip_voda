@@ -21,6 +21,10 @@
     return status === "published" ? "На сайте" : "Скрыт";
   }
 
+  function displayUrl(url) {
+    return String(url).replace(/^https?:\/\//, "");
+  }
+
   function openModal(item = null) {
     editingId = item?.id ?? null;
 
@@ -71,7 +75,7 @@
           </div>
         </td>
         <td><strong>${escapeHtml(item.name)}</strong></td>
-        <td>${item.website ? `<a href="${escapeHtml(item.website)}" target="_blank" rel="noopener">${escapeHtml(item.website.replace(/^https?:\\/\\//, ""))}</a>` : "—"}</td>
+        <td>${item.website ? `<a href="${escapeHtml(item.website)}" target="_blank" rel="noopener">${escapeHtml(displayUrl(item.website))}</a>` : "—"}</td>
         <td>${item.sort_order}</td>
         <td>${statusLabel(item.status)}</td>
         <td>

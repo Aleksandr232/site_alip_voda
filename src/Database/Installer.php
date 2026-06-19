@@ -63,6 +63,23 @@ CREATE TABLE IF NOT EXISTS gallery_items (
     KEY idx_gallery_status_sort (status, sort_order)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
 SQL,
+        'blog_posts' => <<<'SQL'
+CREATE TABLE IF NOT EXISTS blog_posts (
+    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    title VARCHAR(255) NOT NULL,
+    slug VARCHAR(255) NOT NULL,
+    description TEXT NULL,
+    keywords VARCHAR(500) NULL,
+    content MEDIUMTEXT NULL,
+    cover_image VARCHAR(500) NULL,
+    video_path VARCHAR(500) NULL,
+    status ENUM('published', 'draft') NOT NULL DEFAULT 'draft',
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    UNIQUE KEY uk_blog_slug (slug),
+    KEY idx_blog_status (status)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+SQL,
     ];
 
     public static function ensure(): array

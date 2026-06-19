@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="api-base" content="/api">
   <title>Блог — СкайКлин Admin</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -25,6 +26,7 @@
           <p class="admin-nav__label">Главное</p>
           <a href="dashboard"><span class="admin-nav__icon">◫</span> Дашборд</a>
           <a href="requests"><span class="admin-nav__icon">✉</span> Заявки</a>
+          <a href="clients"><span class="admin-nav__icon">👤</span> Клиенты</a>
         </div>
         <div class="admin-nav__group">
           <p class="admin-nav__label">Контент</p>
@@ -58,22 +60,11 @@
           <h1>Блог</h1>
         </div>
         <div class="admin-topbar__actions">
-          <button class="btn btn--primary btn--sm" data-modal-open="modal-blog">+ Новая статья</button>
+          <button class="btn btn--primary btn--sm" type="button" data-posts-open>+ Новая статья</button>
         </div>
       </header>
 
       <div class="admin-content">
-        <div class="admin-toolbar">
-          <div class="admin-search">
-            <input type="search" placeholder="Поиск статей…">
-          </div>
-          <div class="admin-filters">
-            <button class="blog-filter blog-filter--active" type="button">Все</button>
-            <button class="blog-filter" type="button">Опубликовано</button>
-            <button class="blog-filter" type="button">Черновик</button>
-          </div>
-        </div>
-
         <div class="admin-panel">
           <div class="admin-panel__body admin-panel__body--flush">
             <div class="admin-table-wrap">
@@ -81,50 +72,15 @@
                 <thead>
                   <tr>
                     <th>Статья</th>
-                    <th>Категория</th>
+                    <th>Slug</th>
                     <th>Дата</th>
                     <th>Статус</th>
                     <th></th>
                   </tr>
                 </thead>
-                <tbody>
+                <tbody id="posts-tbody">
                   <tr>
-                    <td>
-                      <strong>Почему обратный осмос лучше обычной воды</strong>
-                    </td>
-                    <td>Технологии</td>
-                    <td>10.03.2026</td>
-                    <td><span class="badge badge--success">Опубликовано</span></td>
-                    <td>
-                      <div class="admin-table__actions">
-                        <button class="btn--icon" title="Редактировать" data-modal-open="modal-blog">✎</button>
-                        <button class="btn--icon btn--icon-danger" title="Удалить">✕</button>
-                      </div>
-                    </td>
-                  </tr>
-                  <tr>
-                    <td><strong>Когда выгоднее альпинисты, а не автовышка</strong></td>
-                    <td>Альпинизм</td>
-                    <td>18.02.2026</td>
-                    <td><span class="badge badge--success">Опубликовано</span></td>
-                    <td>
-                      <div class="admin-table__actions">
-                        <button class="btn--icon" title="Редактировать" data-modal-open="modal-blog">✎</button>
-                        <button class="btn--icon btn--icon-danger" title="Удалить">✕</button>
-                      </div>
-                    </td>
-                  </tr>
-                  <tr>
-                    <td><strong>Кейс: мойка 18-этажного бизнес-центра</strong></td>
-                    <td>Кейсы</td>
-                    <td>25.01.2026</td>
-                    <td><span class="badge badge--muted">Черновик</span></td>
-                    <td>
-                      <div class="admin-table__actions">
-                        <button class="btn--icon" title="Редактировать" data-modal-open="modal-blog">✎</button>
-                        <button class="btn--icon btn--icon-danger" title="Удалить">✕</button>
-                      </div>
-                    </td>
+                    <td colspan="5" style="text-align:center;padding:32px;color:var(--text-muted)">Загрузка…</td>
                   </tr>
                 </tbody>
               </table>
@@ -136,46 +92,55 @@
   </div>
 
   <div class="admin-modal-overlay" id="modal-blog">
-    <div class="admin-modal">
+    <div class="admin-modal admin-modal--wide">
       <div class="admin-modal__head">
-        <h2>Новая статья</h2>
-        <button class="admin-modal__close" data-modal-close aria-label="Закрыть">×</button>
+        <h2 id="posts-modal-title">Новая статья</h2>
+        <button class="admin-modal__close" type="button" data-modal-close aria-label="Закрыть">×</button>
       </div>
-      <form class="admin-form" data-demo-submit>
+      <form class="admin-form" id="posts-form">
+        <input type="hidden" name="remove_video" value="0">
         <label>
-          <span>Заголовок</span>
-          <input type="text" name="title" required placeholder="Название статьи">
+          <span>Заголовок (title)</span>
+          <input type="text" id="posts-title" name="title" required placeholder="Название статьи">
+        </label>
+        <label>
+          <span>URL (slug)</span>
+          <input type="text" id="posts-slug" name="slug" placeholder="автоматически-из-заголовка">
+          <p class="admin-form__hint">Заполняется автоматически из заголовка. Можно изменить вручную.</p>
+        </label>
+        <label>
+          <span>Описание (description)</span>
+          <textarea name="description" rows="2" placeholder="Краткое описание для карточки и SEO"></textarea>
+        </label>
+        <label>
+          <span>Ключевые слова (keywords)</span>
+          <input type="text" name="keywords" placeholder="мойка фасада, альпинизм, обратный осмос">
         </label>
         <div class="admin-form__row">
           <label>
-            <span>Категория</span>
-            <select name="category">
-              <option>Технологии</option>
-              <option>Альпинизм</option>
-              <option>Кейсы</option>
-              <option>Советы</option>
-            </select>
+            <span>Обложка (изображение)</span>
+            <input type="file" name="cover" accept="image/jpeg,image/png,image/webp,image/gif">
+            <div class="admin-upload-preview" id="posts-cover-preview"></div>
           </label>
           <label>
-            <span>Статус</span>
-            <select name="status">
-              <option value="published">Опубликовано</option>
-              <option value="draft">Черновик</option>
-            </select>
+            <span>Видео</span>
+            <input type="file" name="video" accept="video/mp4,video/webm,video/quicktime">
+            <div class="admin-upload-preview" id="posts-video-preview"></div>
+            <div id="posts-remove-video-wrap" hidden>
+              <button type="button" class="btn btn--ghost btn--sm" id="posts-remove-video">Удалить видео</button>
+            </div>
           </label>
         </div>
         <label>
-          <span>Обложка</span>
-          <input type="file" name="image" accept="image/*">
-          <p class="admin-form__hint">JPG, PNG до 5 МБ</p>
-        </label>
-        <label>
-          <span>Краткое описание</span>
-          <textarea name="excerpt" rows="2" placeholder="Текст для карточки в списке"></textarea>
-        </label>
-        <label>
           <span>Текст статьи</span>
-          <textarea name="content" rows="8" placeholder="Полный текст статьи…"></textarea>
+          <textarea name="content" rows="10" placeholder="Полный текст статьи. Можно использовать HTML: &lt;p&gt;, &lt;h2&gt;, &lt;ul&gt;, &lt;img&gt;…"></textarea>
+        </label>
+        <label>
+          <span>Статус</span>
+          <select name="status">
+            <option value="draft">Черновик</option>
+            <option value="published">Опубликовано</option>
+          </select>
         </label>
         <div class="admin-form__actions">
           <button type="submit" class="btn btn--primary">Сохранить</button>
@@ -185,7 +150,8 @@
     </div>
   </div>
 
-  <script src="../admin/js/auth.js"></script>
-  <script src="../admin/js/admin.js"></script>
+  <script src="/admin/js/auth.js?v=6"></script>
+  <script src="/admin/js/admin.js?v=6"></script>
+  <script src="/admin/js/posts.js?v=6"></script>
 </body>
 </html>

@@ -2,3 +2,7 @@
 composer.lock
 /uploads/gallery/*
 !/uploads/gallery/.gitkeep
+/uploads/blog/images/*
+!/uploads/blog/images/.gitkeep
+/uploads/blog/videos/*
+!/uploads/blog/videos/.gitkeep

@@ -6,3 +6,5 @@ composer.lock
 !/uploads/blog/images/.gitkeep
 /uploads/blog/videos/*
 !/uploads/blog/videos/.gitkeep
+/uploads/partners/*
+!/uploads/partners/.gitkeep

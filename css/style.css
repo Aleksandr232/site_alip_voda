@@ -677,10 +677,18 @@ h1, h2, h3, p {
 }
 
 .partner-card__logo {
-  font-weight: 800;
-  font-size: 0.9375rem;
-  color: var(--text);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-height: 64px;
   margin-bottom: 8px;
+}
+
+.partner-card__logo img {
+  max-width: 100%;
+  max-height: 64px;
+  object-fit: contain;
 }
 
 .partner-card p {

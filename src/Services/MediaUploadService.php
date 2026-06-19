@@ -36,6 +36,16 @@ final class MediaUploadService
         );
     }
 
+    public static function partnerLogo(string $projectRoot): self
+    {
+        return new self(
+            $projectRoot . DIRECTORY_SEPARATOR . 'uploads' . DIRECTORY_SEPARATOR . 'partners',
+            '/uploads/partners/',
+            ['image/jpeg' => 'jpg', 'image/png' => 'png', 'image/webp' => 'webp', 'image/gif' => 'gif', 'image/svg+xml' => 'svg'],
+            2_097_152,
+        );
+    }
+
     /** @param array<string, mixed> $file */
     public function store(array $file, string $prefix = ''): string
     {

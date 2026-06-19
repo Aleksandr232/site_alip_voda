@@ -5,7 +5,8 @@ RewriteBase /
 RewriteCond %{HTTP:Authorization} .
 RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
 
-# API
+# API: прямые PHP-файлы (partners.php, gallery.php…) — отдаём как есть, остальное — роутер
+RewriteCond %{REQUEST_FILENAME} !-f
 RewriteRule ^api(?:/(.*))?$ api/index.php [QSA,L]
 
 # Статические файлы и папки — не трогаем

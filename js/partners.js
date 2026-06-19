@@ -7,10 +7,14 @@
       .replace(/"/g, "&quot;");
   }
 
+  function partnersApiUrl() {
+    return document.querySelector('meta[name="api-partners"]')?.content || "/api/partners.php";
+  }
+
   function renderPartner(partner) {
     const inner = `
       <div class="partner-card__logo">
-        <img src="${escapeHtml(partner.logo_image)}" alt="${escapeHtml(partner.name)}">
+        <img src="${escapeHtml(partner.logo_image)}" alt="${escapeHtml(partner.name)}" loading="lazy">
       </div>
       <p>${escapeHtml(partner.name)}</p>
     `;
@@ -31,7 +35,7 @@
     if (!container) return;
 
     try {
-      const response = await fetch("/api/partners.php", {
+      const response = await fetch(partnersApiUrl(), {
         headers: { Accept: "application/json" },
       });
       const data = await response.json();
@@ -40,7 +44,7 @@
         throw new Error(data.message || "Ошибка загрузки");
       }
 
-      const partners = data.partners || [];
+      const partners = (data.partners || []).filter((item) => item.status !== "hidden");
 
       if (!partners.length) {
         container.innerHTML = '<p class="partners__note">Партнёры скоро появятся.</p>';

@@ -39,6 +39,7 @@ final class PartnerService
     public function create(array $input, array $files): Partner
     {
         $name = trim((string) ($input['name'] ?? ''));
+        $website = $this->normalizeWebsite($input['website'] ?? null);
         $sortOrder = max(0, (int) ($input['sort_order'] ?? $input['sort'] ?? 0));
         $status = $this->normalizeStatus((string) ($input['status'] ?? 'published'));
 
@@ -54,7 +55,7 @@ final class PartnerService
         $logoPath = $this->uploader->store($logoFile, 'logo_');
 
         try {
-            return $this->partners->create($name, $logoPath, $sortOrder, $status);
+            return $this->partners->create($name, $website, $logoPath, $sortOrder, $status);
         } catch (\Throwable $e) {
             $this->uploader->deleteByPublicPath($logoPath);
             throw $e;
@@ -70,6 +71,9 @@ final class PartnerService
         }
 
         $name = trim((string) ($input['name'] ?? $existing->name));
+        $website = array_key_exists('website', $input)
+            ? $this->normalizeWebsite($input['website'])
+            : $existing->website;
         $sortOrder = isset($input['sort_order']) || isset($input['sort'])
             ? max(0, (int) ($input['sort_order'] ?? $input['sort']))
             : $existing->sortOrder;
@@ -90,7 +94,7 @@ final class PartnerService
             $oldLogo = $existing->logoImage;
         }
 
-        $partner = $this->partners->update($id, $name, $logoPath, $sortOrder, $status);
+        $partner = $this->partners->update($id, $name, $website, $logoPath, $sortOrder, $status);
         if (!$partner) {
             throw new \RuntimeException('Не удалось обновить партнёра');
         }
@@ -118,5 +122,27 @@ final class PartnerService
         }
 
         return $status;
+    }
+
+    private function normalizeWebsite(mixed $value): ?string
+    {
+        if ($value === null) {
+            return null;
+        }
+
+        $url = trim((string) $value);
+        if ($url === '') {
+            return null;
+        }
+
+        if (!preg_match('#^https?://#i', $url)) {
+            $url = 'https://' . $url;
+        }
+
+        if (!filter_var($url, FILTER_VALIDATE_URL)) {
+            throw new InvalidArgumentException('Некорректный адрес сайта');
+        }
+
+        return $url;
     }
 }

@@ -676,6 +676,15 @@ h1, h2, h3, p {
   box-shadow: var(--shadow);
 }
 
+.partner-card--link {
+  text-decoration: none;
+  color: inherit;
+}
+
+.partner-card--link:hover {
+  transform: translateY(-2px);
+}
+
 .partner-card__logo {
   display: flex;
   align-items: center;

@@ -8,14 +8,22 @@
   }
 
   function renderPartner(partner) {
-    return `
-      <div class="partner-card">
-        <div class="partner-card__logo">
-          <img src="${escapeHtml(partner.logo_image)}" alt="${escapeHtml(partner.name)}">
-        </div>
-        <p>${escapeHtml(partner.name)}</p>
+    const inner = `
+      <div class="partner-card__logo">
+        <img src="${escapeHtml(partner.logo_image)}" alt="${escapeHtml(partner.name)}">
       </div>
+      <p>${escapeHtml(partner.name)}</p>
     `;
+
+    if (partner.website) {
+      return `
+        <a class="partner-card partner-card--link" href="${escapeHtml(partner.website)}" target="_blank" rel="noopener noreferrer" title="${escapeHtml(partner.name)}">
+          ${inner}
+        </a>
+      `;
+    }
+
+    return `<div class="partner-card">${inner}</div>`;
   }
 
   async function loadPartners() {
@@ -35,15 +43,13 @@
       const partners = data.partners || [];
 
       if (!partners.length) {
-        container.innerHTML =
-          '<p class="partners__note">Партнёры скоро появятся.</p>';
+        container.innerHTML = '<p class="partners__note">Партнёры скоро появятся.</p>';
         return;
       }
 
       container.innerHTML = partners.map(renderPartner).join("");
     } catch (error) {
-      container.innerHTML =
-        '<p class="partners__note">Не удалось загрузить партнёров.</p>';
+      container.innerHTML = '<p class="partners__note">Не удалось загрузить партнёров.</p>';
       console.error(error);
     }
   }

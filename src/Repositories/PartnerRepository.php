@@ -12,7 +12,7 @@ final class PartnerRepository
     public function findById(int $id): ?Partner
     {
         $stmt = Database::connection()->prepare(
-            'SELECT id, name, logo_image, sort_order, status, created_at
+            'SELECT id, name, website, logo_image, sort_order, status, created_at
              FROM partners WHERE id = :id LIMIT 1'
         );
         $stmt->execute(['id' => $id]);
@@ -24,7 +24,7 @@ final class PartnerRepository
     /** @return Partner[] */
     public function all(bool $publishedOnly = false): array
     {
-        $sql = 'SELECT id, name, logo_image, sort_order, status, created_at FROM partners';
+        $sql = 'SELECT id, name, website, logo_image, sort_order, status, created_at FROM partners';
 
         if ($publishedOnly) {
             $sql .= " WHERE status = 'published'";
@@ -37,14 +37,20 @@ final class PartnerRepository
         return array_map(fn (array $row) => $this->map($row), $stmt->fetchAll());
     }
 
-    public function create(string $name, string $logoImage, int $sortOrder, string $status): Partner
-    {
+    public function create(
+        string $name,
+        ?string $website,
+        string $logoImage,
+        int $sortOrder,
+        string $status,
+    ): Partner {
         $stmt = Database::connection()->prepare(
-            'INSERT INTO partners (name, logo_image, sort_order, status)
-             VALUES (:name, :logo_image, :sort_order, :status)'
+            'INSERT INTO partners (name, website, logo_image, sort_order, status)
+             VALUES (:name, :website, :logo_image, :sort_order, :status)'
         );
         $stmt->execute([
             'name' => $name,
+            'website' => $website,
             'logo_image' => $logoImage,
             'sort_order' => $sortOrder,
             'status' => $status,
@@ -58,16 +64,24 @@ final class PartnerRepository
         return $partner;
     }
 
-    public function update(int $id, string $name, string $logoImage, int $sortOrder, string $status): ?Partner
-    {
+    public function update(
+        int $id,
+        string $name,
+        ?string $website,
+        string $logoImage,
+        int $sortOrder,
+        string $status,
+    ): ?Partner {
         $stmt = Database::connection()->prepare(
             'UPDATE partners
-             SET name = :name, logo_image = :logo_image, sort_order = :sort_order, status = :status
+             SET name = :name, website = :website, logo_image = :logo_image,
+                 sort_order = :sort_order, status = :status
              WHERE id = :id'
         );
         $stmt->execute([
             'id' => $id,
             'name' => $name,
+            'website' => $website,
             'logo_image' => $logoImage,
             'sort_order' => $sortOrder,
             'status' => $status,
@@ -87,6 +101,7 @@ final class PartnerRepository
         return new Partner(
             (int) $row['id'],
             $row['name'],
+            $row['website'] ?? null,
             $row['logo_image'],
             (int) $row['sort_order'],
             $row['status'],

@@ -73,6 +73,7 @@
                   <tr>
                     <th>Логотип</th>
                     <th>Название</th>
+                    <th>Сайт</th>
                     <th>Порядок</th>
                     <th>Статус</th>
                     <th></th>
@@ -80,7 +81,7 @@
                 </thead>
                 <tbody id="partners-tbody">
                   <tr>
-                    <td colspan="5" style="text-align:center;padding:32px;color:var(--text-muted)">Загрузка…</td>
+                    <td colspan="6" style="text-align:center;padding:32px;color:var(--text-muted)">Загрузка…</td>
                   </tr>
                 </tbody>
               </table>
@@ -101,6 +102,11 @@
         <label>
           <span>Название организации</span>
           <input type="text" name="name" required placeholder="УК «Город»">
+        </label>
+        <label>
+          <span>Сайт</span>
+          <input type="url" name="website" placeholder="https://example.ru">
+          <p class="admin-form__hint">Необязательно. Можно указать example.ru — добавится https://</p>
         </label>
         <label>
           <span>Логотип</span>
@@ -131,6 +137,6 @@
 
   <script src="/admin/js/auth.js?v=7"></script>
   <script src="/admin/js/admin.js?v=7"></script>
-  <script src="/admin/js/partners.js?v=7"></script>
+  <script src="/admin/js/partners.js?v=8"></script>
 </body>
 </html>

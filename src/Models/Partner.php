@@ -9,6 +9,7 @@ final class Partner
     public function __construct(
         public readonly int $id,
         public readonly string $name,
+        public readonly ?string $website,
         public readonly string $logoImage,
         public readonly int $sortOrder,
         public readonly string $status,
@@ -21,6 +22,7 @@ final class Partner
         return [
             'id' => $this->id,
             'name' => $this->name,
+            'website' => $this->website,
             'logo_image' => $this->logoImage,
             'sort_order' => $this->sortOrder,
             'status' => $this->status,

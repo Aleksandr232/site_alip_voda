@@ -84,6 +84,7 @@ SQL,
 CREATE TABLE IF NOT EXISTS partners (
     id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(200) NOT NULL,
+    website VARCHAR(500) NULL,
     logo_image VARCHAR(500) NOT NULL,
     sort_order INT UNSIGNED NOT NULL DEFAULT 0,
     status ENUM('published', 'hidden') NOT NULL DEFAULT 'published',
@@ -119,6 +120,8 @@ SQL,
         foreach (array_keys(self::$tables) as $table) {
             $status[$table] = true;
         }
+
+        self::migrate($pdo);
 
         return [
             'skipped' => false,
@@ -201,6 +204,24 @@ SQL,
              WHERE table_schema = DATABASE() AND table_name = :table'
         );
         $stmt->execute(['table' => $table]);
+
+        return (int) $stmt->fetchColumn() > 0;
+    }
+
+    private static function migrate(PDO $pdo): void
+    {
+        if (self::tableExists($pdo, 'partners') && !self::columnExists($pdo, 'partners', 'website')) {
+            $pdo->exec('ALTER TABLE partners ADD COLUMN website VARCHAR(500) NULL AFTER name');
+        }
+    }
+
+    private static function columnExists(PDO $pdo, string $table, string $column): bool
+    {
+        $stmt = $pdo->prepare(
+            'SELECT COUNT(*) FROM information_schema.columns
+             WHERE table_schema = DATABASE() AND table_name = :table AND column_name = :column'
+        );
+        $stmt->execute(['table' => $table, 'column' => $column]);
 
         return (int) $stmt->fetchColumn() > 0;
     }

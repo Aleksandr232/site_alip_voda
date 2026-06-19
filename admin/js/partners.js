@@ -31,6 +31,7 @@
     if (form) {
       form.reset();
       form.elements.name.value = item?.name ?? "";
+      form.elements.website.value = item?.website ?? "";
       form.elements.sort.value = item?.sort_order ?? items.length + 1;
       form.elements.status.value = item?.status ?? "published";
     }
@@ -56,7 +57,7 @@
 
     if (!items.length) {
       tbody.innerHTML =
-        '<tr><td colspan="5" style="text-align:center;padding:32px;color:var(--text-muted)">Партнёров пока нет</td></tr>';
+        '<tr><td colspan="6" style="text-align:center;padding:32px;color:var(--text-muted)">Партнёров пока нет</td></tr>';
       return;
     }
 
@@ -70,6 +71,7 @@
           </div>
         </td>
         <td><strong>${escapeHtml(item.name)}</strong></td>
+        <td>${item.website ? `<a href="${escapeHtml(item.website)}" target="_blank" rel="noopener">${escapeHtml(item.website.replace(/^https?:\\/\\//, ""))}</a>` : "—"}</td>
         <td>${item.sort_order}</td>
         <td>${statusLabel(item.status)}</td>
         <td>
@@ -172,7 +174,7 @@
       await loadItems();
     } catch (error) {
       tbody.innerHTML =
-        '<tr><td colspan="5" style="text-align:center;padding:32px;color:var(--text-muted)">Не удалось загрузить партнёров</td></tr>';
+        '<tr><td colspan="6" style="text-align:center;padding:32px;color:var(--text-muted)">Не удалось загрузить партнёров</td></tr>';
       console.error(error);
     }
   });

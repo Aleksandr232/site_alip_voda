@@ -73,6 +73,7 @@ CREATE TABLE IF NOT EXISTS blog_posts (
 CREATE TABLE IF NOT EXISTS partners (
   id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
   name VARCHAR(200) NOT NULL,
+  website VARCHAR(500) NULL,
   logo_image VARCHAR(500) NOT NULL,
   sort_order INT UNSIGNED NOT NULL DEFAULT 0,
   status ENUM('published', 'hidden') NOT NULL DEFAULT 'published',

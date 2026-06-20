@@ -19,23 +19,25 @@ final class SettingsService
         'hero_lead' => 'Мойка фасадов и окон, монтажные работы и зимняя уборка снега с кровли — промышленными альпинистами. Высокое давление, обратный осмос, допуски СРО.',
         'stat_years' => '12+',
         'stat_objects' => '500+',
+        'hero_image_main' => '',
+        'hero_image_float' => '',
     ];
 
     public function __construct(
+        private readonly MediaUploadService $uploader,
         private readonly SettingsRepository $settings = new SettingsRepository(),
     ) {
+    }
+
+    public static function createDefault(string $projectRoot): self
+    {
+        return new self(MediaUploadService::heroImage($projectRoot));
     }
 
     /** @return array<string, string> */
     public function getPublic(): array
     {
         return $this->mergeDefaults($this->settings->all());
-    }
-
-    /** @return array<string, string> */
-    public function getAdmin(): array
-    {
-        return $this->getPublic();
     }
 
     /** @param array<string, mixed> $input */
@@ -69,8 +71,8 @@ final class SettingsService
         return $this->mergeDefaults(array_merge($this->settings->all(), $values));
     }
 
-    /** @param array<string, mixed> $input */
-    public function updateHomepage(array $input): array
+    /** @param array<string, mixed> $input @param array<string, mixed> $files */
+    public function updateHomepage(array $input, array $files = []): array
     {
         $heroTitle = trim((string) ($input['hero_title'] ?? ''));
         $heroLead = trim((string) ($input['hero_lead'] ?? ''));
@@ -89,14 +91,36 @@ final class SettingsService
             throw new InvalidArgumentException('Заполните статистику');
         }
 
+        $stored = $this->settings->all();
+        $heroMain = (string) ($stored['hero_image_main'] ?? '');
+        $heroFloat = (string) ($stored['hero_image_float'] ?? '');
+        $oldMain = null;
+        $oldFloat = null;
+
+        $mainFile = $files['hero_image_main'] ?? null;
+        if (is_array($mainFile) && (int) ($mainFile['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_NO_FILE) {
+            $heroMain = $this->uploader->store($mainFile, 'main_');
+            $oldMain = $stored['hero_image_main'] ?? null;
+        }
+
+        $floatFile = $files['hero_image_float'] ?? null;
+        if (is_array($floatFile) && (int) ($floatFile['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_NO_FILE) {
+            $heroFloat = $this->uploader->store($floatFile, 'float_');
+            $oldFloat = $stored['hero_image_float'] ?? null;
+        }
+
         $values = [
             'hero_title' => $heroTitle,
             'hero_lead' => $heroLead,
             'stat_years' => $statYears,
             'stat_objects' => $statObjects,
+            'hero_image_main' => $heroMain,
+            'hero_image_float' => $heroFloat,
         ];
 
         $this->settings->setMany($values);
+        $this->uploader->deleteByPublicPath($oldMain);
+        $this->uploader->deleteByPublicPath($oldFloat);
 
         return $this->mergeDefaults(array_merge($this->settings->all(), $values));
     }
@@ -107,7 +131,7 @@ final class SettingsService
         $result = self::DEFAULTS;
 
         foreach (array_keys(self::DEFAULTS) as $key) {
-            if (isset($stored[$key]) && $stored[$key] !== '') {
+            if (array_key_exists($key, $stored) && $stored[$key] !== '') {
                 $result[$key] = $stored[$key];
             }
         }

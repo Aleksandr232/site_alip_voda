@@ -46,6 +46,16 @@ final class MediaUploadService
         );
     }
 
+    public static function heroImage(string $projectRoot): self
+    {
+        return new self(
+            $projectRoot . DIRECTORY_SEPARATOR . 'uploads' . DIRECTORY_SEPARATOR . 'hero',
+            '/uploads/hero/',
+            ['image/jpeg' => 'jpg', 'image/png' => 'png', 'image/webp' => 'webp', 'image/gif' => 'gif'],
+            5_242_880,
+        );
+    }
+
     /** @param array<string, mixed> $file */
     public function store(array $file, string $prefix = ''): string
     {

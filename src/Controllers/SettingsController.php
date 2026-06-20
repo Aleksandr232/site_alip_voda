@@ -17,16 +17,21 @@ final class SettingsController
 {
     public function __construct(
         private readonly AuthController $auth = new AuthController(),
-        private readonly SettingsService $settings = new SettingsService(),
+        private readonly ?SettingsService $settings = null,
         private readonly AuthService $authService = new AuthService(),
     ) {
+    }
+
+    private function service(): SettingsService
+    {
+        return $this->settings ?? SettingsService::createDefault(dirname(__DIR__, 2));
     }
 
     public function show(Request $request): void
     {
         try {
             Response::success([
-                'settings' => $this->settings->getPublic(),
+                'settings' => $this->service()->getPublic(),
             ]);
         } catch (Throwable $e) {
             error_log('Settings show: ' . $e->getMessage());
@@ -41,16 +46,17 @@ final class SettingsController
     {
         try {
             $this->auth->requireUser($request);
-            $action = (string) ($request->body['action'] ?? '');
+            $input = array_merge($request->body, $_POST);
+            $action = (string) ($input['action'] ?? '');
 
             if ($action === 'contacts') {
-                $settings = $this->settings->updateContacts($request->body);
+                $settings = $this->service()->updateContacts($input);
                 Response::success(['settings' => $settings, 'message' => 'Контакты сохранены']);
                 return;
             }
 
             if ($action === 'homepage') {
-                $settings = $this->settings->updateHomepage($request->body);
+                $settings = $this->service()->updateHomepage($input, $_FILES);
                 Response::success(['settings' => $settings, 'message' => 'Настройки главной сохранены']);
                 return;
             }
@@ -59,9 +65,9 @@ final class SettingsController
                 $user = $this->auth->requireUser($request);
                 $this->authService->changePassword(
                     $user,
-                    (string) ($request->body['current_password'] ?? ''),
-                    (string) ($request->body['new_password'] ?? ''),
-                    (string) ($request->body['confirm_password'] ?? ''),
+                    (string) ($input['current_password'] ?? ''),
+                    (string) ($input['new_password'] ?? ''),
+                    (string) ($input['confirm_password'] ?? ''),
                 );
                 Response::success(['message' => 'Пароль изменён']);
                 return;

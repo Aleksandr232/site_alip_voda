@@ -69,6 +69,16 @@
     if (hoursEl && settings.hours) {
       hoursEl.textContent = settings.hours;
     }
+
+    const heroMain = document.getElementById("hero-image-main");
+    if (heroMain && settings.hero_image_main) {
+      heroMain.src = settings.hero_image_main;
+    }
+
+    const heroFloat = document.getElementById("hero-image-float");
+    if (heroFloat && settings.hero_image_float) {
+      heroFloat.src = settings.hero_image_float;
+    }
   }
 
   async function loadSettings() {

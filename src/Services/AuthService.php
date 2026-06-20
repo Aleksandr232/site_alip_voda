@@ -75,6 +75,31 @@ final class AuthService
         return $user;
     }
 
+    public function changePassword(User $user, string $currentPassword, string $newPassword, string $confirmPassword): void
+    {
+        if ($currentPassword === '' || $newPassword === '' || $confirmPassword === '') {
+            throw new InvalidArgumentException('Заполните все поля пароля');
+        }
+
+        if ($newPassword !== $confirmPassword) {
+            throw new InvalidArgumentException('Новые пароли не совпадают');
+        }
+
+        if (mb_strlen($newPassword) < 6) {
+            throw new InvalidArgumentException('Пароль должен быть не короче 6 символов');
+        }
+
+        $row = $this->users->findByEmail($user->email);
+        if (!$row || !password_verify($currentPassword, $row['password_hash'])) {
+            throw new InvalidArgumentException('Неверный текущий пароль');
+        }
+
+        $this->users->updatePassword(
+            $user->id,
+            password_hash($newPassword, PASSWORD_DEFAULT)
+        );
+    }
+
     private function buildAuthResponse(User $user): array
     {
         return [

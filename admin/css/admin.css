@@ -683,6 +683,21 @@ body.admin-body {
   color: var(--text-muted);
 }
 
+.admin-form__check {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 4px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.admin-form__check input {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--primary);
+}
+
 .admin-form__actions {
   display: flex;
   gap: 12px;

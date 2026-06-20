@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="api-base" content="/api">
   <title>Настройки — СкайКлин Admin</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -31,11 +32,11 @@
           <a href="posts"><span class="admin-nav__icon">📝</span> Блог</a>
           <a href="reviews"><span class="admin-nav__icon">★</span> Отзывы</a>
           <a href="gallery"><span class="admin-nav__icon">🖼</span> До и после</a>
-          <a href="partners.html"><span class="admin-nav__icon">🤝</span> Партнёры</a>
+          <a href="partners"><span class="admin-nav__icon">🤝</span> Партнёры</a>
         </div>
         <div class="admin-nav__group">
           <p class="admin-nav__label">Система</p>
-          <a href="settings.html" class="is-active"><span class="admin-nav__icon">⚙</span> Настройки</a>
+          <a href="settings" class="is-active"><span class="admin-nav__icon">⚙</span> Настройки</a>
           <a href="../" target="_blank"><span class="admin-nav__icon">↗</span> Открыть сайт</a>
         </div>
       </nav>
@@ -65,20 +66,24 @@
             <h2>Контакты</h2>
           </div>
           <div class="admin-panel__body">
-            <form class="admin-form admin-form--wide" data-demo-submit>
+            <form class="admin-form admin-form--wide" id="settings-contacts-form">
               <div class="admin-form__row">
                 <label>
                   <span>Телефон</span>
-                  <input type="tel" name="phone" value="+7 (900) 123-45-67">
+                  <input type="tel" name="phone" value="+7 (900) 123-45-67" required>
                 </label>
                 <label>
                   <span>Email</span>
-                  <input type="email" name="email" value="info@skyclin.ru">
+                  <input type="email" name="email" value="info@skyclin.ru" required>
                 </label>
               </div>
+              <label class="admin-form__check">
+                <input type="checkbox" name="phone_visible" value="1" checked>
+                <span>Показывать телефон на сайте</span>
+              </label>
               <label>
                 <span>Режим работы</span>
-                <input type="text" name="hours" value="Пн–Сб, 8:00–20:00">
+                <input type="text" name="hours" value="Пн–Сб, 8:00–20:00" required>
               </label>
               <div class="admin-form__actions">
                 <button type="submit" class="btn btn--primary">Сохранить контакты</button>
@@ -92,23 +97,23 @@
             <h2>Главная страница</h2>
           </div>
           <div class="admin-panel__body">
-            <form class="admin-form admin-form--wide" data-demo-submit>
+            <form class="admin-form admin-form--wide" id="settings-homepage-form">
               <label>
                 <span>Заголовок (Hero)</span>
-                <input type="text" name="hero_title" value="Чистота на высоте без лесов и подъёмников">
+                <input type="text" name="hero_title" value="Чистота и безопасность на высоте без лесов и подъёмников" required>
               </label>
               <label>
                 <span>Описание (Hero)</span>
-                <textarea name="hero_lead" rows="3">Профессиональная мойка фасадов и остекления промышленными альпинистами. Используем мойку высокого давления и воду обратного осмоса — без разводов и химии.</textarea>
+                <textarea name="hero_lead" rows="3" required>Мойка фасадов и окон, монтажные работы и зимняя уборка снега с кровли — промышленными альпинистами. Высокое давление, обратный осмос, допуски СРО.</textarea>
               </label>
               <div class="admin-form__row">
                 <label>
                   <span>Статистика: лет опыта</span>
-                  <input type="text" name="stat_years" value="12+">
+                  <input type="text" name="stat_years" value="12+" required>
                 </label>
                 <label>
                   <span>Статистика: объектов</span>
-                  <input type="text" name="stat_objects" value="500+">
+                  <input type="text" name="stat_objects" value="500+" required>
                 </label>
               </div>
               <div class="admin-form__actions">
@@ -123,7 +128,7 @@
             <h2>Безопасность</h2>
           </div>
           <div class="admin-panel__body">
-            <form class="admin-form" data-demo-submit>
+            <form class="admin-form" id="settings-password-form">
               <label>
                 <span>Текущий пароль</span>
                 <input type="password" name="current_password" autocomplete="current-password">
@@ -150,5 +155,6 @@
 
   <script src="js/auth.js"></script>
   <script src="js/admin.js"></script>
+  <script src="js/settings.js?v=2"></script>
 </body>
 </html>

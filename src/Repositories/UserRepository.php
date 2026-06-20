@@ -57,6 +57,17 @@ final class UserRepository
         return $user;
     }
 
+    public function updatePassword(int $id, string $passwordHash): void
+    {
+        $stmt = Database::connection()->prepare(
+            'UPDATE users SET password_hash = :password_hash WHERE id = :id'
+        );
+        $stmt->execute([
+            'id' => $id,
+            'password_hash' => $passwordHash,
+        ]);
+    }
+
     private function mapUser(array $row): User
     {
         return new User(

@@ -6,6 +6,7 @@
   <meta name="description" content="Мойка фасадов и окон, монтажные работы, уборка снега с кровли альпинистами. Высокое давление, обратный осмос. Москва и область.">
   <meta name="api-submit" content="/api/requests.php">
   <meta name="api-partners" content="/api/partners.php">
+  <meta name="api-settings" content="/api/settings.php">
   <title>СкайКлин — мойка, монтаж и высотные работы альпинистами</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -42,8 +43,8 @@
       <div class="container hero__inner">
         <div class="hero__content">
           <p class="hero__badge">Альпинисты · Мойка · Монтаж · Снег с кровли</p>
-          <h1>Чистота и безопасность на высоте без лесов и подъёмников</h1>
-          <p class="hero__lead">
+          <h1 id="hero-title">Чистота и безопасность на высоте без лесов и подъёмников</h1>
+          <p class="hero__lead" id="hero-lead">
             Мойка фасадов и окон, монтажные работы и зимняя уборка снега с кровли —
             промышленными альпинистами. Высокое давление, обратный осмос, допуски СРО.
           </p>
@@ -52,8 +53,8 @@
             <a href="#before-after" class="btn btn--ghost">Смотреть результаты</a>
           </div>
           <ul class="hero__stats">
-            <li><strong>12+</strong><span>лет опыта</span></li>
-            <li><strong>500+</strong><span>объектов</span></li>
+            <li><strong id="hero-stat-years">12+</strong><span>лет опыта</span></li>
+            <li><strong id="hero-stat-objects">500+</strong><span>объектов</span></li>
             <li><strong>0</strong><span>разводов на стекле</span></li>
           </ul>
         </div>
@@ -308,17 +309,17 @@
           <h2>Закажите бесплатный осмотр объекта</h2>
           <p>Оставьте заявку — перезвоним в течение 30 минут, рассчитаем стоимость и согласуем сроки.</p>
           <ul class="contact__list">
-            <li>
+            <li id="site-phone-item">
               <strong>Телефон</strong>
-              <a href="tel:+79001234567">+7 (900) 123-45-67</a>
+              <a href="tel:+79001234567" id="site-phone">+7 (900) 123-45-67</a>
             </li>
             <li>
               <strong>Email</strong>
-              <a href="mailto:info@skyclin.ru">info@skyclin.ru</a>
+              <a href="mailto:info@skyclin.ru" id="site-email">info@skyclin.ru</a>
             </li>
             <li>
               <strong>Режим работы</strong>
-              <span>Пн–Сб, 8:00–20:00</span>
+              <span id="site-hours">Пн–Сб, 8:00–20:00</span>
             </li>
           </ul>
         </div>
@@ -369,6 +370,7 @@
   </footer>
 
   <script src="js/main.js?v=4"></script>
+  <script src="js/settings.js?v=2"></script>
   <script src="js/gallery.js?v=1"></script>
   <script src="js/blog.js?v=1"></script>
   <script src="js/partners.js?v=3"></script>

@@ -81,3 +81,20 @@ CREATE TABLE IF NOT EXISTS partners (
   updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   KEY idx_partners_status_sort (status, sort_order)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS site_settings (
+  setting_key VARCHAR(64) NOT NULL PRIMARY KEY,
+  setting_value TEXT NOT NULL,
+  updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+INSERT INTO site_settings (setting_key, setting_value) VALUES
+  ('phone', '+7 (900) 123-45-67'),
+  ('phone_visible', '1'),
+  ('email', 'info@skyclin.ru'),
+  ('hours', 'Пн–Сб, 8:00–20:00'),
+  ('hero_title', 'Чистота и безопасность на высоте без лесов и подъёмников'),
+  ('hero_lead', 'Мойка фасадов и окон, монтажные работы и зимняя уборка снега с кровли — промышленными альпинистами. Высокое давление, обратный осмос, допуски СРО.'),
+  ('stat_years', '12+'),
+  ('stat_objects', '500+')
+ON DUPLICATE KEY UPDATE setting_value = setting_value;

@@ -93,6 +93,13 @@ CREATE TABLE IF NOT EXISTS partners (
     KEY idx_partners_status_sort (status, sort_order)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
 SQL,
+        'site_settings' => <<<'SQL'
+CREATE TABLE IF NOT EXISTS site_settings (
+    setting_key VARCHAR(64) NOT NULL PRIMARY KEY,
+    setting_value TEXT NOT NULL,
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+SQL,
     ];
 
     public static function ensure(): array
@@ -212,6 +219,61 @@ SQL,
     {
         if (self::tableExists($pdo, 'partners') && !self::columnExists($pdo, 'partners', 'website')) {
             $pdo->exec('ALTER TABLE partners ADD COLUMN website VARCHAR(500) NULL AFTER name');
+        }
+
+        self::seedSiteSettings($pdo);
+        self::ensureSetting($pdo, 'phone_visible', '1');
+    }
+
+    private static function ensureSetting(PDO $pdo, string $key, string $value): void
+    {
+        if (!self::tableExists($pdo, 'site_settings')) {
+            return;
+        }
+
+        $stmt = $pdo->prepare(
+            'SELECT COUNT(*) FROM site_settings WHERE setting_key = :key'
+        );
+        $stmt->execute(['key' => $key]);
+
+        if ((int) $stmt->fetchColumn() > 0) {
+            return;
+        }
+
+        $insert = $pdo->prepare(
+            'INSERT INTO site_settings (setting_key, setting_value) VALUES (:key, :value)'
+        );
+        $insert->execute(['key' => $key, 'value' => $value]);
+    }
+
+    private static function seedSiteSettings(PDO $pdo): void
+    {
+        if (!self::tableExists($pdo, 'site_settings')) {
+            return;
+        }
+
+        $defaults = [
+            'phone' => '+7 (900) 123-45-67',
+            'phone_visible' => '1',
+            'email' => 'info@skyclin.ru',
+            'hours' => 'Пн–Сб, 8:00–20:00',
+            'hero_title' => 'Чистота и безопасность на высоте без лесов и подъёмников',
+            'hero_lead' => 'Мойка фасадов и окон, монтажные работы и зимняя уборка снега с кровли — промышленными альпинистами. Высокое давление, обратный осмос, допуски СРО.',
+            'stat_years' => '12+',
+            'stat_objects' => '500+',
+        ];
+
+        $count = (int) $pdo->query('SELECT COUNT(*) FROM site_settings')->fetchColumn();
+        if ($count > 0) {
+            return;
+        }
+
+        $stmt = $pdo->prepare(
+            'INSERT INTO site_settings (setting_key, setting_value) VALUES (:key, :value)'
+        );
+
+        foreach ($defaults as $key => $value) {
+            $stmt->execute(['key' => $key, 'value' => $value]);
         }
     }
 

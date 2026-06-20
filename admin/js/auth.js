@@ -184,6 +184,11 @@ const Auth = (() => {
       return;
     }
 
+    const cachedUser = getUser();
+    if (cachedUser) {
+      updateUserUI(cachedUser);
+    }
+
     const token = getToken();
     if (!token) {
       redirectToLogin();
@@ -192,7 +197,10 @@ const Auth = (() => {
 
     try {
       const data = await me();
-      updateUserUI(data.user);
+      if (data.user) {
+        saveSession(getToken(), data.user, localStorage.getItem(REMEMBER_KEY) === "1");
+        updateUserUI(data.user);
+      }
     } catch {
       clearSession();
       redirectToLogin();

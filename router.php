@@ -12,6 +12,11 @@ if ($base !== '' && $base !== '/' && str_starts_with($uri, $base)) {
 
 $path = trim($uri, '/');
 
+if ($path === 'sitemap.xml') {
+    require $root . '/sitemap.php';
+    return true;
+}
+
 if (preg_match('#^article/([a-z0-9][a-z0-9-]*)$#i', $path, $articleMatch)) {
     $_GET['slug'] = strtolower($articleMatch[1]);
     $file = $root . '/blog-article.html';

@@ -15,6 +15,7 @@ RewriteCond %{REQUEST_FILENAME} -d
 RewriteRule ^ - [L]
 
 # Чистые URL
+RewriteRule ^sitemap\.xml$ sitemap.php [L]
 RewriteRule ^$ index.html [L]
 RewriteRule ^blog/?$ blog.html [L]
 RewriteRule ^article/([a-z0-9][a-z0-9-]*)/?$ blog-article.html?slug=$1 [L,QSA]

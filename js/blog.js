@@ -59,6 +59,37 @@
     `;
   }
 
+  function setArticleView(state) {
+    const loading = document.getElementById("article-loading");
+    const error = document.getElementById("article-error");
+    const shell = document.getElementById("article-shell");
+
+    if (loading) loading.hidden = state !== "loading";
+    if (error) error.hidden = state !== "error";
+    if (shell) shell.hidden = state !== "article";
+  }
+
+  function renderRelatedPosts(posts, currentSlug) {
+    const wrap = document.getElementById("article-related-wrap");
+    const list = document.getElementById("article-related");
+    if (!wrap || !list) return;
+
+    const related = posts.filter((post) => post.slug !== currentSlug).slice(0, 4);
+    if (!related.length) {
+      wrap.hidden = true;
+      list.innerHTML = "";
+      return;
+    }
+
+    list.innerHTML = related
+      .map((post) => {
+        const link = `/article/${encodeURIComponent(post.slug)}`;
+        return `<li><a href="${link}">${escapeHtml(post.title)}</a></li>`;
+      })
+      .join("");
+    wrap.hidden = false;
+  }
+
   async function fetchPosts() {
     const response = await fetch("/api/posts.php", { headers: { Accept: "application/json" } });
     const data = await response.json();
@@ -116,34 +147,52 @@
   }
 
   async function loadArticle() {
+    if (!document.getElementById("article-root")) return;
+
     const slug = getSlugFromUrl();
-    if (!slug || !document.getElementById("article-root")) return;
+    if (!slug) {
+      setArticleView("error");
+      const errorTitle = document.querySelector("#article-error h1");
+      const errorText = document.querySelector("#article-error .article-state__text");
+      if (errorTitle) errorTitle.textContent = "Выберите статью";
+      if (errorText) {
+        errorText.textContent = "Откройте статью из списка блога или перейдите на главную страницу раздела.";
+      }
+      return;
+    }
+
+    setArticleView("loading");
 
     try {
-      const post = await fetchPost(slug);
+      const [post, posts] = await Promise.all([fetchPost(slug), fetchPosts()]);
       const { display, datetime } = formatDate(post.created_at);
 
       document.title = `${post.title} — СкайКлин`;
 
       const metaDesc = document.querySelector('meta[name="description"]');
-      if (metaDesc && post.description) {
-        metaDesc.setAttribute("content", post.description);
+      if (metaDesc) {
+        metaDesc.setAttribute("content", post.description || "");
       }
 
       const metaKeywords = document.querySelector('meta[name="keywords"]');
-      if (metaKeywords && post.keywords) {
-        metaKeywords.setAttribute("content", post.keywords);
+      if (metaKeywords) {
+        metaKeywords.setAttribute("content", post.keywords || "");
       }
 
       const titleEl = document.getElementById("article-title");
       const leadEl = document.getElementById("article-lead");
+      const breadcrumbTitle = document.getElementById("article-breadcrumb-title");
       const dateEl = document.getElementById("article-date");
       const coverEl = document.getElementById("article-cover");
       const videoEl = document.getElementById("article-video");
       const contentEl = document.getElementById("article-content");
 
       if (titleEl) titleEl.textContent = post.title;
-      if (leadEl) leadEl.textContent = post.description || "";
+      if (breadcrumbTitle) breadcrumbTitle.textContent = post.title;
+      if (leadEl) {
+        leadEl.textContent = post.description || "";
+        leadEl.hidden = !post.description;
+      }
       if (dateEl) {
         dateEl.textContent = display;
         dateEl.setAttribute("datetime", datetime);
@@ -172,12 +221,11 @@
       if (contentEl) {
         contentEl.innerHTML = renderContent(post.content || "");
       }
+
+      renderRelatedPosts(posts, post.slug);
+      setArticleView("article");
     } catch (error) {
-      const root = document.getElementById("article-root");
-      if (root) {
-        root.innerHTML =
-          '<div class="container" style="padding:80px 0;text-align:center"><h1>Статья не найдена</h1><p><a href="/blog">← Все статьи</a></p></div>';
-      }
+      setArticleView("error");
       console.error(error);
     }
   }

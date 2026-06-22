@@ -18,7 +18,7 @@ RewriteRule ^ - [L]
 RewriteRule ^$ index.html [L]
 RewriteRule ^blog/?$ blog.html [L]
 RewriteRule ^article/([a-z0-9][a-z0-9-]*)/?$ blog-article.html?slug=$1 [L,QSA]
-RewriteRule ^article/?$ blog-article.html [L]
+RewriteRule ^article/?$ blog [R=301,L]
 
 RewriteRule ^login/?$ admin/login.php [L]
 RewriteRule ^dashboard/?$ admin/dashboard.html [L]

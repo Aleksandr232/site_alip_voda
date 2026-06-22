@@ -12,6 +12,16 @@ if ($base !== '' && $base !== '/' && str_starts_with($uri, $base)) {
 
 $path = trim($uri, '/');
 
+if (preg_match('#^article/([a-z0-9][a-z0-9-]*)$#i', $path, $articleMatch)) {
+    $_GET['slug'] = strtolower($articleMatch[1]);
+    $file = $root . '/blog-article.html';
+    if (is_file($file)) {
+        header('Content-Type: text/html; charset=utf-8');
+        readfile($file);
+        return true;
+    }
+}
+
 if ($path === 'api' || str_starts_with($path, 'api/')) {
     require $root . '/api/index.php';
     return true;

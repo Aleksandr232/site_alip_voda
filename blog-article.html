@@ -36,32 +36,73 @@
     </div>
   </header>
 
-  <main id="article-root">
-    <article class="article">
-      <header class="article__header">
-        <div class="container article__header-inner">
-          <a href="/blog" class="article__back">← Все статьи</a>
-          <div class="blog-card__meta">
+  <main id="article-root" class="article-page">
+    <div class="article-state" id="article-loading">
+      <div class="container article-state__inner">
+        <div class="article-skeleton">
+          <div class="article-skeleton__line article-skeleton__line--sm"></div>
+          <div class="article-skeleton__line article-skeleton__line--title"></div>
+          <div class="article-skeleton__line article-skeleton__line--lead"></div>
+          <div class="article-skeleton__cover"></div>
+          <div class="article-skeleton__line"></div>
+          <div class="article-skeleton__line"></div>
+          <div class="article-skeleton__line article-skeleton__line--short"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="article-state" id="article-error" hidden>
+      <div class="container article-state__inner article-state__inner--center">
+        <p class="section__label">Блог</p>
+        <h1>Статья не найдена</h1>
+        <p class="article-state__text">Возможно, ссылка устарела или статья была удалена.</p>
+        <a href="/blog" class="btn btn--primary">← Все статьи</a>
+      </div>
+    </div>
+
+    <article class="article" id="article-shell" hidden>
+      <header class="article__hero">
+        <div class="container article__hero-inner">
+          <nav class="article__breadcrumb" aria-label="Навигация">
+            <a href="/">Главная</a>
+            <span aria-hidden="true">/</span>
+            <a href="/blog">Блог</a>
+            <span aria-hidden="true">/</span>
+            <span id="article-breadcrumb-title">Статья</span>
+          </nav>
+          <div class="article__meta">
+            <a href="/blog" class="article__back">← Все статьи</a>
             <time class="blog-card__date" id="article-date" datetime="">…</time>
           </div>
-          <h1 id="article-title">Загрузка…</h1>
+          <h1 class="article__title" id="article-title">Загрузка…</h1>
           <p class="article__lead" id="article-lead"></p>
         </div>
       </header>
 
-      <div class="article__cover" id="article-cover" hidden></div>
-      <div class="article__video-wrap" id="article-video" hidden></div>
+      <div class="container">
+        <div class="article__cover" id="article-cover" hidden></div>
+        <div class="article__video-wrap" id="article-video" hidden></div>
+      </div>
 
-      <div class="container article__body">
-        <div class="article__content" id="article-content">
-          <p>Загрузка статьи…</p>
+      <div class="container article__layout">
+        <div class="article__main">
+          <div class="article__content prose" id="article-content"></div>
+
+          <footer class="article__footer">
+            <a href="/blog" class="article__back article__back--bottom">← Все статьи</a>
+          </footer>
         </div>
 
         <aside class="article__sidebar">
           <div class="sidebar-card sidebar-card--accent">
             <h3>Нужна помощь?</h3>
-            <p>Позвоните нам или оставьте заявку на сайте.</p>
+            <p>Позвоните нам или оставьте заявку на сайте — рассчитаем мойку под ваш объект.</p>
             <a href="/#contact" class="btn btn--primary btn--full">Заказать мойку</a>
+          </div>
+
+          <div class="sidebar-card" id="article-related-wrap" hidden>
+            <h3>Другие статьи</h3>
+            <ul class="sidebar-card__list" id="article-related"></ul>
           </div>
         </aside>
       </div>
@@ -84,6 +125,6 @@
   </footer>
 
   <script src="js/main.js"></script>
-  <script src="js/blog.js?v=1"></script>
+  <script src="js/blog.js?v=3"></script>
 </body>
 </html>

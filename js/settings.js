@@ -22,6 +22,41 @@
     return value === "1" || value === 1 || value === true || value === "true";
   }
 
+  function isVideoPath(path) {
+    return /\.(mp4|webm|mov)(\?.*)?$/i.test(String(path));
+  }
+
+  function applyHeroMedia(element, url) {
+    if (!element || !url) return;
+
+    const alt = element.getAttribute("alt") || "";
+    const isVideo = isVideoPath(url);
+
+    if (isVideo && element.tagName === "IMG") {
+      const video = document.createElement("video");
+      video.id = element.id;
+      video.src = url;
+      video.autoplay = true;
+      video.muted = true;
+      video.loop = true;
+      video.playsInline = true;
+      video.setAttribute("playsinline", "");
+      element.replaceWith(video);
+      return;
+    }
+
+    if (!isVideo && element.tagName === "VIDEO") {
+      const img = document.createElement("img");
+      img.id = element.id;
+      img.src = url;
+      img.alt = alt;
+      element.replaceWith(img);
+      return;
+    }
+
+    element.src = url;
+  }
+
   function applySettings(settings) {
     if (!settings) return;
 
@@ -72,12 +107,12 @@
 
     const heroMain = document.getElementById("hero-image-main");
     if (heroMain && settings.hero_image_main) {
-      heroMain.src = settings.hero_image_main;
+      applyHeroMedia(heroMain, settings.hero_image_main);
     }
 
     const heroFloat = document.getElementById("hero-image-float");
     if (heroFloat && settings.hero_image_float) {
-      heroFloat.src = settings.hero_image_float;
+      applyHeroMedia(heroFloat, settings.hero_image_float);
     }
   }
 

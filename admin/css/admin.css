@@ -837,7 +837,8 @@ body.admin-body {
   min-height: 80px;
 }
 
-.admin-upload-preview img {
+.admin-upload-preview img,
+.admin-upload-preview video {
   max-width: 100%;
   max-height: 120px;
   border-radius: 8px;

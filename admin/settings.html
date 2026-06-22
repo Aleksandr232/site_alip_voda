@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
   <meta name="api-base" content="/api">
   <title>Настройки — СкайКлин Admin</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -118,17 +119,17 @@
               </div>
               <div class="admin-form__row">
                 <label>
-                  <span>Основное фото (большое)</span>
-                  <input type="file" id="hero-image-main-input" name="hero_image_main" accept="image/jpeg,image/png,image/webp,image/gif">
+                  <span>Основное фото или видео (большое)</span>
+                  <input type="file" id="hero-image-main-input" name="hero_image_main" accept="image/jpeg,image/png,image/webp,image/gif,video/mp4,video/webm,video/quicktime">
                   <div class="admin-upload-preview" id="hero-main-preview"></div>
                 </label>
                 <label>
-                  <span>Дополнительное фото (маленькое)</span>
-                  <input type="file" id="hero-image-float-input" name="hero_image_float" accept="image/jpeg,image/png,image/webp,image/gif">
+                  <span>Дополнительное фото или видео (маленькое)</span>
+                  <input type="file" id="hero-image-float-input" name="hero_image_float" accept="image/jpeg,image/png,image/webp,image/gif,video/mp4,video/webm,video/quicktime">
                   <div class="admin-upload-preview" id="hero-float-preview"></div>
                 </label>
               </div>
-              <p class="admin-form__hint">Если фото не загружено, на сайте остаётся изображение по умолчанию. Новый файл заменит текущее при сохранении.</p>
+              <p class="admin-form__hint">JPG, PNG, WEBP, GIF (до 5 МБ) или MP4, WEBM, MOV (до 50 МБ). Если файл не загружен, на сайте остаётся изображение по умолчанию. Новый файл заменит текущий при сохранении.</p>
               <div class="admin-form__actions">
                 <button type="submit" class="btn btn--primary">Сохранить</button>
               </div>
@@ -168,6 +169,6 @@
 
   <script src="/admin/js/auth.js?v=8"></script>
   <script src="/admin/js/admin.js?v=8"></script>
-  <script src="/admin/js/settings.js?v=3"></script>
+  <script src="/admin/js/settings.js?v=4"></script>
 </body>
 </html>

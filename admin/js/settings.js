@@ -37,24 +37,37 @@
     });
   }
 
-  function renderHeroPreview(container, imageUrl, fallbackText) {
+  function isVideoPath(path) {
+    return /\.(mp4|webm|mov)(\?.*)?$/i.test(String(path));
+  }
+
+  function isVideoFile(file) {
+    return file?.type?.startsWith("video/") || isVideoPath(file?.name);
+  }
+
+  function renderHeroPreview(container, mediaUrl, fallbackText) {
     if (!container) return;
 
-    container.innerHTML = imageUrl
-      ? `<img src="${escapeHtml(imageUrl)}" alt="">`
-      : `<span class="admin-form__hint">${fallbackText}</span>`;
+    if (!mediaUrl) {
+      container.innerHTML = `<span class="admin-form__hint">${fallbackText}</span>`;
+      return;
+    }
+
+    container.innerHTML = isVideoPath(mediaUrl)
+      ? `<video src="${escapeHtml(mediaUrl)}" controls></video>`
+      : `<img src="${escapeHtml(mediaUrl)}" alt="">`;
   }
 
   function updateHeroPreviews(settings) {
     renderHeroPreview(
       heroMainPreview,
       settings.hero_image_main,
-      "Сейчас на сайте — фото по умолчанию"
+      "Сейчас на сайте — изображение по умолчанию"
     );
     renderHeroPreview(
       heroFloatPreview,
       settings.hero_image_float,
-      "Сейчас на сайте — фото по умолчанию"
+      "Сейчас на сайте — изображение по умолчанию"
     );
   }
 
@@ -64,7 +77,9 @@
       if (!file) return;
 
       const url = URL.createObjectURL(file);
-      preview.innerHTML = `<img src="${url}" alt="">`;
+      preview.innerHTML = isVideoFile(file)
+        ? `<video src="${url}" controls></video>`
+        : `<img src="${url}" alt="">`;
     });
   }
 

@@ -31,7 +31,7 @@ final class SettingsService
 
     public static function createDefault(string $projectRoot): self
     {
-        return new self(MediaUploadService::heroImage($projectRoot));
+        return new self(MediaUploadService::heroMedia($projectRoot));
     }
 
     /** @return array<string, string> */

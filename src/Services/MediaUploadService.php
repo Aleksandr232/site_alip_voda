@@ -14,6 +14,7 @@ final class MediaUploadService
         private readonly string $publicUrlPrefix,
         private readonly array $mimeToExt,
         private readonly int $maxBytes = 5_242_880,
+        private readonly ?int $imageMaxBytes = null,
     ) {
     }
 
@@ -48,10 +49,24 @@ final class MediaUploadService
 
     public static function heroImage(string $projectRoot): self
     {
+        return self::heroMedia($projectRoot);
+    }
+
+    public static function heroMedia(string $projectRoot): self
+    {
         return new self(
             $projectRoot . DIRECTORY_SEPARATOR . 'uploads' . DIRECTORY_SEPARATOR . 'hero',
             '/uploads/hero/',
-            ['image/jpeg' => 'jpg', 'image/png' => 'png', 'image/webp' => 'webp', 'image/gif' => 'gif'],
+            [
+                'image/jpeg' => 'jpg',
+                'image/png' => 'png',
+                'image/webp' => 'webp',
+                'image/gif' => 'gif',
+                'video/mp4' => 'mp4',
+                'video/webm' => 'webm',
+                'video/quicktime' => 'mov',
+            ],
+            52_428_800,
             5_242_880,
         );
     }
@@ -67,11 +82,6 @@ final class MediaUploadService
             throw new InvalidArgumentException($this->uploadErrorMessage((int) $file['error']));
         }
 
-        if ((int) $file['size'] > $this->maxBytes) {
-            $mb = (int) round($this->maxBytes / 1024 / 1024);
-            throw new InvalidArgumentException("Файл слишком большой (макс. {$mb} МБ)");
-        }
-
         $tmp = (string) $file['tmp_name'];
         if (!is_uploaded_file($tmp)) {
             throw new InvalidArgumentException('Некорректная загрузка файла');
@@ -80,6 +90,16 @@ final class MediaUploadService
         $mime = $this->detectMime($tmp);
         if (!isset($this->mimeToExt[$mime])) {
             throw new InvalidArgumentException('Недопустимый тип файла');
+        }
+
+        $sizeLimit = $this->maxBytes;
+        if ($this->imageMaxBytes !== null && str_starts_with($mime, 'image/')) {
+            $sizeLimit = $this->imageMaxBytes;
+        }
+
+        if ((int) $file['size'] > $sizeLimit) {
+            $mb = (int) round($sizeLimit / 1024 / 1024);
+            throw new InvalidArgumentException("Файл слишком большой (макс. {$mb} МБ)");
         }
 
         if (!is_dir($this->uploadDir) && !mkdir($this->uploadDir, 0755, true) && !is_dir($this->uploadDir)) {

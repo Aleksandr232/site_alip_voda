@@ -31,6 +31,10 @@
         return;
       }
 
+      if (field.type === "file") {
+        return;
+      }
+
       if ("value" in field) {
         field.value = value;
       }

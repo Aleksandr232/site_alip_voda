@@ -1101,13 +1101,16 @@ h1, h2, h3, p {
 }
 
 .article__hero-inner {
-  max-width: 860px;
+  max-width: 720px;
+  margin: 0 auto;
+  text-align: center;
 }
 
 .article__breadcrumb {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
+  justify-content: center;
   gap: 8px;
   margin-bottom: 20px;
   font-size: 0.8125rem;
@@ -1127,8 +1130,8 @@ h1, h2, h3, p {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  justify-content: space-between;
-  gap: 12px;
+  justify-content: center;
+  gap: 16px;
   margin-bottom: 16px;
 }
 
@@ -1162,12 +1165,13 @@ h1, h2, h3, p {
   font-size: 1.125rem;
   line-height: 1.65;
   color: var(--text-muted);
-  max-width: 720px;
-  margin: 0;
+  max-width: 640px;
+  margin: 0 auto;
 }
 
 .article__cover {
-  margin: 32px 0 40px;
+  margin: 32px auto 40px;
+  max-width: 960px;
   border-radius: var(--radius-lg);
   overflow: hidden;
   box-shadow: var(--shadow);
@@ -1192,18 +1196,20 @@ h1, h2, h3, p {
 }
 
 .article__layout {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) 300px;
-  gap: 48px;
+  display: block;
+  max-width: 720px;
+  margin: 0 auto;
   padding-bottom: 96px;
 }
 
 .article__main {
   min-width: 0;
+  width: 100%;
 }
 
 .article__content {
   padding: 8px 0 0;
+  text-align: left;
 }
 
 .article__content.prose {
@@ -1254,6 +1260,7 @@ h1, h2, h3, p {
   margin-top: 48px;
   padding-top: 32px;
   border-top: 1px solid var(--border);
+  text-align: center;
 }
 
 .article__body {
@@ -1264,9 +1271,9 @@ h1, h2, h3, p {
 }
 
 .article__sidebar {
-  position: sticky;
-  top: calc(var(--header-h) + 24px);
-  align-self: start;
+  position: static;
+  margin-top: 48px;
+  width: 100%;
 }
 
 .article__list {
@@ -1543,7 +1550,9 @@ h1, h2, h3, p {
 
   .article__layout,
   .article__body {
-    grid-template-columns: 1fr;
+    max-width: 100%;
+    padding-left: 0;
+    padding-right: 0;
   }
 
   .article__sidebar {

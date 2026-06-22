@@ -164,7 +164,7 @@
     setArticleView("loading");
 
     try {
-      const [post, posts] = await Promise.all([fetchPost(slug), fetchPosts()]);
+      const post = await fetchPost(slug);
       const { display, datetime } = formatDate(post.created_at);
 
       document.title = `${post.title} — СкайКлин`;
@@ -222,8 +222,11 @@
         contentEl.innerHTML = renderContent(post.content || "");
       }
 
-      renderRelatedPosts(posts, post.slug);
       setArticleView("article");
+
+      fetchPosts()
+        .then((posts) => renderRelatedPosts(posts, post.slug))
+        .catch((relatedError) => console.error(relatedError));
     } catch (error) {
       setArticleView("error");
       console.error(error);

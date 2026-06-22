@@ -1431,6 +1431,23 @@ h1, h2, h3, p {
   box-shadow: var(--shadow);
 }
 
+.contact__form--compact {
+  padding: 0;
+  box-shadow: none;
+  background: transparent;
+  gap: 12px;
+}
+
+.sidebar-card .contact__form--compact label span {
+  font-size: 0.8125rem;
+}
+
+.sidebar-card .contact__form--compact input,
+.sidebar-card .contact__form--compact textarea {
+  padding: 10px 12px;
+  font-size: 0.9375rem;
+}
+
 .contact__form label span {
   display: block;
   margin-bottom: 8px;

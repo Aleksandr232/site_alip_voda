@@ -59,6 +59,41 @@
     `;
   }
 
+  function bindArticleContactForms(post) {
+    const title = post?.title || "";
+    const forms = [
+      document.getElementById("article-contact-form"),
+      document.getElementById("article-sidebar-form"),
+    ];
+
+    forms.forEach((form) => {
+      if (!form) return;
+      form.dataset.articleTitle = title;
+    });
+
+    const contactTitle = document.getElementById("article-contact-title");
+    if (contactTitle && title) {
+      contactTitle.textContent = `Вопросы по статье «${title}»`;
+    }
+
+    const contactLead = document.getElementById("article-contact-lead");
+    if (contactLead && title) {
+      contactLead.textContent =
+        "Оставьте заявку — перезвоним в течение 30 минут и ответим на вопросы по этой теме.";
+    }
+
+    const placeholders = [
+      document.getElementById("article-contact-message"),
+      document.getElementById("article-sidebar-message"),
+    ];
+
+    placeholders.forEach((field) => {
+      if (field && title) {
+        field.placeholder = `Вопрос по статье «${title}»…`;
+      }
+    });
+  }
+
   function setArticleView(state) {
     const loading = document.getElementById("article-loading");
     const error = document.getElementById("article-error");
@@ -222,6 +257,7 @@
         contentEl.innerHTML = renderContent(post.content || "");
       }
 
+      bindArticleContactForms(post);
       setArticleView("article");
 
       fetchPosts()

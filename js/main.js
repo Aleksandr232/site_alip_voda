@@ -31,18 +31,25 @@
 
   // Галерея «до/после» загружается из API в js/gallery.js
 
-  const form = document.getElementById("contact-form");
-  if (form) {
+  document.querySelectorAll(".contact__form").forEach((form) => {
     form.addEventListener("submit", async (e) => {
       e.preventDefault();
 
       const submitBtn = form.querySelector('button[type="submit"]');
       const data = new FormData(form);
+      let message = String(data.get("message") || "").trim();
+      const articleTitle = form.dataset.articleTitle || "";
+
+      if (articleTitle) {
+        const prefix = `Вопрос по статье «${articleTitle}»`;
+        message = message ? `${prefix}: ${message}` : prefix;
+      }
+
       const payload = {
         name: String(data.get("name") || "").trim(),
         phone: String(data.get("phone") || "").trim(),
         type: String(data.get("type") || "").trim(),
-        message: String(data.get("message") || "").trim(),
+        message,
       };
 
       if (!payload.name || !payload.phone) {
@@ -52,6 +59,8 @@
 
       const apiSubmit =
         document.querySelector('meta[name="api-submit"]')?.content || "/api/requests.php";
+
+      const defaultLabel = submitBtn?.dataset.defaultLabel || submitBtn?.textContent || "Отправить заявку";
 
       if (submitBtn) {
         submitBtn.disabled = true;
@@ -92,11 +101,11 @@
       } finally {
         if (submitBtn) {
           submitBtn.disabled = false;
-          submitBtn.textContent = "Отправить заявку";
+          submitBtn.textContent = defaultLabel;
         }
       }
     });
-  }
+  });
 
   document.querySelectorAll(".blog-filter").forEach((btn) => {
     btn.addEventListener("click", () => {

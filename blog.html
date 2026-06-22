@@ -5,6 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="icon" href="/favicon.svg" type="image/svg+xml">
   <meta name="description" content="Блог СкайКлин: статьи о мойке фасадов, окон, альпинистских работах и технологиях очистки.">
+  <meta name="api-submit" content="/api/requests.php">
+  <meta name="api-settings" content="/api/settings.php">
   <title>Блог — СкайКлин</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -14,18 +16,18 @@
 <body>
   <header class="header" id="top">
     <div class="container header__inner">
-      <a href="../" class="logo">
+      <a href="/" class="logo">
         <span class="logo__icon" aria-hidden="true">▲</span>
         <span class="logo__text">Скай<span>Клин</span></span>
       </a>
       <nav class="nav" id="nav">
-        <a href="../#services">Услуги</a>
-        <a href="../#technology">Технологии</a>
-        <a href="../#before-after">До и после</a>
-        <a href="../#reviews">Отзывы</a>
-        <a href="../#partners">Партнёры</a>
-        <a href="blog" class="nav__active">Блог</a>
-        <a href="../#contact" class="nav__cta">Заказать</a>
+        <a href="/#services">Услуги</a>
+        <a href="/#technology">Технологии</a>
+        <a href="/#before-after">До и после</a>
+        <a href="/#reviews">Отзывы</a>
+        <a href="/#partners">Партнёры</a>
+        <a href="/blog" class="nav__active">Блог</a>
+        <a href="#contact" class="nav__cta">Заказать</a>
       </nav>
       <button class="burger" id="burger" aria-label="Открыть меню" aria-expanded="false">
         <span></span>
@@ -52,33 +54,75 @@
       </div>
     </section>
 
-    <section class="section section--alt section--compact">
-      <div class="container cta-banner">
-        <div class="cta-banner__content">
-          <h2>Нужна консультация по вашему объекту?</h2>
-          <p>Расскажем, какой метод мойки подойдёт именно вам — бесплатно и без обязательств.</p>
+    <section class="section section--alt contact" id="contact">
+      <div class="container contact__inner">
+        <div class="contact__info">
+          <p class="section__label">Обратная связь</p>
+          <h2>Закажите бесплатный осмотр объекта</h2>
+          <p>Оставьте заявку — перезвоним в течение 30 минут, рассчитаем стоимость и согласуем сроки.</p>
+          <ul class="contact__list">
+            <li id="site-phone-item">
+              <strong>Телефон</strong>
+              <a href="tel:+79001234567" id="site-phone">+7 (900) 123-45-67</a>
+            </li>
+            <li>
+              <strong>Email</strong>
+              <a href="mailto:info@skyclin.ru" id="site-email">info@skyclin.ru</a>
+            </li>
+            <li>
+              <strong>Режим работы</strong>
+              <span id="site-hours">Пн–Сб, 8:00–20:00</span>
+            </li>
+          </ul>
         </div>
-        <a href="../#contact" class="btn btn--primary">Оставить заявку</a>
+        <form class="contact__form" id="contact-form">
+          <label>
+            <span>Ваше имя</span>
+            <input type="text" name="name" required placeholder="Иван Иванов" autocomplete="name">
+          </label>
+          <label>
+            <span>Телефон</span>
+            <input type="tel" name="phone" required placeholder="+7 (___) ___-__-__" autocomplete="tel">
+          </label>
+          <label>
+            <span>Тип объекта</span>
+            <select name="type">
+              <option value="facade">Мойка фасада</option>
+              <option value="windows">Мойка окон</option>
+              <option value="montage">Монтажные работы</option>
+              <option value="snow">Уборка снега с кровли</option>
+              <option value="complex">Комплекс работ</option>
+              <option value="alpinism">Альпинистские работы</option>
+            </select>
+          </label>
+          <label>
+            <span>Комментарий</span>
+            <textarea name="message" rows="3" placeholder="Адрес, этажность, площадь…"></textarea>
+          </label>
+          <button type="submit" class="btn btn--primary btn--full" data-default-label="Отправить заявку">Отправить заявку</button>
+          <p class="contact__privacy">Нажимая кнопку, вы соглашаетесь на обработку персональных данных.</p>
+        </form>
       </div>
     </section>
   </main>
 
   <footer class="footer">
     <div class="container footer__inner">
-      <a href="../" class="logo logo--footer">
+      <a href="/" class="logo logo--footer">
         <span class="logo__icon" aria-hidden="true">▲</span>
         <span class="logo__text">Скай<span>Клин</span></span>
       </a>
       <p>© 2026 СкайКлин. Мойка фасадов и окон альпинистами.</p>
       <div class="footer__links">
-        <a href="blog">Блог</a>
-        <a href="../#contact">Контакты</a>
+        <a href="/blog">Блог</a>
+        <a href="#contact">Контакты</a>
       </div>
       <a href="#top" class="footer__top">Наверх ↑</a>
     </div>
   </footer>
 
-  <script src="/js/main.js"></script>
-  <script src="/js/blog.js?v=4"></script>
+  <script src="/js/main.js?v=5"></script>
+  <script src="/js/settings.js?v=5"></script>
+  <script src="/js/blog.js?v=5"></script>
 </body>
 </html>

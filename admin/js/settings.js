@@ -6,6 +6,12 @@
   const heroFloatPreview = document.getElementById("hero-float-preview");
   const heroMainInput = document.getElementById("hero-image-main-input");
   const heroFloatInput = document.getElementById("hero-image-float-input");
+  const heroMainRemoveWrap = document.getElementById("hero-main-remove-wrap");
+  const heroFloatRemoveWrap = document.getElementById("hero-float-remove-wrap");
+  const heroMainRemoveBtn = document.getElementById("hero-main-remove");
+  const heroFloatRemoveBtn = document.getElementById("hero-float-remove");
+
+  const heroFallbackText = "Сейчас на сайте — изображение по умолчанию";
 
   function escapeHtml(value) {
     return String(value)
@@ -49,6 +55,40 @@
     return file?.type?.startsWith("video/") || isVideoPath(file?.name);
   }
 
+  function hasCustomHeroMedia(settings, key) {
+    return Boolean(settings?.[key]);
+  }
+
+  function resetHeroRemoveFlags() {
+    if (homepageForm?.elements.remove_hero_image_main) {
+      homepageForm.elements.remove_hero_image_main.value = "0";
+    }
+    if (homepageForm?.elements.remove_hero_image_float) {
+      homepageForm.elements.remove_hero_image_float.value = "0";
+    }
+  }
+
+  function updateHeroRemoveButtons(settings) {
+    if (heroMainRemoveWrap) {
+      heroMainRemoveWrap.hidden = !hasCustomHeroMedia(settings, "hero_image_main");
+    }
+    if (heroFloatRemoveWrap) {
+      heroFloatRemoveWrap.hidden = !hasCustomHeroMedia(settings, "hero_image_float");
+    }
+  }
+
+  function markHeroMediaRemoved(fieldName, preview, removeWrap) {
+    if (homepageForm?.elements[fieldName]) {
+      homepageForm.elements[fieldName].value = "1";
+    }
+    if (preview) {
+      preview.innerHTML = `<span class="admin-form__hint">${heroFallbackText}</span>`;
+    }
+    if (removeWrap) {
+      removeWrap.hidden = true;
+    }
+  }
+
   function renderHeroPreview(container, mediaUrl, fallbackText) {
     if (!container) return;
 
@@ -63,27 +103,29 @@
   }
 
   function updateHeroPreviews(settings) {
-    renderHeroPreview(
-      heroMainPreview,
-      settings.hero_image_main,
-      "Сейчас на сайте — изображение по умолчанию"
-    );
-    renderHeroPreview(
-      heroFloatPreview,
-      settings.hero_image_float,
-      "Сейчас на сайте — изображение по умолчанию"
-    );
+    renderHeroPreview(heroMainPreview, settings.hero_image_main, heroFallbackText);
+    renderHeroPreview(heroFloatPreview, settings.hero_image_float, heroFallbackText);
+    updateHeroRemoveButtons(settings);
+    resetHeroRemoveFlags();
   }
 
-  function bindFilePreview(input, preview) {
+  function bindFilePreview(input, preview, removeFieldName, removeWrap) {
     input?.addEventListener("change", () => {
       const file = input.files?.[0];
       if (!file) return;
+
+      if (homepageForm?.elements[removeFieldName]) {
+        homepageForm.elements[removeFieldName].value = "0";
+      }
 
       const url = URL.createObjectURL(file);
       preview.innerHTML = isVideoFile(file)
         ? `<video src="${url}" controls></video>`
         : `<img src="${url}" alt="">`;
+
+      if (removeWrap) {
+        removeWrap.hidden = false;
+      }
     });
   }
 
@@ -185,8 +227,18 @@
   }
 
   document.addEventListener("DOMContentLoaded", async () => {
-    bindFilePreview(heroMainInput, heroMainPreview);
-    bindFilePreview(heroFloatInput, heroFloatPreview);
+    bindFilePreview(heroMainInput, heroMainPreview, "remove_hero_image_main", heroMainRemoveWrap);
+    bindFilePreview(heroFloatInput, heroFloatPreview, "remove_hero_image_float", heroFloatRemoveWrap);
+
+    heroMainRemoveBtn?.addEventListener("click", () => {
+      if (heroMainInput) heroMainInput.value = "";
+      markHeroMediaRemoved("remove_hero_image_main", heroMainPreview, heroMainRemoveWrap);
+    });
+
+    heroFloatRemoveBtn?.addEventListener("click", () => {
+      if (heroFloatInput) heroFloatInput.value = "";
+      markHeroMediaRemoved("remove_hero_image_float", heroFloatPreview, heroFloatRemoveWrap);
+    });
 
     try {
       await loadSettings();

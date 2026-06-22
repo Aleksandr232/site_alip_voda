@@ -99,6 +99,8 @@
           </div>
           <div class="admin-panel__body">
             <form class="admin-form admin-form--wide" id="settings-homepage-form">
+              <input type="hidden" name="remove_hero_image_main" value="0">
+              <input type="hidden" name="remove_hero_image_float" value="0">
               <label>
                 <span>Заголовок (Hero)</span>
                 <input type="text" name="hero_title" value="Чистота и безопасность на высоте без лесов и подъёмников" required>
@@ -122,14 +124,20 @@
                   <span>Основное фото или видео (большое)</span>
                   <input type="file" id="hero-image-main-input" name="hero_image_main" accept="image/jpeg,image/png,image/webp,image/gif,video/mp4,video/webm,video/quicktime">
                   <div class="admin-upload-preview" id="hero-main-preview"></div>
+                  <div id="hero-main-remove-wrap" hidden>
+                    <button type="button" class="btn btn--ghost btn--sm" id="hero-main-remove">Удалить</button>
+                  </div>
                 </label>
                 <label>
                   <span>Дополнительное фото или видео (маленькое)</span>
                   <input type="file" id="hero-image-float-input" name="hero_image_float" accept="image/jpeg,image/png,image/webp,image/gif,video/mp4,video/webm,video/quicktime">
                   <div class="admin-upload-preview" id="hero-float-preview"></div>
+                  <div id="hero-float-remove-wrap" hidden>
+                    <button type="button" class="btn btn--ghost btn--sm" id="hero-float-remove">Удалить</button>
+                  </div>
                 </label>
               </div>
-              <p class="admin-form__hint">JPG, PNG, WEBP, GIF (до 5 МБ) или MP4, WEBM, MOV (до 50 МБ). Если файл не загружен, на сайте остаётся изображение по умолчанию. Новый файл заменит текущий при сохранении.</p>
+              <p class="admin-form__hint">JPG, PNG, WEBP, GIF (до 5 МБ) или MP4, WEBM, MOV (до 50 МБ). Если файл не загружен, на сайте остаётся изображение по умолчанию. Новый файл заменит текущий при сохранении, кнопка «Удалить» — сбросит на значение по умолчанию.</p>
               <div class="admin-form__actions">
                 <button type="submit" class="btn btn--primary">Сохранить</button>
               </div>
@@ -169,6 +177,6 @@
 
   <script src="/admin/js/auth.js?v=8"></script>
   <script src="/admin/js/admin.js?v=8"></script>
-  <script src="/admin/js/settings.js?v=5"></script>
+  <script src="/admin/js/settings.js?v=6"></script>
 </body>
 </html>

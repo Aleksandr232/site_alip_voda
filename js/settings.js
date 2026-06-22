@@ -26,10 +26,33 @@
     return /\.(mp4|webm|mov)(\?.*)?$/i.test(String(path));
   }
 
+  function getDefaultHeroSrc(element) {
+    return element?.dataset?.defaultSrc || element?.getAttribute("src") || "";
+  }
+
+  function resetHeroMedia(element, defaultSrc) {
+    if (!element || !defaultSrc) return;
+
+    const alt = element.getAttribute("alt") || "";
+
+    if (element.tagName === "VIDEO") {
+      const img = document.createElement("img");
+      img.id = element.id;
+      img.src = defaultSrc;
+      img.alt = alt;
+      img.dataset.defaultSrc = defaultSrc;
+      element.replaceWith(img);
+      return;
+    }
+
+    element.src = defaultSrc;
+  }
+
   function applyHeroMedia(element, url) {
     if (!element || !url) return;
 
     const alt = element.getAttribute("alt") || "";
+    const defaultSrc = getDefaultHeroSrc(element);
     const isVideo = isVideoPath(url);
 
     if (isVideo && element.tagName === "IMG") {
@@ -41,6 +64,9 @@
       video.loop = true;
       video.playsInline = true;
       video.setAttribute("playsinline", "");
+      if (defaultSrc) {
+        video.dataset.defaultSrc = defaultSrc;
+      }
       element.replaceWith(video);
       return;
     }
@@ -50,6 +76,9 @@
       img.id = element.id;
       img.src = url;
       img.alt = alt;
+      if (defaultSrc) {
+        img.dataset.defaultSrc = defaultSrc;
+      }
       element.replaceWith(img);
       return;
     }
@@ -106,13 +135,23 @@
     }
 
     const heroMain = document.getElementById("hero-image-main");
-    if (heroMain && settings.hero_image_main) {
-      applyHeroMedia(heroMain, settings.hero_image_main);
+    if (heroMain) {
+      const defaultMainSrc = getDefaultHeroSrc(heroMain);
+      if (settings.hero_image_main) {
+        applyHeroMedia(heroMain, settings.hero_image_main);
+      } else {
+        resetHeroMedia(heroMain, defaultMainSrc);
+      }
     }
 
     const heroFloat = document.getElementById("hero-image-float");
-    if (heroFloat && settings.hero_image_float) {
-      applyHeroMedia(heroFloat, settings.hero_image_float);
+    if (heroFloat) {
+      const defaultFloatSrc = getDefaultHeroSrc(heroFloat);
+      if (settings.hero_image_float) {
+        applyHeroMedia(heroFloat, settings.hero_image_float);
+      } else {
+        resetHeroMedia(heroFloat, defaultFloatSrc);
+      }
     }
   }
 

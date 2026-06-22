@@ -97,16 +97,38 @@ final class SettingsService
         $oldMain = null;
         $oldFloat = null;
 
+        if ($this->isRemoveFlag($input['remove_hero_image_main'] ?? null)) {
+            if ($heroMain !== '') {
+                $oldMain = $heroMain;
+            }
+            $heroMain = '';
+        }
+
+        if ($this->isRemoveFlag($input['remove_hero_image_float'] ?? null)) {
+            if ($heroFloat !== '') {
+                $oldFloat = $heroFloat;
+            }
+            $heroFloat = '';
+        }
+
         $mainFile = $files['hero_image_main'] ?? null;
         if (is_array($mainFile) && (int) ($mainFile['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_NO_FILE) {
+            if ($heroMain !== '') {
+                $oldMain = $heroMain;
+            } elseif (($stored['hero_image_main'] ?? '') !== '') {
+                $oldMain = $stored['hero_image_main'];
+            }
             $heroMain = $this->uploader->store($mainFile, 'main_');
-            $oldMain = $stored['hero_image_main'] ?? null;
         }
 
         $floatFile = $files['hero_image_float'] ?? null;
         if (is_array($floatFile) && (int) ($floatFile['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_NO_FILE) {
+            if ($heroFloat !== '') {
+                $oldFloat = $heroFloat;
+            } elseif (($stored['hero_image_float'] ?? '') !== '') {
+                $oldFloat = $stored['hero_image_float'];
+            }
             $heroFloat = $this->uploader->store($floatFile, 'float_');
-            $oldFloat = $stored['hero_image_float'] ?? null;
         }
 
         $values = [
@@ -148,5 +170,10 @@ final class SettingsService
         $normalized = strtolower(trim((string) $value));
 
         return in_array($normalized, ['1', 'true', 'yes', 'on'], true) ? '1' : '0';
+    }
+
+    private function isRemoveFlag(mixed $value): bool
+    {
+        return $this->normalizeFlag($value) === '1';
     }
 }

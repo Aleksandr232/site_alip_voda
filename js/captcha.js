@@ -72,10 +72,16 @@
   }
 
   function initForm(form) {
+    if (form.dataset.captchaReady === "1") {
+      return;
+    }
+
     const submitBtn = form.querySelector('button[type="submit"]');
     if (!submitBtn) {
       return;
     }
+
+    form.dataset.captchaReady = "1";
 
     const block = createCaptchaBlock();
     form.insertBefore(block, submitBtn);

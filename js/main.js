@@ -36,30 +36,26 @@
       e.preventDefault();
 
       const submitBtn = form.querySelector('button[type="submit"]');
-      const data = new FormData(form);
-      let message = String(data.get("message") || "").trim();
+      const formData = new FormData(form);
       const articleTitle = form.dataset.articleTitle || "";
 
       if (articleTitle) {
         const prefix = `Вопрос по статье «${articleTitle}»`;
-        message = message ? `${prefix}: ${message}` : prefix;
+        const message = String(formData.get("message") || "").trim();
+        formData.set("message", message ? `${prefix}: ${message}` : prefix);
       }
 
-      const payload = {
-        name: String(data.get("name") || "").trim(),
-        phone: String(data.get("phone") || "").trim(),
-        type: String(data.get("type") || "").trim(),
-        message,
-        captcha_token: String(data.get("captcha_token") || "").trim(),
-        captcha_answer: String(data.get("captcha_answer") || "").trim(),
-      };
+      const name = String(formData.get("name") || "").trim();
+      const phone = String(formData.get("phone") || "").trim();
+      const captchaToken = String(formData.get("captcha_token") || "").trim();
+      const captchaAnswer = String(formData.get("captcha_answer") || "").trim();
 
-      if (!payload.name || !payload.phone) {
+      if (!name || !phone) {
         alert("Заполните имя и телефон");
         return;
       }
 
-      if (!payload.captcha_token || !payload.captcha_answer) {
+      if (!captchaToken || !captchaAnswer) {
         alert("Решите пример для проверки");
         return;
       }
@@ -78,10 +74,9 @@
         const response = await fetch(apiSubmit, {
           method: "POST",
           headers: {
-            "Content-Type": "application/json",
             Accept: "application/json",
           },
-          body: JSON.stringify(payload),
+          body: formData,
         });
 
         const contentType = response.headers.get("content-type") || "";
@@ -101,7 +96,7 @@
           throw new Error("Заявка не сохранилась на сервере. Откройте /api/install для проверки базы.");
         }
 
-        alert(result.message || `Спасибо, ${payload.name}! Заявка принята.`);
+        alert(result.message || `Спасибо, ${name}! Заявка принята.`);
         form.reset();
       } catch (error) {
         if (typeof window.refreshContactCaptcha === "function") {

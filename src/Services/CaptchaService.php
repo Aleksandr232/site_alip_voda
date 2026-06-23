@@ -26,10 +26,10 @@ final class CaptchaService
         ];
     }
 
-    public function verify(string $token, string $answer): void
+    public function verify(string $token, mixed $answer): void
     {
-        $answer = trim($answer);
-        if ($answer === '' || !ctype_digit($answer)) {
+        $answer = $this->normalizeAnswer($answer);
+        if ($answer === '') {
             throw new InvalidArgumentException('Введите ответ на проверочный вопрос');
         }
 
@@ -61,6 +61,20 @@ final class CaptchaService
         if ((int) $answer !== ((int) $left + (int) $right)) {
             throw new InvalidArgumentException('Неверный ответ. Проверьте пример и попробуйте снова');
         }
+    }
+
+    private function normalizeAnswer(mixed $answer): string
+    {
+        if (is_int($answer) || is_float($answer)) {
+            return (string) max(0, (int) round($answer));
+        }
+
+        $text = trim((string) $answer);
+        if ($text === '') {
+            return '';
+        }
+
+        return preg_replace('/\D+/', '', $text) ?? '';
     }
 
     private function secret(): string

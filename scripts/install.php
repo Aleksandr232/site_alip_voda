@@ -12,7 +12,7 @@ require $root . '/bootstrap.php';
 Config::load($root);
 
 try {
-    $result = Installer::ensure();
+    $result = Installer::ensure(true);
     Database::connection();
 
     echo 'База данных: ' . Config::require('DB_NAME') . PHP_EOL;

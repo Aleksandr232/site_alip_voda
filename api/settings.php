@@ -35,8 +35,6 @@ $controller = new SettingsController();
 $request = Request::fromGlobals();
 
 try {
-    \App\Database\Installer::ensure();
-
     if ($method === 'GET') {
         $controller->show($request);
         exit;

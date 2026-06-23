@@ -10,6 +10,10 @@ use PDOException;
 
 final class Installer
 {
+    private const SCHEMA_VERSION = 1;
+
+    private static bool $runtimeReady = false;
+
     /** @var array<string, string> */
     private static array $tables = [
         'users' => <<<'SQL'
@@ -102,13 +106,44 @@ CREATE TABLE IF NOT EXISTS site_settings (
 SQL,
     ];
 
-    public static function ensure(): array
+    public static function isReady(): bool
     {
+        if (self::$runtimeReady) {
+            return true;
+        }
+
         if (Config::get('DB_AUTO_INSTALL', 'true') !== 'true') {
+            self::$runtimeReady = true;
+
+            return true;
+        }
+
+        $lock = self::readLockVersion();
+
+        return $lock === self::SCHEMA_VERSION;
+    }
+
+    public static function ensure(bool $force = false): array
+    {
+        if (!$force && self::isReady()) {
+            return [
+                'skipped' => false,
+                'cached' => true,
+                'tables' => array_fill_keys(array_keys(self::$tables), true),
+                'created' => [],
+                'existing' => array_keys(self::$tables),
+            ];
+        }
+
+        if (Config::get('DB_AUTO_INSTALL', 'true') !== 'true' && !$force) {
+            self::$runtimeReady = true;
+
             return ['skipped' => true, 'tables' => [], 'created' => []];
         }
 
         $pdo = self::connect();
+        \App\Database::adopt($pdo);
+
         $created = [];
         $existing = [];
 
@@ -129,6 +164,8 @@ SQL,
         }
 
         self::migrate($pdo);
+        self::writeLock();
+        self::$runtimeReady = true;
 
         return [
             'skipped' => false,
@@ -140,7 +177,7 @@ SQL,
 
     public static function status(): array
     {
-        $pdo = self::connect();
+        $pdo = \App\Database::connection();
         $tables = [];
 
         foreach (array_keys(self::$tables) as $table) {
@@ -148,6 +185,33 @@ SQL,
         }
 
         return $tables;
+    }
+
+    private static function lockPath(): string
+    {
+        return dirname(__DIR__, 2) . DIRECTORY_SEPARATOR . 'storage' . DIRECTORY_SEPARATOR . 'schema.lock';
+    }
+
+    private static function readLockVersion(): ?int
+    {
+        $path = self::lockPath();
+        if (!is_file($path)) {
+            return null;
+        }
+
+        $version = (int) trim((string) file_get_contents($path));
+
+        return $version > 0 ? $version : null;
+    }
+
+    private static function writeLock(): void
+    {
+        $dir = dirname(self::lockPath());
+        if (!is_dir($dir) && !mkdir($dir, 0755, true) && !is_dir($dir)) {
+            return;
+        }
+
+        file_put_contents(self::lockPath(), (string) self::SCHEMA_VERSION, LOCK_EX);
     }
 
     private static function connect(): PDO
@@ -201,18 +265,17 @@ SQL,
 
         return new PDO($dsn, $user, $pass, [
             PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+            PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+            PDO::ATTR_TIMEOUT => 5,
         ]);
     }
 
     private static function tableExists(PDO $pdo, string $table): bool
     {
-        $stmt = $pdo->prepare(
-            'SELECT COUNT(*) FROM information_schema.tables
-             WHERE table_schema = DATABASE() AND table_name = :table'
-        );
+        $stmt = $pdo->prepare('SHOW TABLES LIKE :table');
         $stmt->execute(['table' => $table]);
 
-        return (int) $stmt->fetchColumn() > 0;
+        return (bool) $stmt->fetchColumn();
     }
 
     private static function migrate(PDO $pdo): void
@@ -279,13 +342,10 @@ SQL,
 
     private static function columnExists(PDO $pdo, string $table, string $column): bool
     {
-        $stmt = $pdo->prepare(
-            'SELECT COUNT(*) FROM information_schema.columns
-             WHERE table_schema = DATABASE() AND table_name = :table AND column_name = :column'
-        );
-        $stmt->execute(['table' => $table, 'column' => $column]);
+        $stmt = $pdo->prepare(sprintf('SHOW COLUMNS FROM `%s` LIKE :column', str_replace('`', '``', $table)));
+        $stmt->execute(['column' => $column]);
 
-        return (int) $stmt->fetchColumn() > 0;
+        return (bool) $stmt->fetch(PDO::FETCH_ASSOC);
     }
 
     private static function isUnknownDatabase(PDOException $e): bool

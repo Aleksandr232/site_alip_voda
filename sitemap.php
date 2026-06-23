@@ -14,7 +14,7 @@ header('Content-Type: application/xml; charset=utf-8');
 header('Cache-Control: public, max-age=3600');
 
 try {
-    \App\Database\Installer::ensure();
+    \App\Database::connection();
     echo SitemapService::createDefault()->render();
 } catch (Throwable $e) {
     error_log('sitemap.php: ' . $e->getMessage());

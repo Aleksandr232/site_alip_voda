@@ -54,13 +54,9 @@ $router->get('/health', function () {
     $payload = ['status' => 'ok', 'php' => PHP_VERSION];
 
     try {
-        $install = \App\Database\Installer::ensure();
         \App\Database::connection();
         $payload['database'] = 'connected';
-        $payload['tables'] = $install['tables'] ?? [];
-        if (!empty($install['created'])) {
-            $payload['tables_created'] = $install['created'];
-        }
+        $payload['schema_ready'] = \App\Database\Installer::isReady();
     } catch (Throwable $e) {
         $payload['database'] = 'error';
         $payload['database_message'] = $e->getMessage();
@@ -71,7 +67,7 @@ $router->get('/health', function () {
 
 $router->get('/install', function () {
     try {
-        $result = \App\Database\Installer::ensure();
+        $result = \App\Database\Installer::ensure(true);
         \App\Database::connection();
 
         Response::success([

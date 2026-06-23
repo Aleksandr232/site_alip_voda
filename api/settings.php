@@ -9,13 +9,41 @@ use App\Http\Response;
 
 $root = dirname(__DIR__);
 
+$respondJsonError = static function (string $message, int $status = 500): void {
+    if (!headers_sent()) {
+        http_response_code($status);
+        header('Content-Type: application/json; charset=utf-8');
+    }
+
+    echo json_encode([
+        'success' => false,
+        'message' => $message,
+    ], JSON_UNESCAPED_UNICODE);
+};
+
+register_shutdown_function(static function () use ($respondJsonError): void {
+    $error = error_get_last();
+    if ($error === null) {
+        return;
+    }
+
+    $fatalTypes = [E_ERROR, E_PARSE, E_CORE_ERROR, E_COMPILE_ERROR];
+    if (!in_array($error['type'], $fatalTypes, true)) {
+        return;
+    }
+
+    if (headers_sent()) {
+        return;
+    }
+
+    $respondJsonError('Внутренняя ошибка сервера');
+});
+
 try {
     require $root . '/bootstrap.php';
     Config::load($root);
 } catch (Throwable $e) {
-    http_response_code(500);
-    header('Content-Type: application/json; charset=utf-8');
-    echo json_encode(['success' => false, 'message' => 'Bootstrap error: ' . $e->getMessage()], JSON_UNESCAPED_UNICODE);
+    $respondJsonError('Bootstrap error: ' . $e->getMessage());
     exit;
 }
 

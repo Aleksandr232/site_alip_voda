@@ -159,16 +159,27 @@
     try {
       const response = await fetch(settingsApiUrl(), {
         headers: { Accept: "application/json" },
+        cache: "no-store",
       });
+
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}`);
+      }
+
+      const contentType = response.headers.get("content-type") || "";
+      if (!contentType.includes("application/json")) {
+        throw new Error("Сервер вернул не JSON");
+      }
+
       const data = await response.json();
 
-      if (!response.ok || !data.success) {
+      if (!data.success || !data.settings) {
         throw new Error(data.message || "Ошибка загрузки");
       }
 
       applySettings(data.settings);
     } catch (error) {
-      console.error(error);
+      console.warn("Настройки с сервера недоступны, используются значения по умолчанию.", error);
     }
   }
 

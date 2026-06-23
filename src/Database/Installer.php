@@ -144,6 +144,20 @@ SQL,
         $pdo = self::connect();
         \App\Database::adopt($pdo);
 
+        if (!$force && self::allTablesExist($pdo)) {
+            self::migrate($pdo);
+            self::writeLock();
+            self::$runtimeReady = true;
+
+            return [
+                'skipped' => false,
+                'cached' => true,
+                'tables' => array_fill_keys(array_keys(self::$tables), true),
+                'created' => [],
+                'existing' => array_keys(self::$tables),
+            ];
+        }
+
         $created = [];
         $existing = [];
 
@@ -272,10 +286,23 @@ SQL,
 
     private static function tableExists(PDO $pdo, string $table): bool
     {
-        $stmt = $pdo->prepare('SHOW TABLES LIKE :table');
-        $stmt->execute(['table' => $table]);
+        $safeTable = str_replace('`', '``', $table);
+        $stmt = $pdo->query("SHOW TABLES LIKE '{$safeTable}'");
 
-        return (bool) $stmt->fetchColumn();
+        return (bool) $stmt?->fetchColumn();
+    }
+
+    private static function allTablesExist(PDO $pdo): bool
+    {
+        $tables = array_keys(self::$tables);
+        $placeholders = implode(', ', array_fill(0, count($tables), '?'));
+        $stmt = $pdo->prepare(
+            "SELECT COUNT(*) FROM information_schema.tables
+             WHERE table_schema = DATABASE() AND table_name IN ({$placeholders})"
+        );
+        $stmt->execute($tables);
+
+        return (int) $stmt->fetchColumn() === count($tables);
     }
 
     private static function migrate(PDO $pdo): void
@@ -342,10 +369,11 @@ SQL,
 
     private static function columnExists(PDO $pdo, string $table, string $column): bool
     {
-        $stmt = $pdo->prepare(sprintf('SHOW COLUMNS FROM `%s` LIKE :column', str_replace('`', '``', $table)));
-        $stmt->execute(['column' => $column]);
+        $safeTable = str_replace('`', '``', $table);
+        $safeColumn = str_replace(['\\', '%', '_'], ['\\\\', '\\%', '\\_'], $column);
+        $stmt = $pdo->query("SHOW COLUMNS FROM `{$safeTable}` LIKE '{$safeColumn}'");
 
-        return (bool) $stmt->fetch(PDO::FETCH_ASSOC);
+        return (bool) $stmt?->fetch(PDO::FETCH_ASSOC);
     }
 
     private static function isUnknownDatabase(PDOException $e): bool

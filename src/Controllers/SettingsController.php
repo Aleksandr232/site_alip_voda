@@ -35,10 +35,10 @@ final class SettingsController
             ]);
         } catch (Throwable $e) {
             error_log('Settings show: ' . $e->getMessage());
-            Response::error(
-                Config::get('APP_ENV', 'local') !== 'production' ? $e->getMessage() : 'Ошибка загрузки настроек',
-                500
-            );
+            Response::success([
+                'settings' => SettingsService::DEFAULTS,
+                'degraded' => true,
+            ]);
         }
     }
 

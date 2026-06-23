@@ -1477,6 +1477,56 @@ h1, h2, h3, p {
   border-color: var(--primary);
 }
 
+.contact__captcha {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 12px;
+  align-items: end;
+}
+
+.contact__captcha-field {
+  margin: 0;
+}
+
+.contact__captcha-label {
+  display: block;
+  margin-bottom: 8px;
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.contact__captcha-label strong {
+  color: var(--primary);
+  font-weight: 800;
+}
+
+.contact__captcha-refresh {
+  width: 48px;
+  height: 48px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--bg);
+  color: var(--primary);
+  font-size: 1.25rem;
+  line-height: 1;
+  cursor: pointer;
+  transition: border-color 0.2s, background 0.2s;
+}
+
+.contact__captcha-refresh:hover:not(:disabled) {
+  border-color: var(--primary);
+  background: rgba(11, 110, 188, 0.06);
+}
+
+.contact__captcha-refresh:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}
+
+.contact__captcha--error .contact__captcha-label strong {
+  color: #c0392b;
+}
+
 .contact__privacy {
   font-size: 0.75rem;
   color: var(--text-muted);

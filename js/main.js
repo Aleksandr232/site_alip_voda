@@ -50,10 +50,17 @@
         phone: String(data.get("phone") || "").trim(),
         type: String(data.get("type") || "").trim(),
         message,
+        captcha_token: String(data.get("captcha_token") || "").trim(),
+        captcha_answer: String(data.get("captcha_answer") || "").trim(),
       };
 
       if (!payload.name || !payload.phone) {
         alert("Заполните имя и телефон");
+        return;
+      }
+
+      if (!payload.captcha_token || !payload.captcha_answer) {
+        alert("Решите пример для проверки");
         return;
       }
 
@@ -97,6 +104,9 @@
         alert(result.message || `Спасибо, ${payload.name}! Заявка принята.`);
         form.reset();
       } catch (error) {
+        if (typeof window.refreshContactCaptcha === "function") {
+          window.refreshContactCaptcha(form);
+        }
         alert(error.message || "Ошибка отправки. Попробуйте позже или позвоните нам.");
       } finally {
         if (submitBtn) {

@@ -45,6 +45,7 @@ $router->post('/auth/login', fn (Request $req) => $auth->login($req));
 $router->get('/auth/me', fn (Request $req) => $auth->me($req));
 $router->post('/auth/logout', fn () => $auth->logout());
 $router->post('/requests', fn (Request $req) => $requests->create($req));
+$router->get('/captcha', fn () => (new \App\Controllers\CaptchaController())->issue());
 $router->get('/requests', fn (Request $req) => $requests->list($req));
 $router->get('/requests/stats', fn (Request $req) => $requests->stats($req));
 $router->post('/requests/update', fn (Request $req) => $requests->updateStatus($req));

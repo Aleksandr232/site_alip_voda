@@ -5,6 +5,10 @@ RewriteBase /
 RewriteCond %{HTTP:Authorization} .
 RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
 
+# Favicon для старых браузеров
+RewriteRule ^favicon\.ico$ favicon.svg [L]
+RewriteRule ^apple-touch-icon\.png$ apple-touch-icon.php [L]
+
 # API: прямые PHP-файлы (partners.php, gallery.php…) — отдаём как есть, остальное — роутер
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteRule ^api(?:/(.*))?$ api/index.php [QSA,L]

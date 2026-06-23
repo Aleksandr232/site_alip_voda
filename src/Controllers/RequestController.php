@@ -7,6 +7,7 @@ namespace App\Controllers;
 use App\Config;
 use App\Http\Request;
 use App\Http\Response;
+use App\Services\CaptchaService;
 use App\Services\RequestService;
 use InvalidArgumentException;
 use RuntimeException;
@@ -17,6 +18,7 @@ final class RequestController
     public function __construct(
         private readonly AuthController $auth = new AuthController(),
         private readonly RequestService $requests = new RequestService(),
+        private readonly CaptchaService $captcha = new CaptchaService(),
     ) {
     }
 
@@ -27,6 +29,10 @@ final class RequestController
             $phone = (string) ($request->body['phone'] ?? '');
             $serviceType = (string) ($request->body['type'] ?? $request->body['service_type'] ?? '');
             $message = isset($request->body['message']) ? (string) $request->body['message'] : null;
+            $captchaToken = (string) ($request->body['captcha_token'] ?? '');
+            $captchaAnswer = (string) ($request->body['captcha_answer'] ?? '');
+
+            $this->captcha->verify($captchaToken, $captchaAnswer);
 
             $item = $this->requests->create($name, $phone, $serviceType, $message);
             Response::success([

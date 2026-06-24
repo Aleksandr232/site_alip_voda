@@ -55,15 +55,23 @@ final class PartnerController
     {
         try {
             $this->auth->requireUser($request);
-            $item = $this->service()->create($_POST, $_FILES);
-            Response::success(['partner' => $item->toArray()], 201);
         } catch (RuntimeException $e) {
             Response::error($e->getMessage(), 401);
+
+            return;
+        }
+
+        try {
+            $item = $this->service()->create($_POST, $_FILES);
+            Response::success(['partner' => $item->toArray()], 201);
         } catch (InvalidArgumentException $e) {
             Response::error($e->getMessage(), 422);
         } catch (Throwable $e) {
             error_log('Partner create: ' . $e->getMessage());
-            Response::error('Не удалось сохранить', 500);
+            Response::error(
+                Config::get('APP_ENV', 'local') !== 'production' ? $e->getMessage() : 'Не удалось сохранить партнёра',
+                500
+            );
         }
     }
 
@@ -71,6 +79,13 @@ final class PartnerController
     {
         try {
             $this->auth->requireUser($request);
+        } catch (RuntimeException $e) {
+            Response::error($e->getMessage(), 401);
+
+            return;
+        }
+
+        try {
             $id = (int) ($_POST['id'] ?? 0);
             if ($id <= 0) {
                 throw new InvalidArgumentException('Укажите ID');
@@ -78,13 +93,14 @@ final class PartnerController
 
             $item = $this->service()->update($id, $_POST, $_FILES);
             Response::success(['partner' => $item->toArray()]);
-        } catch (RuntimeException $e) {
-            Response::error($e->getMessage(), 401);
         } catch (InvalidArgumentException $e) {
             Response::error($e->getMessage(), 422);
         } catch (Throwable $e) {
             error_log('Partner update: ' . $e->getMessage());
-            Response::error('Не удалось обновить', 500);
+            Response::error(
+                Config::get('APP_ENV', 'local') !== 'production' ? $e->getMessage() : 'Не удалось обновить партнёра',
+                500
+            );
         }
     }
 
@@ -92,6 +108,13 @@ final class PartnerController
     {
         try {
             $this->auth->requireUser($request);
+        } catch (RuntimeException $e) {
+            Response::error($e->getMessage(), 401);
+
+            return;
+        }
+
+        try {
             $id = (int) ($_POST['id'] ?? 0);
             if ($id <= 0) {
                 throw new InvalidArgumentException('Укажите ID');
@@ -99,12 +122,11 @@ final class PartnerController
 
             $this->service()->delete($id);
             Response::success(['message' => 'Партнёр удалён']);
-        } catch (RuntimeException $e) {
-            Response::error($e->getMessage(), 401);
         } catch (InvalidArgumentException $e) {
             Response::error($e->getMessage(), 422);
         } catch (Throwable $e) {
-            Response::error('Не удалось удалить', 500);
+            error_log('Partner delete: ' . $e->getMessage());
+            Response::error('Не удалось удалить партнёра', 500);
         }
     }
 }

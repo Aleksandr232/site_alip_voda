@@ -68,6 +68,10 @@ final class Request
             return [];
         }
 
+        if (!empty($_POST)) {
+            return $_POST;
+        }
+
         $contentType = $_SERVER['CONTENT_TYPE'] ?? $_SERVER['HTTP_CONTENT_TYPE'] ?? '';
         $raw = file_get_contents('php://input') ?: '';
 
@@ -85,6 +89,13 @@ final class Request
             }
 
             return $decoded;
+        }
+
+        if (str_contains($contentType, 'application/x-www-form-urlencoded') && $raw !== '') {
+            $parsed = [];
+            parse_str($raw, $parsed);
+
+            return is_array($parsed) ? $parsed : [];
         }
 
         return $_POST;

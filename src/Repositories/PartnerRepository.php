@@ -44,7 +44,8 @@ final class PartnerRepository
         int $sortOrder,
         string $status,
     ): Partner {
-        $stmt = Database::connection()->prepare(
+        $pdo = Database::connection();
+        $stmt = $pdo->prepare(
             'INSERT INTO partners (name, website, logo_image, sort_order, status)
              VALUES (:name, :website, :logo_image, :sort_order, :status)'
         );
@@ -56,9 +57,14 @@ final class PartnerRepository
             'status' => $status,
         ]);
 
-        $partner = $this->findById((int) Database::connection()->lastInsertId());
+        $id = (int) $pdo->lastInsertId();
+        if ($id <= 0) {
+            throw new \RuntimeException('Не удалось создать партнёра: не получен ID записи');
+        }
+
+        $partner = $this->findById($id);
         if (!$partner) {
-            throw new \RuntimeException('Не удалось создать партнёра');
+            throw new \RuntimeException('Не удалось создать партнёра: запись не найдена после сохранения');
         }
 
         return $partner;

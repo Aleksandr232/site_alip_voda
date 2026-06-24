@@ -47,7 +47,6 @@
 
       const name = String(formData.get("name") || "").trim();
       const phone = String(formData.get("phone") || "").trim();
-      const captchaToken = String(formData.get("captcha_token") || "").trim();
       const captchaAnswer = String(formData.get("captcha_answer") || "").trim();
 
       if (!name || !phone) {
@@ -55,7 +54,7 @@
         return;
       }
 
-      if (!captchaToken || !captchaAnswer) {
+      if (!captchaAnswer) {
         alert("Решите пример для проверки");
         return;
       }
@@ -76,6 +75,7 @@
           headers: {
             Accept: "application/json",
           },
+          credentials: "same-origin",
           body: formData,
         });
 

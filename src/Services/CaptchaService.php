@@ -4,63 +4,55 @@ declare(strict_types=1);
 
 namespace App\Services;
 
-use App\Config;
 use InvalidArgumentException;
 
 final class CaptchaService
 {
     private const TTL_SECONDS = 600;
+    private const SESSION_KEY = 'captcha_sum';
+    private const SESSION_EXPIRES_KEY = 'captcha_expires';
 
     public function issue(): array
     {
+        $this->ensureSession();
+
         $left = random_int(2, 12);
         $right = random_int(2, 12);
-        $expiresAt = time() + self::TTL_SECONDS;
 
-        $payload = implode(':', [(string) $left, (string) $right, (string) $expiresAt]);
-        $signature = hash_hmac('sha256', $payload, $this->secret());
+        $_SESSION[self::SESSION_KEY] = $left + $right;
+        $_SESSION[self::SESSION_EXPIRES_KEY] = time() + self::TTL_SECONDS;
 
         return [
             'question' => "{$left} + {$right}",
-            'token' => $signature . '.' . rtrim(strtr(base64_encode($payload), '+/', '-_'), '='),
         ];
     }
 
-    public function verify(string $token, mixed $answer): void
+    public function verify(mixed $answer): void
     {
+        $this->ensureSession();
+
         $answer = $this->normalizeAnswer($answer);
         if ($answer === '') {
             throw new InvalidArgumentException('Введите ответ на проверочный вопрос');
         }
 
-        $parts = explode('.', $token, 2);
-        if (count($parts) !== 2) {
-            throw new InvalidArgumentException('Проверка не пройдена. Обновите пример и попробуйте снова');
+        $expected = $_SESSION[self::SESSION_KEY] ?? null;
+        $expiresAt = (int) ($_SESSION[self::SESSION_EXPIRES_KEY] ?? 0);
+
+        if (!is_int($expected) || $expiresAt <= 0) {
+            throw new InvalidArgumentException('Проверка устарела. Обновите пример и попробуйте снова');
         }
 
-        [$signature, $encodedPayload] = $parts;
-        $payload = base64_decode(strtr($encodedPayload, '-_', '+/'), true);
-        if ($payload === false || !str_contains($payload, ':')) {
-            throw new InvalidArgumentException('Проверка не пройдена. Обновите пример и попробуйте снова');
-        }
-
-        $expectedSignature = hash_hmac('sha256', $payload, $this->secret());
-        if (!hash_equals($expectedSignature, $signature)) {
-            throw new InvalidArgumentException('Проверка не пройдена. Обновите пример и попробуйте снова');
-        }
-
-        [$left, $right, $expiresAt] = explode(':', $payload, 3);
-        if (!ctype_digit($left) || !ctype_digit($right) || !ctype_digit($expiresAt)) {
-            throw new InvalidArgumentException('Проверка не пройдена. Обновите пример и попробуйте снова');
-        }
-
-        if (time() > (int) $expiresAt) {
+        if (time() > $expiresAt) {
+            $this->clearChallenge();
             throw new InvalidArgumentException('Время ответа истекло. Обновите пример и попробуйте снова');
         }
 
-        if ((int) $answer !== ((int) $left + (int) $right)) {
+        if ((int) $answer !== $expected) {
             throw new InvalidArgumentException('Неверный ответ. Проверьте пример и попробуйте снова');
         }
+
+        $this->clearChallenge();
     }
 
     private function normalizeAnswer(mixed $answer): string
@@ -77,13 +69,27 @@ final class CaptchaService
         return preg_replace('/\D+/', '', $text) ?? '';
     }
 
-    private function secret(): string
+    private function clearChallenge(): void
     {
-        $secret = Config::get('JWT_SECRET');
-        if ($secret === null || $secret === '') {
-            throw new \RuntimeException('JWT_SECRET is not configured');
+        unset($_SESSION[self::SESSION_KEY], $_SESSION[self::SESSION_EXPIRES_KEY]);
+    }
+
+    private function ensureSession(): void
+    {
+        if (session_status() !== PHP_SESSION_NONE) {
+            return;
         }
 
-        return $secret;
+        $secure = !empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off';
+
+        session_set_cookie_params([
+            'lifetime' => 0,
+            'path' => '/',
+            'secure' => $secure,
+            'httponly' => true,
+            'samesite' => 'Lax',
+        ]);
+
+        session_start();
     }
 }

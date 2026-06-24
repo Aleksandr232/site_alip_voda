@@ -26,18 +26,16 @@
         title="Другой пример"
         aria-label="Обновить проверочный вопрос"
       >↻</button>
-      <input type="hidden" name="captcha_token" value="">
     `;
     return block;
   }
 
   async function loadCaptcha(block) {
     const questionEl = block.querySelector("[data-captcha-question]");
-    const tokenInput = block.querySelector('input[name="captcha_token"]');
     const answerInput = block.querySelector('input[name="captcha_answer"]');
     const refreshBtn = block.querySelector("[data-captcha-refresh]");
 
-    if (!questionEl || !tokenInput || !answerInput) {
+    if (!questionEl || !answerInput) {
       return;
     }
 
@@ -49,19 +47,19 @@
       const response = await fetch(apiUrl, {
         headers: { Accept: "application/json" },
         cache: "no-store",
+        credentials: "same-origin",
       });
 
       const result = await response.json();
-      if (!response.ok || result.success !== true || !result.question || !result.token) {
+      if (!response.ok || result.success !== true || !result.question) {
         throw new Error(result.message || "Не удалось загрузить проверку");
       }
 
       questionEl.textContent = result.question;
-      tokenInput.value = result.token;
       answerInput.value = "";
+      block.classList.remove("contact__captcha--error");
     } catch (error) {
       questionEl.textContent = "?";
-      tokenInput.value = "";
       block.classList.add("contact__captcha--error");
       console.error(error);
     } finally {
@@ -87,7 +85,6 @@
     form.insertBefore(block, submitBtn);
 
     block.querySelector("[data-captcha-refresh]")?.addEventListener("click", () => {
-      block.classList.remove("contact__captcha--error");
       loadCaptcha(block);
     });
 
@@ -103,7 +100,6 @@
   window.refreshContactCaptcha = function refreshContactCaptcha(form) {
     const block = form?.querySelector(".contact__captcha");
     if (block) {
-      block.classList.remove("contact__captcha--error");
       loadCaptcha(block);
     }
   };

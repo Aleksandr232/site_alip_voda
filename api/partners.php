@@ -41,7 +41,7 @@ try {
     }
 
     if ($method === 'POST') {
-        $action = (string) ($_POST['action'] ?? '');
+        $action = (string) ($_POST['action'] ?? $request->body['action'] ?? '');
 
         if ($action === 'update') {
             $controller->update($request);

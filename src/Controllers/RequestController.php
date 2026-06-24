@@ -29,10 +29,9 @@ final class RequestController
             $phone = (string) ($request->body['phone'] ?? '');
             $serviceType = (string) ($request->body['type'] ?? $request->body['service_type'] ?? '');
             $message = isset($request->body['message']) ? (string) $request->body['message'] : null;
-            $captchaToken = (string) ($request->body['captcha_token'] ?? $request->body['captchaToken'] ?? '');
             $captchaAnswer = $request->body['captcha_answer'] ?? $request->body['captchaAnswer'] ?? '';
 
-            $this->captcha->verify($captchaToken, $captchaAnswer);
+            $this->captcha->verify($captchaAnswer);
 
             $item = $this->requests->create($name, $phone, $serviceType, $message);
             Response::success([

@@ -697,6 +697,9 @@ h1, h2, h3, p {
   width: 100%;
   min-height: 64px;
   margin-bottom: 8px;
+  padding: 12px;
+  border-radius: 12px;
+  background: var(--bg);
 }
 
 .partner-card__logo img {

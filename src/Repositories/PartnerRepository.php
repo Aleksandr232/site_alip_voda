@@ -12,7 +12,7 @@ final class PartnerRepository
     public function findById(int $id): ?Partner
     {
         $stmt = Database::connection()->prepare(
-            'SELECT id, name, website, logo_image, sort_order, status, created_at
+            'SELECT id, name, website, logo_image, logo_background, sort_order, status, created_at
              FROM partners WHERE id = :id LIMIT 1'
         );
         $stmt->execute(['id' => $id]);
@@ -24,7 +24,7 @@ final class PartnerRepository
     /** @return Partner[] */
     public function all(bool $publishedOnly = false): array
     {
-        $sql = 'SELECT id, name, website, logo_image, sort_order, status, created_at FROM partners';
+        $sql = 'SELECT id, name, website, logo_image, logo_background, sort_order, status, created_at FROM partners';
 
         if ($publishedOnly) {
             $sql .= " WHERE status = 'published'";
@@ -41,18 +41,20 @@ final class PartnerRepository
         string $name,
         ?string $website,
         string $logoImage,
+        ?string $logoBackground,
         int $sortOrder,
         string $status,
     ): Partner {
         $pdo = Database::connection();
         $stmt = $pdo->prepare(
-            'INSERT INTO partners (name, website, logo_image, sort_order, status)
-             VALUES (:name, :website, :logo_image, :sort_order, :status)'
+            'INSERT INTO partners (name, website, logo_image, logo_background, sort_order, status)
+             VALUES (:name, :website, :logo_image, :logo_background, :sort_order, :status)'
         );
         $stmt->execute([
             'name' => $name,
             'website' => $website,
             'logo_image' => $logoImage,
+            'logo_background' => $logoBackground,
             'sort_order' => $sortOrder,
             'status' => $status,
         ]);
@@ -75,13 +77,14 @@ final class PartnerRepository
         string $name,
         ?string $website,
         string $logoImage,
+        ?string $logoBackground,
         int $sortOrder,
         string $status,
     ): ?Partner {
         $stmt = Database::connection()->prepare(
             'UPDATE partners
              SET name = :name, website = :website, logo_image = :logo_image,
-                 sort_order = :sort_order, status = :status
+                 logo_background = :logo_background, sort_order = :sort_order, status = :status
              WHERE id = :id'
         );
         $stmt->execute([
@@ -89,6 +92,7 @@ final class PartnerRepository
             'name' => $name,
             'website' => $website,
             'logo_image' => $logoImage,
+            'logo_background' => $logoBackground,
             'sort_order' => $sortOrder,
             'status' => $status,
         ]);
@@ -109,6 +113,9 @@ final class PartnerRepository
             $row['name'],
             $row['website'] ?? null,
             $row['logo_image'],
+            isset($row['logo_background']) && $row['logo_background'] !== ''
+                ? (string) $row['logo_background']
+                : null,
             (int) $row['sort_order'],
             $row['status'],
             $row['created_at'],

@@ -42,6 +42,7 @@ final class PartnerService
         $website = $this->normalizeWebsite($input['website'] ?? null);
         $sortOrder = max(0, (int) ($input['sort_order'] ?? $input['sort'] ?? 0));
         $status = $this->normalizeStatus((string) ($input['status'] ?? 'published'));
+        $logoBackground = $this->normalizeLogoBackground($input['logo_background'] ?? null);
 
         if ($name === '') {
             throw new InvalidArgumentException('Укажите название организации');
@@ -55,7 +56,7 @@ final class PartnerService
         $logoPath = $this->uploader->store($logoFile, 'logo_');
 
         try {
-            return $this->partners->create($name, $website, $logoPath, $sortOrder, $status);
+            return $this->partners->create($name, $website, $logoPath, $logoBackground, $sortOrder, $status);
         } catch (\Throwable $e) {
             $this->uploader->deleteByPublicPath($logoPath);
             throw $e;
@@ -80,6 +81,9 @@ final class PartnerService
         $status = isset($input['status'])
             ? $this->normalizeStatus((string) $input['status'])
             : $existing->status;
+        $logoBackground = array_key_exists('logo_background', $input)
+            ? $this->normalizeLogoBackground($input['logo_background'])
+            : $existing->logoBackground;
 
         if ($name === '') {
             throw new InvalidArgumentException('Укажите название организации');
@@ -94,7 +98,7 @@ final class PartnerService
             $oldLogo = $existing->logoImage;
         }
 
-        $partner = $this->partners->update($id, $name, $website, $logoPath, $sortOrder, $status);
+        $partner = $this->partners->update($id, $name, $website, $logoPath, $logoBackground, $sortOrder, $status);
         if (!$partner) {
             throw new \RuntimeException('Не удалось обновить партнёра');
         }
@@ -144,5 +148,32 @@ final class PartnerService
         }
 
         return $url;
+    }
+
+    private function normalizeLogoBackground(mixed $value): ?string
+    {
+        if ($value === null) {
+            return null;
+        }
+
+        $color = trim((string) $value);
+        if ($color === '') {
+            return null;
+        }
+
+        if (!preg_match('/^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/', $color)) {
+            throw new InvalidArgumentException('Некорректный цвет фона');
+        }
+
+        if (strlen($color) === 4) {
+            return sprintf(
+                '#%s%s%s',
+                str_repeat($color[1], 2),
+                str_repeat($color[2], 2),
+                str_repeat($color[3], 2)
+            );
+        }
+
+        return strtoupper($color);
     }
 }

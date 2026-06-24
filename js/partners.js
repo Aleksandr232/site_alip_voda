@@ -11,9 +11,18 @@
     return document.querySelector('meta[name="api-partners"]')?.content || "/api/partners.php";
   }
 
+  function logoBackgroundStyle(color) {
+    const value = String(color || "").trim();
+    if (!/^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/.test(value)) {
+      return "";
+    }
+
+    return ` style="background-color:${escapeHtml(value)}"`;
+  }
+
   function renderPartner(partner) {
     const inner = `
-      <div class="partner-card__logo">
+      <div class="partner-card__logo"${logoBackgroundStyle(partner.logo_background)}>
         <img src="${escapeHtml(partner.logo_image)}" alt="${escapeHtml(partner.name)}" loading="lazy">
       </div>
       <p>${escapeHtml(partner.name)}</p>

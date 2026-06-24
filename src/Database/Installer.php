@@ -90,6 +90,7 @@ CREATE TABLE IF NOT EXISTS partners (
     name VARCHAR(200) NOT NULL,
     website VARCHAR(500) NULL,
     logo_image VARCHAR(500) NOT NULL,
+    logo_background VARCHAR(7) NULL,
     sort_order INT UNSIGNED NOT NULL DEFAULT 0,
     status ENUM('published', 'hidden') NOT NULL DEFAULT 'published',
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -309,6 +310,10 @@ SQL,
     {
         if (self::tableExists($pdo, 'partners') && !self::columnExists($pdo, 'partners', 'website')) {
             $pdo->exec('ALTER TABLE partners ADD COLUMN website VARCHAR(500) NULL AFTER name');
+        }
+
+        if (self::tableExists($pdo, 'partners') && !self::columnExists($pdo, 'partners', 'logo_background')) {
+            $pdo->exec('ALTER TABLE partners ADD COLUMN logo_background VARCHAR(7) NULL AFTER logo_image');
         }
 
         self::seedSiteSettings($pdo);

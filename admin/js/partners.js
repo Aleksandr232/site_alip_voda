@@ -2,12 +2,17 @@
   let items = [];
   let editingId = null;
 
+  const DEFAULT_BG = "#F4F7FB";
+
   const tbody = document.getElementById("partners-tbody");
   const form = document.getElementById("partners-form");
   const modal = document.getElementById("modal-partner");
   const modalTitle = document.getElementById("partners-modal-title");
   const logoInput = document.getElementById("partners-logo");
   const logoPreview = document.getElementById("partners-logo-preview");
+  const bgPicker = document.getElementById("partners-bg-picker");
+  const bgText = document.getElementById("partners-bg-text");
+  const bgReset = document.getElementById("partners-bg-reset");
 
   function escapeHtml(value) {
     return String(value)
@@ -17,12 +22,62 @@
       .replace(/"/g, "&quot;");
   }
 
+  function isValidHexColor(value) {
+    return /^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/.test(String(value || "").trim());
+  }
+
+  function normalizeHexColor(value) {
+    const color = String(value || "").trim();
+    if (!isValidHexColor(color)) {
+      return "";
+    }
+
+    if (color.length === 4) {
+      return `#${color[1]}${color[1]}${color[2]}${color[2]}${color[3]}${color[3]}`.toUpperCase();
+    }
+
+    return color.toUpperCase();
+  }
+
+  function logoBackgroundStyle(color) {
+    const normalized = normalizeHexColor(color);
+    return normalized ? ` style="background-color:${normalized}"` : "";
+  }
+
+  function updatePreviewBackground() {
+    if (!logoPreview) return;
+
+    const color = normalizeHexColor(bgText?.value || "");
+    logoPreview.style.backgroundColor = color || DEFAULT_BG;
+  }
+
+  function setBackgroundValue(color) {
+    const normalized = normalizeHexColor(color);
+
+    if (bgText) {
+      bgText.value = normalized;
+    }
+
+    if (bgPicker) {
+      bgPicker.value = normalized || DEFAULT_BG;
+    }
+
+    updatePreviewBackground();
+  }
+
   function statusLabel(status) {
     return status === "published" ? "На сайте" : "Скрыт";
   }
 
   function displayUrl(url) {
     return String(url).replace(/^https?:\/\//, "");
+  }
+
+  function renderLogoPreview(src) {
+    if (!logoPreview) return;
+
+    logoPreview.innerHTML = src ? `<img src="${escapeHtml(src)}" alt="">` : "";
+    updatePreviewBackground();
   }
 
   function openModal(item = null) {
@@ -40,13 +95,11 @@
       form.elements.status.value = item?.status ?? "published";
     }
 
+    setBackgroundValue(item?.logo_background || "");
+
     if (logoInput) logoInput.required = !item;
 
-    if (logoPreview) {
-      logoPreview.innerHTML = item?.logo_image
-        ? `<img src="${escapeHtml(item.logo_image)}" alt="">`
-        : "";
-    }
+    renderLogoPreview(item?.logo_image || "");
 
     modal?.classList.add("is-open");
   }
@@ -70,7 +123,7 @@
         (item) => `
       <tr data-id="${item.id}">
         <td>
-          <div class="admin-table__thumb">
+          <div class="admin-table__thumb admin-table__thumb--partner"${logoBackgroundStyle(item.logo_background)}>
             <img src="${escapeHtml(item.logo_image)}" alt="${escapeHtml(item.name)}">
           </div>
         </td>
@@ -101,6 +154,10 @@
 
     const submitBtn = form?.querySelector('button[type="submit"]');
     const formData = new FormData(form);
+
+    if (!normalizeHexColor(bgText?.value || "")) {
+      formData.set("logo_background", "");
+    }
 
     if (editingId) {
       formData.append("action", "update");
@@ -153,6 +210,36 @@
 
   document.addEventListener("DOMContentLoaded", async () => {
     if (!tbody) return;
+
+    bgPicker?.addEventListener("input", () => {
+      if (bgText) {
+        bgText.value = bgPicker.value.toUpperCase();
+      }
+      updatePreviewBackground();
+    });
+
+    bgText?.addEventListener("input", () => {
+      const normalized = normalizeHexColor(bgText.value);
+      if (normalized && bgPicker) {
+        bgPicker.value = normalized;
+      }
+      updatePreviewBackground();
+    });
+
+    bgReset?.addEventListener("click", () => {
+      setBackgroundValue("");
+    });
+
+    logoInput?.addEventListener("change", () => {
+      const file = logoInput.files?.[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = () => {
+        renderLogoPreview(String(reader.result || ""));
+      };
+      reader.readAsDataURL(file);
+    });
 
     document.querySelectorAll("[data-partners-open]").forEach((btn) => {
       btn.addEventListener("click", () => openModal());

@@ -846,6 +846,56 @@ body.admin-body {
   border: 1px solid var(--border);
 }
 
+.admin-upload-preview--partner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 120px;
+  padding: 16px;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: #f4f7fb;
+}
+
+.admin-upload-preview--partner img {
+  max-height: 72px;
+  object-fit: contain;
+  border: none;
+  background: transparent;
+}
+
+.admin-color-field {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+}
+
+.admin-color-field input[type="color"] {
+  width: 48px;
+  height: 48px;
+  padding: 4px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--surface);
+  cursor: pointer;
+}
+
+.admin-color-field input[type="text"] {
+  flex: 1 1 140px;
+  min-width: 120px;
+}
+
+.admin-table__thumb--partner {
+  width: 72px;
+  height: 48px;
+  padding: 6px;
+}
+
+.admin-table__thumb--partner img {
+  object-fit: contain;
+}
+
 .admin-modal--wide {
   max-width: 640px;
 }

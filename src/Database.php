@@ -20,9 +20,8 @@ final class Database
 
         self::$connection = null;
 
-        if (!Installer::isReady()) {
-            Installer::ensure();
-        }
+        Installer::ensurePartnerColumns();
+        Installer::ensure();
 
         if (!self::$connection instanceof PDO) {
             self::$connection = self::open();

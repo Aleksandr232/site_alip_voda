@@ -10,7 +10,7 @@ use PDOException;
 
 final class Installer
 {
-    private const SCHEMA_VERSION = 1;
+    private const SCHEMA_VERSION = 2;
 
     private static bool $runtimeReady = false;
 
@@ -126,7 +126,19 @@ SQL,
 
     public static function ensure(bool $force = false): array
     {
+        if (Config::get('DB_AUTO_INSTALL', 'true') !== 'true' && !$force) {
+            self::$runtimeReady = true;
+
+            return ['skipped' => true, 'tables' => [], 'created' => []];
+        }
+
+        $pdo = self::connect();
+        \App\Database::adopt($pdo);
+        self::migrate($pdo);
+
         if (!$force && self::isReady()) {
+            self::$runtimeReady = true;
+
             return [
                 'skipped' => false,
                 'cached' => true,
@@ -136,17 +148,7 @@ SQL,
             ];
         }
 
-        if (Config::get('DB_AUTO_INSTALL', 'true') !== 'true' && !$force) {
-            self::$runtimeReady = true;
-
-            return ['skipped' => true, 'tables' => [], 'created' => []];
-        }
-
-        $pdo = self::connect();
-        \App\Database::adopt($pdo);
-
         if (!$force && self::allTablesExist($pdo)) {
-            self::migrate($pdo);
             self::writeLock();
             self::$runtimeReady = true;
 
@@ -188,6 +190,47 @@ SQL,
             'created' => $created,
             'existing' => $existing,
         ];
+    }
+
+    public static function applyMigrations(): void
+    {
+        try {
+            self::ensurePartnerColumns();
+        } catch (\Throwable $e) {
+            error_log('Installer::applyMigrations: ' . $e->getMessage());
+        }
+
+        if (Config::get('DB_AUTO_INSTALL', 'true') !== 'true') {
+            return;
+        }
+
+        try {
+            $pdo = self::connect();
+            \App\Database::adopt($pdo);
+            self::migrate($pdo);
+            self::writeLock();
+            self::$runtimeReady = true;
+        } catch (\Throwable $e) {
+            error_log('Installer::applyMigrations: ' . $e->getMessage());
+        }
+    }
+
+    public static function ensurePartnerColumns(): void
+    {
+        $pdo = self::connect();
+        \App\Database::adopt($pdo);
+
+        if (!self::tableExists($pdo, 'partners')) {
+            return;
+        }
+
+        if (!self::columnExists($pdo, 'partners', 'website')) {
+            $pdo->exec('ALTER TABLE partners ADD COLUMN website VARCHAR(500) NULL AFTER name');
+        }
+
+        if (!self::columnExists($pdo, 'partners', 'logo_background')) {
+            $pdo->exec('ALTER TABLE partners ADD COLUMN logo_background VARCHAR(7) NULL AFTER logo_image');
+        }
     }
 
     public static function status(): array
@@ -308,12 +351,14 @@ SQL,
 
     private static function migrate(PDO $pdo): void
     {
-        if (self::tableExists($pdo, 'partners') && !self::columnExists($pdo, 'partners', 'website')) {
-            $pdo->exec('ALTER TABLE partners ADD COLUMN website VARCHAR(500) NULL AFTER name');
-        }
+        if (self::tableExists($pdo, 'partners')) {
+            if (!self::columnExists($pdo, 'partners', 'website')) {
+                $pdo->exec('ALTER TABLE partners ADD COLUMN website VARCHAR(500) NULL AFTER name');
+            }
 
-        if (self::tableExists($pdo, 'partners') && !self::columnExists($pdo, 'partners', 'logo_background')) {
-            $pdo->exec('ALTER TABLE partners ADD COLUMN logo_background VARCHAR(7) NULL AFTER logo_image');
+            if (!self::columnExists($pdo, 'partners', 'logo_background')) {
+                $pdo->exec('ALTER TABLE partners ADD COLUMN logo_background VARCHAR(7) NULL AFTER logo_image');
+            }
         }
 
         self::seedSiteSettings($pdo);

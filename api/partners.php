@@ -12,6 +12,7 @@ $root = dirname(__DIR__);
 try {
     require $root . '/bootstrap.php';
     Config::load($root);
+    \App\Database\Installer::ensurePartnerColumns();
 } catch (Throwable $e) {
     http_response_code(500);
     header('Content-Type: application/json; charset=utf-8');

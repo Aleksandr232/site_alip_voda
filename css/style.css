@@ -1449,7 +1449,8 @@ h1, h2, h3, p {
 }
 
 .sidebar-card .contact__form--compact input,
-.sidebar-card .contact__form--compact textarea {
+.sidebar-card .contact__form--compact textarea,
+.sidebar-card .contact__form--compact select {
   padding: 10px 12px;
   font-size: 0.9375rem;
 }

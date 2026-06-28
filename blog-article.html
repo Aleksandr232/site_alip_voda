@@ -99,6 +99,37 @@
         </div>
 
         <aside class="article__sidebar">
+          <div class="sidebar-card sidebar-card--accent">
+            <h3>Заказать осмотр</h3>
+            <p>Оставьте заявку — перезвоним в течение 30 минут.</p>
+            <form class="contact__form contact__form--compact" id="article-sidebar-form">
+              <label>
+                <span>Ваше имя</span>
+                <input type="text" name="name" required placeholder="Иван Иванов">
+              </label>
+              <label>
+                <span>Телефон</span>
+                <input type="tel" name="phone" required placeholder="+7 (___) ___-__-__">
+              </label>
+              <label>
+                <span>Тип объекта</span>
+                <select name="type">
+                  <option value="facade">Мойка фасада</option>
+                  <option value="windows">Мойка окон</option>
+                  <option value="montage">Монтажные работы</option>
+                  <option value="snow">Уборка снега с кровли</option>
+                  <option value="complex">Комплекс работ</option>
+                  <option value="alpinism">Альпинистские работы</option>
+                </select>
+              </label>
+              <label>
+                <span>Комментарий</span>
+                <textarea name="message" rows="3" id="article-sidebar-message" placeholder="Адрес, этажность, вопрос по статье…"></textarea>
+              </label>
+              <button type="submit" class="btn btn--primary btn--full" data-default-label="Отправить заявку">Отправить заявку</button>
+              <p class="contact__privacy">Нажимая кнопку, вы соглашаетесь на обработку персональных данных.</p>
+            </form>
+          </div>
           <div class="sidebar-card" id="article-related-wrap" hidden>
             <h3>Другие статьи</h3>
             <ul class="sidebar-card__list" id="article-related"></ul>
@@ -107,12 +138,12 @@
       </div>
     </article>
 
-    <section class="section section--alt contact" id="contact">
+    <section class="section contact" id="contact">
       <div class="container contact__inner">
         <div class="contact__info">
-          <p class="section__label">Обратная связь</p>
-          <h2 id="article-contact-title">Остались вопросы? Оставьте заявку</h2>
-          <p id="article-contact-lead">Перезвоним в течение 30 минут, рассчитаем стоимость мойки и ответим на вопросы по статье.</p>
+          <p class="section__label">Контакты</p>
+          <h2 id="article-contact-title">Закажите бесплатный осмотр объекта</h2>
+          <p id="article-contact-lead">Оставьте заявку — перезвоним в течение 30 минут, рассчитаем стоимость и согласуем сроки.</p>
           <ul class="contact__list">
             <li id="site-phone-item">
               <strong>Телефон</strong>
@@ -131,11 +162,11 @@
         <form class="contact__form" id="article-contact-form">
           <label>
             <span>Ваше имя</span>
-            <input type="text" name="name" required placeholder="Иван Иванов" autocomplete="name">
+            <input type="text" name="name" required placeholder="Иван Иванов">
           </label>
           <label>
             <span>Телефон</span>
-            <input type="tel" name="phone" required placeholder="+7 (___) ___-__-__" autocomplete="tel">
+            <input type="tel" name="phone" required placeholder="+7 (___) ___-__-__">
           </label>
           <label>
             <span>Тип объекта</span>
@@ -150,7 +181,7 @@
           </label>
           <label>
             <span>Комментарий</span>
-            <textarea name="message" rows="3" id="article-contact-message" placeholder="Адрес, этажность, вопрос по статье…"></textarea>
+            <textarea name="message" rows="3" id="article-contact-message" placeholder="Адрес, этажность, площадь…"></textarea>
           </label>
           <button type="submit" class="btn btn--primary btn--full" data-default-label="Отправить заявку">Отправить заявку</button>
           <p class="contact__privacy">Нажимая кнопку, вы соглашаетесь на обработку персональных данных.</p>
@@ -174,9 +205,9 @@
     </div>
   </footer>
 
-  <script src="/js/captcha.js?v=6"></script>
-  <script src="/js/main.js?v=10"></script>
+  <script src="/js/captcha.js?v=7"></script>
+  <script src="/js/main.js?v=11"></script>
   <script src="/js/settings.js?v=6"></script>
-  <script src="/js/blog.js?v=6"></script>
+  <script src="/js/blog.js?v=7"></script>
 </body>
 </html>

@@ -61,7 +61,10 @@
 
   function bindArticleContactForms(post) {
     const title = post?.title || "";
-    const forms = [document.getElementById("article-contact-form")];
+    const forms = [
+      document.getElementById("article-contact-form"),
+      document.getElementById("article-sidebar-form"),
+    ];
 
     forms.forEach((form) => {
       if (!form) return;
@@ -79,7 +82,10 @@
         "Оставьте заявку — перезвоним в течение 30 минут и ответим на вопросы по этой теме.";
     }
 
-    const placeholders = [document.getElementById("article-contact-message")];
+    const placeholders = [
+      document.getElementById("article-contact-message"),
+      document.getElementById("article-sidebar-message"),
+    ];
 
     placeholders.forEach((field) => {
       if (field && title) {

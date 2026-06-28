@@ -104,6 +104,9 @@
 
         alert(result.message || `Спасибо, ${name}! Заявка принята.`);
         form.reset();
+        if (typeof window.refreshContactCaptcha === "function") {
+          window.refreshContactCaptcha(form);
+        }
       } catch (error) {
         if (typeof window.refreshContactCaptcha === "function") {
           window.refreshContactCaptcha(form);

@@ -12,7 +12,8 @@ final class RequestRepository
 {
     public function create(int $clientId, string $serviceType, ?string $message): ServiceRequest
     {
-        $stmt = Database::connection()->prepare(
+        $pdo = Database::connection();
+        $stmt = $pdo->prepare(
             'INSERT INTO requests (client_id, service_type, message, status)
              VALUES (:client_id, :service_type, :message, :status)'
         );
@@ -23,9 +24,14 @@ final class RequestRepository
             'status' => 'new',
         ]);
 
-        $request = $this->findById((int) Database::connection()->lastInsertId());
+        $id = (int) $pdo->lastInsertId();
+        if ($id <= 0) {
+            throw new \RuntimeException('Не удалось создать заявку: не получен ID записи');
+        }
+
+        $request = $this->findById($id);
         if (!$request) {
-            throw new \RuntimeException('Не удалось создать заявку');
+            throw new \RuntimeException('Не удалось создать заявку: запись не найдена после сохранения');
         }
 
         return $request;

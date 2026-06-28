@@ -53,6 +53,11 @@ final class CaptchaService
         ]);
 
         if (($result['success'] ?? false) !== true) {
+            $codes = $result['error-codes'] ?? [];
+            if (is_array($codes) && $codes !== []) {
+                error_log('Turnstile verify failed: ' . implode(', ', $codes));
+            }
+
             throw new InvalidArgumentException('Проверка капчи не пройдена. Попробуйте снова');
         }
     }

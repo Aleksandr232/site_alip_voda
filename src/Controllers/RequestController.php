@@ -44,6 +44,14 @@ final class RequestController
             ], 201);
         } catch (InvalidArgumentException $e) {
             Response::error($e->getMessage(), 422);
+        } catch (RuntimeException $e) {
+            error_log('Request create failed: ' . $e->getMessage());
+            Response::error(
+                Config::get('APP_ENV', 'local') !== 'production'
+                    ? $e->getMessage()
+                    : 'Не удалось сохранить заявку',
+                500
+            );
         } catch (Throwable $e) {
             error_log('Request create failed: ' . $e->getMessage());
             Response::error(

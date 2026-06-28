@@ -22,7 +22,8 @@ final class ClientRepository
 
     public function create(string $name, string $phone, ?string $email = null): Client
     {
-        $stmt = Database::connection()->prepare(
+        $pdo = Database::connection();
+        $stmt = $pdo->prepare(
             'INSERT INTO clients (name, phone, email) VALUES (:name, :phone, :email)'
         );
         $stmt->execute([
@@ -31,9 +32,14 @@ final class ClientRepository
             'email' => $email,
         ]);
 
-        $client = $this->findById((int) Database::connection()->lastInsertId());
+        $id = (int) $pdo->lastInsertId();
+        if ($id <= 0) {
+            throw new \RuntimeException('Не удалось создать клиента: не получен ID записи');
+        }
+
+        $client = $this->findById($id);
         if (!$client) {
-            throw new \RuntimeException('Не удалось создать клиента');
+            throw new \RuntimeException('Не удалось создать клиента: запись не найдена после сохранения');
         }
 
         return $client;

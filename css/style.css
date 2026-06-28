@@ -1482,7 +1482,9 @@ h1, h2, h3, p {
 
 .contact__captcha-widget {
   display: flex;
-  justify-content: flex-start;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
   min-height: 78px;
 }
 
@@ -1495,6 +1497,8 @@ h1, h2, h3, p {
   margin: 0;
   font-size: 0.875rem;
   color: #c0392b;
+  text-align: center;
+  width: 100%;
 }
 
 .contact__privacy {

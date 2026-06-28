@@ -161,8 +161,9 @@ final class PartnerRepository
         try {
             Installer::ensurePartnerColumns();
             self::$hasLogoBackground = $this->columnExists('logo_background');
-        } catch (\Throwable) {
-            self::$hasLogoBackground = false;
+        } catch (\Throwable $e) {
+            error_log('PartnerRepository::supportsLogoBackground: ' . $e->getMessage());
+            self::$hasLogoBackground = $this->columnExists('logo_background');
         }
 
         return self::$hasLogoBackground;

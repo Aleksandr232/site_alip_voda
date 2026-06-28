@@ -31,7 +31,14 @@ final class PartnerController
             $admin = isset($_GET['admin']) && $_GET['admin'] === '1';
 
             if ($admin) {
-                $this->auth->requireUser($request);
+                try {
+                    $this->auth->requireUser($request);
+                } catch (RuntimeException $e) {
+                    Response::error($e->getMessage(), 401);
+
+                    return;
+                }
+
                 $items = $this->service()->listAdmin();
             } else {
                 $items = $this->service()->listPublic();
@@ -40,8 +47,6 @@ final class PartnerController
             Response::success([
                 'partners' => array_map(static fn ($item) => $item->toArray(), $items),
             ]);
-        } catch (RuntimeException $e) {
-            Response::error($e->getMessage(), 401);
         } catch (Throwable $e) {
             error_log('Partner list: ' . $e->getMessage());
             Response::error(

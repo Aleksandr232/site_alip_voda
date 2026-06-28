@@ -47,16 +47,22 @@
 
       const name = String(formData.get("name") || "").trim();
       const phone = String(formData.get("phone") || "").trim();
-      const captchaAnswer = String(formData.get("captcha_answer") || "").trim();
+      const captchaToken =
+        (typeof window.getCaptchaToken === "function" ? window.getCaptchaToken(form) : "") ||
+        String(formData.get("captcha_token") || formData.get("cf-turnstile-response") || "").trim();
 
       if (!name || !phone) {
         alert("Заполните имя и телефон");
         return;
       }
 
-      if (!captchaAnswer) {
-        alert("Решите пример для проверки");
+      if (form.dataset.captchaEnabled === "1" && !captchaToken) {
+        alert("Подтвердите, что вы не робот");
         return;
+      }
+
+      if (captchaToken) {
+        formData.set("captcha_token", captchaToken);
       }
 
       const apiSubmit =

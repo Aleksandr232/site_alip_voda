@@ -29,9 +29,13 @@ final class RequestController
             $phone = (string) ($request->body['phone'] ?? '');
             $serviceType = (string) ($request->body['type'] ?? $request->body['service_type'] ?? '');
             $message = isset($request->body['message']) ? (string) $request->body['message'] : null;
-            $captchaAnswer = $request->body['captcha_answer'] ?? $request->body['captchaAnswer'] ?? '';
+            $turnstileToken = (string) (
+                $request->body['captcha_token']
+                ?? $request->body['cf-turnstile-response']
+                ?? ''
+            );
 
-            $this->captcha->verify($captchaAnswer);
+            $this->captcha->verify($turnstileToken);
 
             $item = $this->requests->create($name, $phone, $serviceType, $message);
             Response::success([

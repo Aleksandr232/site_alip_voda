@@ -4,92 +4,124 @@ declare(strict_types=1);
 
 namespace App\Services;
 
+use App\Config;
 use InvalidArgumentException;
 
 final class CaptchaService
 {
-    private const TTL_SECONDS = 600;
-    private const SESSION_KEY = 'captcha_sum';
-    private const SESSION_EXPIRES_KEY = 'captcha_expires';
+    private const VERIFY_URL = 'https://challenges.cloudflare.com/turnstile/v0/siteverify';
 
-    public function issue(): array
+    /** @return array{enabled: bool, site_key?: string} */
+    public function publicConfig(): array
     {
-        $this->ensureSession();
-
-        $left = random_int(2, 12);
-        $right = random_int(2, 12);
-
-        $_SESSION[self::SESSION_KEY] = $left + $right;
-        $_SESSION[self::SESSION_EXPIRES_KEY] = time() + self::TTL_SECONDS;
+        $siteKey = $this->siteKey();
+        if ($siteKey === null || $this->secretKey() === null) {
+            return ['enabled' => false];
+        }
 
         return [
-            'question' => "{$left} + {$right}",
+            'enabled' => true,
+            'site_key' => $siteKey,
         ];
     }
 
-    public function verify(mixed $answer): void
+    public function isEnabled(): bool
     {
-        $this->ensureSession();
-
-        $answer = $this->normalizeAnswer($answer);
-        if ($answer === '') {
-            throw new InvalidArgumentException('Введите ответ на проверочный вопрос');
-        }
-
-        $expected = $_SESSION[self::SESSION_KEY] ?? null;
-        $expiresAt = (int) ($_SESSION[self::SESSION_EXPIRES_KEY] ?? 0);
-
-        if (!is_int($expected) || $expiresAt <= 0) {
-            throw new InvalidArgumentException('Проверка устарела. Обновите пример и попробуйте снова');
-        }
-
-        if (time() > $expiresAt) {
-            $this->clearChallenge();
-            throw new InvalidArgumentException('Время ответа истекло. Обновите пример и попробуйте снова');
-        }
-
-        if ((int) $answer !== $expected) {
-            throw new InvalidArgumentException('Неверный ответ. Проверьте пример и попробуйте снова');
-        }
-
-        $this->clearChallenge();
+        return $this->siteKey() !== null && $this->secretKey() !== null;
     }
 
-    private function normalizeAnswer(mixed $answer): string
+    public function verify(mixed $token): void
     {
-        if (is_int($answer) || is_float($answer)) {
-            return (string) max(0, (int) round($answer));
+        $secret = $this->secretKey();
+        if ($secret === null) {
+            if (Config::get('APP_ENV', 'local') === 'local') {
+                return;
+            }
+
+            throw new InvalidArgumentException('Капча не настроена на сервере');
         }
 
-        $text = trim((string) $answer);
-        if ($text === '') {
-            return '';
+        $token = trim((string) $token);
+        if ($token === '') {
+            throw new InvalidArgumentException('Подтвердите, что вы не робот');
         }
 
-        return preg_replace('/\D+/', '', $text) ?? '';
-    }
-
-    private function clearChallenge(): void
-    {
-        unset($_SESSION[self::SESSION_KEY], $_SESSION[self::SESSION_EXPIRES_KEY]);
-    }
-
-    private function ensureSession(): void
-    {
-        if (session_status() !== PHP_SESSION_NONE) {
-            return;
-        }
-
-        $secure = !empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off';
-
-        session_set_cookie_params([
-            'lifetime' => 0,
-            'path' => '/',
-            'secure' => $secure,
-            'httponly' => true,
-            'samesite' => 'Lax',
+        $result = $this->postForm([
+            'secret' => $secret,
+            'response' => $token,
+            'remoteip' => (string) ($_SERVER['REMOTE_ADDR'] ?? ''),
         ]);
 
-        session_start();
+        if (($result['success'] ?? false) !== true) {
+            throw new InvalidArgumentException('Проверка капчи не пройдена. Попробуйте снова');
+        }
+    }
+
+    /** @param array<string, string> $fields @return array<string, mixed> */
+    private function postForm(array $fields): array
+    {
+        $payload = http_build_query($fields);
+        $raw = $this->post($payload);
+
+        if ($raw === false || $raw === '') {
+            error_log('Turnstile verify: empty response from Cloudflare');
+            throw new InvalidArgumentException('Не удалось проверить капчу. Попробуйте позже');
+        }
+
+        $decoded = json_decode($raw, true);
+        if (!is_array($decoded)) {
+            error_log('Turnstile verify: invalid JSON: ' . $raw);
+            throw new InvalidArgumentException('Не удалось проверить капчу. Попробуйте позже');
+        }
+
+        return $decoded;
+    }
+
+    private function post(string $payload): string|false
+    {
+        if (function_exists('curl_init')) {
+            $handle = curl_init(self::VERIFY_URL);
+            if ($handle === false) {
+                return false;
+            }
+
+            curl_setopt_array($handle, [
+                CURLOPT_POST => true,
+                CURLOPT_POSTFIELDS => $payload,
+                CURLOPT_RETURNTRANSFER => true,
+                CURLOPT_TIMEOUT => 10,
+                CURLOPT_HTTPHEADER => ['Content-Type: application/x-www-form-urlencoded'],
+            ]);
+
+            $response = curl_exec($handle);
+            curl_close($handle);
+
+            return is_string($response) ? $response : false;
+        }
+
+        $context = stream_context_create([
+            'http' => [
+                'method' => 'POST',
+                'header' => "Content-Type: application/x-www-form-urlencoded\r\n",
+                'content' => $payload,
+                'timeout' => 10,
+            ],
+        ]);
+
+        return @file_get_contents(self::VERIFY_URL, false, $context);
+    }
+
+    private function siteKey(): ?string
+    {
+        $value = trim((string) (Config::get('TURNSTILE_SITE_KEY') ?? ''));
+
+        return $value !== '' ? $value : null;
+    }
+
+    private function secretKey(): ?string
+    {
+        $value = trim((string) (Config::get('TURNSTILE_SECRET_KEY') ?? ''));
+
+        return $value !== '' ? $value : null;
     }
 }

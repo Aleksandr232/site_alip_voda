@@ -18,10 +18,10 @@ final class CaptchaController
     public function issue(): void
     {
         try {
-            Response::success($this->captcha->issue());
+            Response::success($this->captcha->publicConfig());
         } catch (Throwable $e) {
-            error_log('Captcha issue failed: ' . $e->getMessage());
-            Response::error('Не удалось загрузить проверку', 500);
+            error_log('Captcha config failed: ' . $e->getMessage());
+            Response::error('Не удалось загрузить настройки капчи', 500);
         }
     }
 }

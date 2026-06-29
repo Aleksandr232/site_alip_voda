@@ -10,7 +10,7 @@ use PDOException;
 
 final class Installer
 {
-    private const SCHEMA_VERSION = 2;
+    private const SCHEMA_VERSION = 3;
 
     private static bool $runtimeReady = false;
 
@@ -103,6 +103,18 @@ CREATE TABLE IF NOT EXISTS site_settings (
     setting_key VARCHAR(64) NOT NULL PRIMARY KEY,
     setting_value TEXT NOT NULL,
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+SQL,
+        'rbc_news_sent' => <<<'SQL'
+CREATE TABLE IF NOT EXISTS rbc_news_sent (
+    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    external_id VARCHAR(64) NOT NULL,
+    source_url VARCHAR(500) NOT NULL,
+    title VARCHAR(500) NOT NULL,
+    telegram_message_id BIGINT NULL,
+    sent_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE KEY uk_rbc_external_id (external_id),
+    KEY idx_rbc_sent_at (sent_at)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
 SQL,
     ];
@@ -364,6 +376,19 @@ SQL,
         self::seedSiteSettings($pdo);
         self::ensureSetting($pdo, 'phone_visible', '1');
         self::ensureCalculatorSettings($pdo);
+        self::ensureRbcNewsTable($pdo);
+    }
+
+    private static function ensureRbcNewsTable(PDO $pdo): void
+    {
+        if (self::tableExists($pdo, 'rbc_news_sent')) {
+            return;
+        }
+
+        $sql = self::$tables['rbc_news_sent'] ?? '';
+        if ($sql !== '') {
+            $pdo->exec($sql);
+        }
     }
 
     private static function ensureCalculatorSettings(PDO $pdo): void

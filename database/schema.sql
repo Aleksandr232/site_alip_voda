@@ -103,3 +103,14 @@ INSERT INTO site_settings (setting_key, setting_value) VALUES
   ('calc_price_scaffolding', '200'),
   ('calc_price_montage', '3500')
 ON DUPLICATE KEY UPDATE setting_value = setting_value;
+
+CREATE TABLE IF NOT EXISTS rbc_news_sent (
+  id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  external_id VARCHAR(64) NOT NULL,
+  source_url VARCHAR(500) NOT NULL,
+  title VARCHAR(500) NOT NULL,
+  telegram_message_id BIGINT NULL,
+  sent_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  UNIQUE KEY uk_rbc_external_id (external_id),
+  KEY idx_rbc_sent_at (sent_at)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

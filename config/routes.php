@@ -16,4 +16,5 @@ return [
     'gallery' => 'admin/gallery.html',
     'partners' => 'admin/partners.html',
     'settings' => 'admin/settings.html',
+    'cron/rbc-news' => 'api/cron_rbc_news.php',
 ];

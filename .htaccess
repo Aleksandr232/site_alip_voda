@@ -33,6 +33,9 @@ RewriteRule ^gallery/?$ admin/gallery.html [L]
 RewriteRule ^partners/?$ admin/partners.html [L]
 RewriteRule ^settings/?$ admin/settings.html [L]
 
+# Cron по URL (защита ключом в .env)
+RewriteRule ^cron/rbc-news/?$ api/cron_rbc_news.php [L,QSA]
+
 # Статические файлы и папки — не трогаем
 RewriteCond %{REQUEST_FILENAME} -f [OR]
 RewriteCond %{REQUEST_FILENAME} -d

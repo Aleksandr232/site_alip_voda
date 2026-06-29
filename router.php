@@ -19,10 +19,9 @@ if ($path === 'sitemap.xml') {
 
 if (preg_match('#^article/([a-z0-9][a-z0-9-]*)$#i', $path, $articleMatch)) {
     $_GET['slug'] = strtolower($articleMatch[1]);
-    $file = $root . '/blog-article.html';
+    $file = $root . '/article.php';
     if (is_file($file)) {
-        header('Content-Type: text/html; charset=utf-8');
-        readfile($file);
+        require $file;
         return true;
     }
 }

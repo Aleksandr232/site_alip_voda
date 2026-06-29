@@ -196,11 +196,14 @@
       const post = await fetchPost(slug);
       const { display, datetime } = formatDate(post.created_at);
 
-      document.title = `${post.title} — СкайКлин`;
-
-      const metaDesc = document.querySelector('meta[name="description"]');
-      if (metaDesc) {
-        metaDesc.setAttribute("content", post.description || "");
+      if (window.SkyClinSeo?.applyArticleMeta) {
+        window.SkyClinSeo.applyArticleMeta(post);
+      } else {
+        document.title = `${post.title} — СкайКлин`;
+        const metaDesc = document.querySelector('meta[name="description"]');
+        if (metaDesc) {
+          metaDesc.setAttribute("content", post.description || "");
+        }
       }
 
       const metaKeywords = document.querySelector('meta[name="keywords"]');

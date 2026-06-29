@@ -25,7 +25,7 @@ RewriteRule ^ - [L]
 # Чистые URL
 RewriteRule ^$ index.html [L]
 RewriteRule ^blog/?$ blog.html [L]
-RewriteRule ^article/([a-z0-9][a-z0-9-]*)/?$ blog-article.html?slug=$1 [L,QSA]
+RewriteRule ^article/([a-z0-9][a-z0-9-]*)/?$ article.php?slug=$1 [L,QSA]
 RewriteRule ^article/?$ blog [R=301,L]
 
 RewriteRule ^login/?$ admin/login.php [L]

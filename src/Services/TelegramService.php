@@ -10,6 +10,11 @@ use RuntimeException;
 
 final class TelegramService
 {
+    public function isConfigured(): bool
+    {
+        return $this->botToken() !== null && $this->channelId() !== null;
+    }
+
     public function sendMessage(string $text, bool $disablePreview = false): int
     {
         return $this->apiCall('sendMessage', [

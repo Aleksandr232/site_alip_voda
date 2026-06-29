@@ -61,6 +61,12 @@ final class SettingsController
                 return;
             }
 
+            if ($action === 'calculator') {
+                $settings = $this->service()->updateCalculator($input);
+                Response::success(['settings' => $settings, 'message' => 'Цены калькулятора сохранены']);
+                return;
+            }
+
             if ($action === 'change_password') {
                 $user = $this->auth->requireUser($request);
                 $this->authService->changePassword(

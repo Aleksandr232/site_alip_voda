@@ -145,6 +145,82 @@
           </div>
         </div>
 
+        <div class="admin-panel" style="margin-bottom:24px">
+          <div class="admin-panel__head">
+            <h2>Калькулятор на главной</h2>
+          </div>
+          <div class="admin-panel__body">
+            <form class="admin-form admin-form--wide" id="settings-calculator-form">
+              <p class="admin-form__hint" style="margin-top:0">Цены за квадратный метр (₽/м²) и за штуку для монтажа (₽/шт.).</p>
+              <div class="admin-form__row">
+                <label>
+                  <span>Мойка фасада, ₽/м²</span>
+                  <input type="number" name="calc_price_facade" min="0" step="1" value="150" required>
+                </label>
+                <label>
+                  <span>Мойка окон, ₽/м²</span>
+                  <input type="number" name="calc_price_windows" min="0" step="1" value="120" required>
+                </label>
+              </div>
+              <div class="admin-form__row">
+                <label>
+                  <span>Уборка снега с кровли, ₽/м²</span>
+                  <input type="number" name="calc_price_snow" min="0" step="1" value="80" required>
+                </label>
+                <label>
+                  <span>Установка строительных лесов, ₽/м²</span>
+                  <input type="number" name="calc_price_scaffolding" min="0" step="1" value="200" required>
+                </label>
+              </div>
+              <label>
+                <span>Монтажные работы, ₽/шт.</span>
+                <input type="number" name="calc_price_montage" min="0" step="1" value="3500" required>
+              </label>
+              <div class="admin-form__actions">
+                <button type="submit" class="btn btn--primary">Сохранить цены</button>
+              </div>
+            </form>
+          </div>
+        </div>
+
+        <div class="admin-panel" style="margin-bottom:24px">
+          <div class="admin-panel__head">
+            <h2>Калькулятор на главной</h2>
+          </div>
+          <div class="admin-panel__body">
+            <form class="admin-form admin-form--wide" id="settings-calculator-form">
+              <p class="admin-form__hint" style="margin-top:0">Цены за квадратный метр (₽/м²) и за штуку для монтажа (₽/шт.).</p>
+              <div class="admin-form__row">
+                <label>
+                  <span>Мойка фасада, ₽/м²</span>
+                  <input type="number" name="calc_price_facade" min="0" step="1" value="150" required>
+                </label>
+                <label>
+                  <span>Мойка окон, ₽/м²</span>
+                  <input type="number" name="calc_price_windows" min="0" step="1" value="120" required>
+                </label>
+              </div>
+              <div class="admin-form__row">
+                <label>
+                  <span>Уборка снега с кровли, ₽/м²</span>
+                  <input type="number" name="calc_price_snow" min="0" step="1" value="80" required>
+                </label>
+                <label>
+                  <span>Установка строительных лесов, ₽/м²</span>
+                  <input type="number" name="calc_price_scaffolding" min="0" step="1" value="200" required>
+                </label>
+              </div>
+              <label>
+                <span>Монтажные работы, ₽/шт.</span>
+                <input type="number" name="calc_price_montage" min="0" step="1" value="3500" required>
+              </label>
+              <div class="admin-form__actions">
+                <button type="submit" class="btn btn--primary">Сохранить цены</button>
+              </div>
+            </form>
+          </div>
+        </div>
+
         <div class="admin-panel">
           <div class="admin-panel__head">
             <h2>Безопасность</h2>
@@ -177,6 +253,6 @@
 
   <script src="/admin/js/auth.js?v=8"></script>
   <script src="/admin/js/admin.js?v=8"></script>
-  <script src="/admin/js/settings.js?v=6"></script>
+  <script src="/admin/js/settings.js?v=7"></script>
 </body>
 </html>

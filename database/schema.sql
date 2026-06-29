@@ -96,5 +96,10 @@ INSERT INTO site_settings (setting_key, setting_value) VALUES
   ('hero_title', 'Чистота и безопасность на высоте без лесов и подъёмников'),
   ('hero_lead', 'Мойка фасадов и окон, монтажные работы и зимняя уборка снега с кровли — промышленными альпинистами. Высокое давление, обратный осмос, допуски СРО.'),
   ('stat_years', '12+'),
-  ('stat_objects', '500+')
+  ('stat_objects', '500+'),
+  ('calc_price_facade', '150'),
+  ('calc_price_windows', '120'),
+  ('calc_price_snow', '80'),
+  ('calc_price_scaffolding', '200'),
+  ('calc_price_montage', '3500')
 ON DUPLICATE KEY UPDATE setting_value = setting_value;

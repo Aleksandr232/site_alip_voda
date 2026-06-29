@@ -21,6 +21,11 @@ final class SettingsService
         'stat_objects' => '500+',
         'hero_image_main' => '',
         'hero_image_float' => '',
+        'calc_price_facade' => '150',
+        'calc_price_windows' => '120',
+        'calc_price_snow' => '80',
+        'calc_price_scaffolding' => '200',
+        'calc_price_montage' => '3500',
     ];
 
     public function __construct(
@@ -145,6 +150,37 @@ final class SettingsService
         $this->uploader->deleteByPublicPath($oldFloat);
 
         return $this->mergeDefaults(array_merge($this->settings->all(), $values));
+    }
+
+    /** @param array<string, mixed> $input */
+    public function updateCalculator(array $input): array
+    {
+        $values = [
+            'calc_price_facade' => $this->parsePrice($input['calc_price_facade'] ?? '', 'мойка фасада'),
+            'calc_price_windows' => $this->parsePrice($input['calc_price_windows'] ?? '', 'мойка окон'),
+            'calc_price_snow' => $this->parsePrice($input['calc_price_snow'] ?? '', 'уборка снега'),
+            'calc_price_scaffolding' => $this->parsePrice($input['calc_price_scaffolding'] ?? '', 'установка лесов'),
+            'calc_price_montage' => $this->parsePrice($input['calc_price_montage'] ?? '', 'монтаж'),
+        ];
+
+        $this->settings->setMany($values);
+
+        return $this->mergeDefaults(array_merge($this->settings->all(), $values));
+    }
+
+    private function parsePrice(mixed $value, string $label): string
+    {
+        $normalized = str_replace(',', '.', trim((string) $value));
+        if ($normalized === '' || !is_numeric($normalized)) {
+            throw new InvalidArgumentException("Укажите корректную цену: {$label}");
+        }
+
+        $price = (float) $normalized;
+        if ($price < 0) {
+            throw new InvalidArgumentException("Цена не может быть отрицательной: {$label}");
+        }
+
+        return rtrim(rtrim(number_format($price, 2, '.', ''), '0'), '.');
     }
 
     /** @param array<string, string> $stored */

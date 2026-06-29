@@ -44,6 +44,7 @@
         <a href="#technology">Технологии</a>
         <a href="#before-after">До и после</a>
         <a href="#reviews">Отзывы</a>
+        <a href="#calculator">Расчёт</a>
         <a href="#partners">Партнёры</a>
         <a href="blog">Блог</a>
         <a href="#contact" class="nav__cta">Заказать</a>
@@ -69,7 +70,7 @@
           </p>
           <div class="hero__actions">
             <a href="#contact" class="btn btn--primary">Получить расчёт</a>
-            <a href="#before-after" class="btn btn--ghost">Смотреть результаты</a>
+            <a href="#calculator" class="btn btn--ghost">Калькулятор стоимости</a>
           </div>
           <ul class="hero__stats">
             <li><strong id="hero-stat-years">12+</strong><span>лет опыта</span></li>
@@ -321,6 +322,27 @@
       </div>
     </section>
 
+    <section class="section section--alt" id="calculator">
+      <div class="container">
+        <div class="section__head">
+          <p class="section__label">Калькулятор</p>
+          <h2>Рассчитайте ориентировочную стоимость работ</h2>
+          <p class="section__desc">Укажите площадь или количество — сумма обновится автоматически. Точный расчёт после осмотра объекта.</p>
+        </div>
+        <div class="calculator" id="calculator-root">
+          <div class="calculator__grid" id="calculator-lines"></div>
+          <div class="calculator__footer">
+            <div class="calculator__total">
+              <span class="calculator__total-label">Итого</span>
+              <strong class="calculator__total-value" id="calculator-total">0 ₽</strong>
+            </div>
+            <p class="calculator__note">* Предварительный расчёт. Финальная стоимость зависит от высоты, степени загрязнения и срочности.</p>
+            <a href="#contact" class="btn btn--primary">Заказать точный расчёт</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
     <section class="section contact" id="contact">
       <div class="container contact__inner">
         <div class="contact__info">
@@ -394,5 +416,6 @@
   <script src="js/gallery.js?v=1"></script>
   <script src="/js/blog.js?v=4"></script>
   <script src="js/partners.js?v=4"></script>
+  <script src="js/calculator.js?v=1"></script>
 </body>
 </html>

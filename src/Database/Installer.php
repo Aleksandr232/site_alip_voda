@@ -363,6 +363,22 @@ SQL,
 
         self::seedSiteSettings($pdo);
         self::ensureSetting($pdo, 'phone_visible', '1');
+        self::ensureCalculatorSettings($pdo);
+    }
+
+    private static function ensureCalculatorSettings(PDO $pdo): void
+    {
+        $defaults = [
+            'calc_price_facade' => '150',
+            'calc_price_windows' => '120',
+            'calc_price_snow' => '80',
+            'calc_price_scaffolding' => '200',
+            'calc_price_montage' => '3500',
+        ];
+
+        foreach ($defaults as $key => $value) {
+            self::ensureSetting($pdo, $key, $value);
+        }
     }
 
     private static function ensureSetting(PDO $pdo, string $key, string $value): void

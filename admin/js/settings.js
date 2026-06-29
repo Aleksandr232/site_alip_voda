@@ -1,6 +1,7 @@
 (function () {
   const contactsForm = document.getElementById("settings-contacts-form");
   const homepageForm = document.getElementById("settings-homepage-form");
+  const calculatorForm = document.getElementById("settings-calculator-form");
   const passwordForm = document.getElementById("settings-password-form");
   const heroMainPreview = document.getElementById("hero-main-preview");
   const heroFloatPreview = document.getElementById("hero-float-preview");
@@ -135,6 +136,7 @@
 
     fillForm(contactsForm, settings);
     fillForm(homepageForm, settings);
+    fillForm(calculatorForm, settings);
     updateHeroPreviews(settings);
   }
 
@@ -172,6 +174,7 @@
       if (data.settings) {
         fillForm(contactsForm, data.settings);
         fillForm(homepageForm, data.settings);
+        fillForm(calculatorForm, data.settings);
         updateHeroPreviews(data.settings);
       }
 
@@ -252,6 +255,11 @@
     });
 
     homepageForm?.addEventListener("submit", submitHomepageForm);
+
+    calculatorForm?.addEventListener("submit", (event) => {
+      event.preventDefault();
+      submitJsonForm(calculatorForm, "calculator", "Цены калькулятора сохранены");
+    });
 
     passwordForm?.addEventListener("submit", (event) => {
       event.preventDefault();

@@ -69,14 +69,6 @@
     return document.querySelector('meta[name="api-settings"]')?.content || "/api/settings.php";
   }
 
-  function escapeHtml(value) {
-    return String(value)
-      .replace(/&/g, "&amp;")
-      .replace(/</g, "&lt;")
-      .replace(/>/g, "&gt;")
-      .replace(/"/g, "&quot;");
-  }
-
   function formatMoney(value) {
     return new Intl.NumberFormat("ru-RU", {
       style: "currency",
@@ -100,17 +92,44 @@
     return service.unit === "pcs" ? "₽/шт." : "₽/м²";
   }
 
+  function setRowState(row, enabled) {
+    row.classList.toggle("is-on", enabled);
+    row.setAttribute("aria-pressed", enabled ? "true" : "false");
+
+    const input = row.querySelector(".calculator__input");
+    if (!input) return;
+
+    if (enabled) {
+      input.disabled = false;
+    } else {
+      input.value = "";
+      input.disabled = true;
+    }
+  }
+
+  function toggleRow(row, focusInput = false) {
+    const enabled = !row.classList.contains("is-on");
+    setRowState(row, enabled);
+
+    if (enabled && focusInput) {
+      row.querySelector(".calculator__input")?.focus();
+    }
+  }
+
   function renderLines(container) {
     container.innerHTML = SERVICES.map((service) => {
       const price = getPrice(service.priceKey);
       const icon = ICONS[service.id] || ICONS.facade;
 
       return `
-        <div class="calc-row" data-service="${service.id}">
-          <label class="calc-row__pick">
-            <input type="checkbox" class="calculator__toggle" data-service="${service.id}">
-            <span class="calc-row__check" aria-hidden="true"></span>
-          </label>
+        <div
+          class="calc-row"
+          data-service="${service.id}"
+          role="button"
+          tabindex="0"
+          aria-pressed="false"
+          aria-label="${service.label}"
+        >
           <div class="calc-row__service">
             <span class="calc-row__icon" aria-hidden="true">${icon}</span>
             <div class="calc-row__info">
@@ -118,7 +137,7 @@
               <span class="calc-row__rate" data-rate="${service.id}">${formatMoney(price)} ${unitText(service)}</span>
             </div>
           </div>
-          <div class="calc-row__qty">
+          <div class="calc-row__qty" data-noclick>
             <label class="calc-row__qty-label visually-hidden">${service.hint}</label>
             <div class="calc-row__qty-field">
               <input
@@ -182,18 +201,12 @@
 
     SERVICES.forEach((service) => {
       const row = container.querySelector(`.calc-row[data-service="${service.id}"]`);
-      const toggle = row?.querySelector(".calculator__toggle");
       const input = row?.querySelector(".calculator__input");
       const output = row?.querySelector(".calculator__line-total");
-      const enabled = Boolean(toggle?.checked);
+      const enabled = Boolean(row?.classList.contains("is-on"));
       const qty = enabled ? parseNumber(input?.value) : 0;
       const sum = qty * getPrice(service.priceKey);
 
-      if (input) {
-        input.disabled = !enabled;
-      }
-
-      row?.classList.toggle("is-on", enabled);
       row?.classList.toggle("has-value", enabled && qty > 0);
 
       if (output) {
@@ -227,25 +240,40 @@
   function bindEvents(container, totalEl) {
     container.addEventListener("input", (event) => {
       if (event.target.matches(".calculator__input")) {
+        const row = event.target.closest(".calc-row");
+        if (row && !row.classList.contains("is-on")) {
+          setRowState(row, true);
+        }
         calculate(container, totalEl);
       }
     });
 
-    container.addEventListener("change", (event) => {
-      if (!event.target.matches(".calculator__toggle")) return;
-
-      const serviceId = event.target.dataset.service;
-      const input = container.querySelector(`.calculator__input[data-service="${serviceId}"]`);
-
-      if (event.target.checked && input) {
-        input.disabled = false;
-        input.focus();
-      } else if (input) {
-        input.value = "";
-        input.disabled = true;
+    container.addEventListener("click", (event) => {
+      if (event.target.closest("[data-noclick], .calculator__input")) {
+        const row = event.target.closest(".calc-row");
+        if (row && !row.classList.contains("is-on") && event.target.closest(".calc-row__qty")) {
+          toggleRow(row, true);
+          calculate(container, totalEl);
+        }
+        return;
       }
 
+      const row = event.target.closest(".calc-row");
+      if (!row) return;
+
+      toggleRow(row, true);
       calculate(container, totalEl);
+    });
+
+    container.addEventListener("keydown", (event) => {
+      const row = event.target.closest(".calc-row");
+      if (!row || event.target.matches(".calculator__input")) return;
+
+      if (event.key === "Enter" || event.key === " ") {
+        event.preventDefault();
+        toggleRow(row, true);
+        calculate(container, totalEl);
+      }
     });
   }
 

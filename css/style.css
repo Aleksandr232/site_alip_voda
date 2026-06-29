@@ -1423,7 +1423,7 @@ h1, h2, h3, p {
 .calc-table__header,
 .calc-row {
   display: grid;
-  grid-template-columns: 44px minmax(0, 1fr) 168px 108px;
+  grid-template-columns: minmax(0, 1fr) 168px 108px;
   align-items: center;
   gap: 16px;
 }
@@ -1450,67 +1450,32 @@ h1, h2, h3, p {
 .calc-row {
   padding: 18px 24px;
   border-bottom: 1px solid var(--border);
-  transition: background 0.2s;
+  cursor: pointer;
+  user-select: none;
+  transition: background 0.2s, box-shadow 0.2s;
 }
 
 .calc-row:last-child {
   border-bottom: none;
 }
 
+.calc-row:hover:not(.is-on) {
+  background: rgba(11, 110, 188, 0.03);
+}
+
 .calc-row.is-on {
-  background: linear-gradient(90deg, rgba(11, 110, 188, 0.05) 0%, transparent 100%);
+  background: linear-gradient(90deg, rgba(11, 110, 188, 0.08) 0%, transparent 100%);
+  box-shadow: inset 3px 0 0 var(--primary);
 }
 
-.calc-row__pick {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  position: relative;
-}
-
-.calc-row__pick input {
-  position: absolute;
-  opacity: 0;
-  width: 0;
-  height: 0;
-}
-
-.calc-row__check {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 22px;
-  height: 22px;
-  border: 2px solid var(--border);
-  border-radius: 6px;
-  background: var(--surface);
-  transition: border-color 0.2s, background 0.2s;
-}
-
-.calc-row__check::after {
-  content: "";
-  width: 10px;
-  height: 6px;
-  border-left: 2px solid #fff;
-  border-bottom: 2px solid #fff;
-  transform: rotate(-45deg) scale(0);
-  margin-top: -2px;
-  transition: transform 0.15s ease;
-}
-
-.calc-row__pick input:checked + .calc-row__check {
-  background: var(--primary);
-  border-color: var(--primary);
-}
-
-.calc-row__pick input:checked + .calc-row__check::after {
-  transform: rotate(-45deg) scale(1);
-}
-
-.calc-row__pick input:focus-visible + .calc-row__check {
+.calc-row:focus-visible {
   outline: 2px solid var(--primary);
-  outline-offset: 2px;
+  outline-offset: -2px;
+}
+
+.calc-row__qty {
+  cursor: default;
+  user-select: auto;
 }
 
 .calc-row__service {
@@ -1692,10 +1657,6 @@ h1, h2, h3, p {
   max-width: 720px;
   margin-inline: auto;
   margin-bottom: 40px;
-}
-
-.calc-row:hover:not(.is-on) {
-  background: rgba(255, 255, 255, 0.65);
 }
 
 .calculator-box__aside {
@@ -1968,19 +1929,13 @@ h1, h2, h3, p {
   }
 
   .calc-row {
-    grid-template-columns: 36px 1fr;
+    grid-template-columns: 1fr;
     grid-template-areas:
-      "pick service"
-      "pick qty"
-      "pick total";
-    gap: 10px 14px;
+      "service"
+      "qty"
+      "total";
+    gap: 12px;
     padding: 16px;
-  }
-
-  .calc-row__pick {
-    grid-area: pick;
-    align-self: start;
-    margin-top: 2px;
   }
 
   .calc-row__service {

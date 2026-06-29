@@ -17,15 +17,10 @@ RewriteRule ^api(?:/(.*))?$ api/index.php [QSA,L]
 RewriteRule ^robots\.txt$ robots.php [L]
 RewriteRule ^sitemap\.xml$ sitemap.php [L]
 
-# Статические файлы и папки — не трогаем
-RewriteCond %{REQUEST_FILENAME} -f [OR]
-RewriteCond %{REQUEST_FILENAME} -d
-RewriteRule ^ - [L]
-
-# Чистые URL
+# Чистые URL (до проверки статических файлов)
 RewriteRule ^$ index.html [L]
 RewriteRule ^blog/?$ blog.html [L]
-RewriteRule ^article/([a-z0-9][a-z0-9-]*)/?$ article.php?slug=$1 [L,QSA]
+RewriteRule ^article/([a-z0-9][a-z0-9-]*)/?$ blog-article.html [L]
 RewriteRule ^article/?$ blog [R=301,L]
 
 RewriteRule ^login/?$ admin/login.php [L]
@@ -37,6 +32,11 @@ RewriteRule ^reviews/?$ admin/reviews.html [L]
 RewriteRule ^gallery/?$ admin/gallery.html [L]
 RewriteRule ^partners/?$ admin/partners.html [L]
 RewriteRule ^settings/?$ admin/settings.html [L]
+
+# Статические файлы и папки — не трогаем
+RewriteCond %{REQUEST_FILENAME} -f [OR]
+RewriteCond %{REQUEST_FILENAME} -d
+RewriteRule ^ - [L]
 
 # Редиректы со старых адресов
 RewriteRule ^admin/login\.(php|html)$ login [R=301,L]
@@ -51,4 +51,4 @@ RewriteRule ^admin/settings\.html$ settings [R=301,L]
 RewriteRule ^admin/?$ login [R=301,L]
 RewriteRule ^index\.html$ / [R=301,L]
 RewriteRule ^blog\.html$ blog [R=301,L]
-RewriteRule ^blog-article\.html$ article [R=301,L]
+RewriteRule ^blog-article\.html$ blog-article.php [L,QSA]

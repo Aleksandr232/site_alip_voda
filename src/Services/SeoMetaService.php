@@ -203,7 +203,8 @@ final class SeoMetaService
 
     public function injectArticleHead(string $html, ?BlogPost $post = null, ?string $slug = null): string
     {
-        if ($post !== null) {
+        try {
+            if ($post !== null) {
             $title = $post->title . ' — ' . self::SITE_NAME;
             $description = trim((string) ($post->description ?? ''));
             if ($description === '') {
@@ -255,6 +256,9 @@ final class SeoMetaService
         }
 
         return preg_replace('#</head>#', '  ' . $replacement . "\n</head>", $html, 1) ?? $html;
+        } catch (Throwable) {
+            return $html;
+        }
     }
 
     /** @param array<string, string> $stored */

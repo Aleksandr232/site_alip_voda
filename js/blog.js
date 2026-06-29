@@ -21,7 +21,10 @@
     const match = path.match(/\/article\/([a-z0-9][a-z0-9-]*)\/?$/i);
     if (match) return match[1].toLowerCase();
 
-    return new URLSearchParams(window.location.search).get("slug") || "";
+    const querySlug = new URLSearchParams(window.location.search).get("slug");
+    if (querySlug) return querySlug.toLowerCase();
+
+    return "";
   }
 
   function renderContent(text) {

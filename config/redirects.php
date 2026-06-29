@@ -15,5 +15,4 @@ return [
     'admin/index.html' => 'login',
     'index.html' => '',
     'blog.html' => 'blog',
-    'blog-article.html' => 'article',
-];
+};

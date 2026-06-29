@@ -16,6 +16,48 @@ final class TelegramService
 
     public function sendMessage(string $text, bool $disablePreview = false): int
     {
+        return $this->apiCall('sendMessage', [
+            'text' => $text,
+            'parse_mode' => 'HTML',
+            'disable_web_page_preview' => $disablePreview ? 'true' : 'false',
+        ]);
+    }
+
+    public function sendPhoto(string $photoUrl, string $caption): int
+    {
+        return $this->apiCall('sendPhoto', [
+            'photo' => $photoUrl,
+            'caption' => $caption,
+            'parse_mode' => 'HTML',
+        ]);
+    }
+
+    /** @return array{message_id: int, with_photo: bool} */
+    public function sendNewsPost(string $caption, string $photoUrl = ''): array
+    {
+        $photoUrl = trim($photoUrl);
+        if ($photoUrl !== '') {
+            try {
+                return [
+                    'message_id' => $this->sendPhoto($photoUrl, $caption),
+                    'with_photo' => true,
+                ];
+            } catch (RuntimeException $e) {
+                if (!str_contains($e->getMessage(), 'wrong type') && !str_contains($e->getMessage(), 'failed to get')) {
+                    throw $e;
+                }
+            }
+        }
+
+        return [
+            'message_id' => $this->sendMessage($caption),
+            'with_photo' => false,
+        ];
+    }
+
+  /** @param array<string, string> $fields */
+    private function apiCall(string $method, array $fields): int
+    {
         $token = $this->botToken();
         $channelId = $this->channelId();
 
@@ -23,13 +65,8 @@ final class TelegramService
             throw new RuntimeException('Telegram не настроен: укажите TELEGRAM_BOT_TOKEN и TELEGRAM_CHANNEL_ID в .env');
         }
 
-        $url = 'https://api.telegram.org/bot' . $token . '/sendMessage';
-        $payload = http_build_query([
-            'chat_id' => $channelId,
-            'text' => $text,
-            'parse_mode' => 'HTML',
-            'disable_web_page_preview' => $disablePreview ? 'true' : 'false',
-        ]);
+        $url = 'https://api.telegram.org/bot' . $token . '/' . $method;
+        $payload = http_build_query(array_merge(['chat_id' => $channelId], $fields));
 
         $raw = $this->post($url, $payload);
         if ($raw === false || $raw === '') {

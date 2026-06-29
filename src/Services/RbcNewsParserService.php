@@ -10,7 +10,7 @@ use SimpleXMLElement;
 
 final class RbcNewsParserService
 {
-    public const VERSION = 2;
+    public const VERSION = 3;
 
     private const DEFAULT_HTML_URL = 'https://www.rbc.ru/rubric/finances';
 
@@ -32,7 +32,7 @@ final class RbcNewsParserService
 
     private string $lastDownloadError = '';
 
-    /** @return list<array{external_id: string, title: string, url: string, summary: string, published_at: string}> */
+    /** @return list<array{external_id: string, title: string, url: string, summary: string, published_at: string, image: string}> */
     public function fetchLatest(int $limit = 20): array
     {
         $errors = [];
@@ -56,6 +56,164 @@ final class RbcNewsParserService
         throw new RuntimeException(
             'РБК: не удалось получить новости. ' . implode(' | ', $errors)
         );
+    }
+
+    /**
+     * @param array{external_id: string, title: string, url: string, summary: string, published_at: string, image?: string} $item
+     * @return array{external_id: string, title: string, url: string, summary: string, published_at: string, image: string}
+     */
+    public function enrichItem(array $item): array
+    {
+        $item['image'] = trim((string) ($item['image'] ?? ''));
+        $item['summary'] = trim((string) ($item['summary'] ?? ''));
+
+        if ($item['summary'] !== '' && $item['image'] !== '') {
+            return $item;
+        }
+
+        $meta = $this->fetchArticleMeta($item['url']);
+
+        if ($item['summary'] === '' && $meta['summary'] !== '') {
+            $item['summary'] = $meta['summary'];
+        }
+
+        if ($item['image'] === '' && $meta['image'] !== '') {
+            $item['image'] = $meta['image'];
+        }
+
+        return $item;
+    }
+
+    /** @return array{summary: string, image: string} */
+    private function fetchArticleMeta(string $articleUrl): array
+    {
+        $html = $this->download($articleUrl);
+        if ($html === '') {
+            return ['summary' => '', 'image' => ''];
+        }
+
+        $image = $this->metaContent($html, 'og:image');
+        if ($image === '') {
+            $image = $this->metaContent($html, 'twitter:image');
+        }
+
+        $summary = $this->metaContent($html, 'og:description');
+        if ($summary === '') {
+            $summary = $this->metaContent($html, 'description');
+        }
+
+        if ($summary === '' && preg_match(
+            '/<div[^>]*class="[^"]*article__text[^"]*"[^>]*>(.*?)<\/div>/isu',
+            $html,
+            $matches
+        )) {
+            $summary = $this->cleanText($matches[1]);
+        }
+
+        if ($summary === '' && preg_match(
+            '/<p[^>]*class="[^"]*article__text__overview[^"]*"[^>]*>(.*?)<\/p>/isu',
+            $html,
+            $matches
+        )) {
+            $summary = $this->cleanText($matches[1]);
+        }
+
+        return [
+            'summary' => $summary,
+            'image' => $this->normalizeImageUrl($image),
+        ];
+    }
+
+    private function metaContent(string $html, string $name): string
+    {
+        $quoted = preg_quote($name, '/');
+
+        if (preg_match(
+            '/<meta[^>]+(?:property|name)="' . $quoted . '"[^>]+content="([^"]*)"/iu',
+            $html,
+            $matches
+        )) {
+            return $this->cleanText(html_entity_decode($matches[1], ENT_QUOTES | ENT_HTML5, 'UTF-8'));
+        }
+
+        if (preg_match(
+            '/<meta[^>]+content="([^"]*)"[^>]+(?:property|name)="' . $quoted . '"/iu',
+            $html,
+            $matches
+        )) {
+            return $this->cleanText(html_entity_decode($matches[1], ENT_QUOTES | ENT_HTML5, 'UTF-8'));
+        }
+
+        return '';
+    }
+
+    private function extractImageFromListing(string $html, string $documentId): string
+    {
+        $needle = 'data-metronome-document-id="' . $documentId . '"';
+        $pos = strpos($html, $needle);
+        if ($pos === false) {
+            return '';
+        }
+
+        $chunk = substr($html, $pos, 6000);
+
+        if (preg_match('/srcSet="([^"]+)"/iu', $chunk, $matches)) {
+            return $this->firstUrlFromSrcSet($matches[1]);
+        }
+
+        if (preg_match('/<img[^>]+src="(https:\/\/[^"]+)"/iu', $chunk, $matches)) {
+            return $this->normalizeImageUrl($matches[1]);
+        }
+
+        return '';
+    }
+
+    private function firstUrlFromSrcSet(string $srcSet): string
+    {
+        $candidates = preg_split('/\s*,\s*/', trim($srcSet)) ?: [];
+        $best = '';
+
+        foreach ($candidates as $candidate) {
+            $candidate = trim($candidate);
+            if ($candidate === '') {
+                continue;
+            }
+
+            $url = trim(explode(' ', $candidate)[0] ?? '');
+            if ($url !== '' && str_contains($url, '://')) {
+                $best = $url;
+            }
+        }
+
+        return $this->normalizeImageUrl($best);
+    }
+
+    private function normalizeImageUrl(string $url): string
+    {
+        $url = trim(html_entity_decode($url, ENT_QUOTES | ENT_HTML5, 'UTF-8'));
+        if ($url === '') {
+            return '';
+        }
+
+        if (str_starts_with($url, '//')) {
+            return 'https:' . $url;
+        }
+
+        return $url;
+    }
+
+    /** @return array{summary: string, image: string} */
+    private function parseRssDescription(string $description): array
+    {
+        $image = '';
+        if (preg_match('/<img[^>]+src="([^"]+)"/iu', $description, $matches)) {
+            $image = $this->normalizeImageUrl($matches[1]);
+        }
+
+        return [
+            'summary' => $this->cleanText($description),
+            'image' => $image,
+        ];
     }
 
     /**
@@ -152,7 +310,7 @@ final class RbcNewsParserService
         ];
     }
 
-    /** @return list<array{external_id: string, title: string, url: string, summary: string, published_at: string}> */
+    /** @return list<array{external_id: string, title: string, url: string, summary: string, published_at: string, image: string}> */
     private function parseRssFeed(string $url, int $limit): array
     {
         $xml = $this->download($url);
@@ -180,12 +338,16 @@ final class RbcNewsParserService
                 continue;
             }
 
+            $description = (string) ($item->description ?? '');
+            $parsed = $this->parseRssDescription($description);
+
             $items[] = [
                 'external_id' => $this->externalId($link),
                 'title' => $title,
                 'url' => $link,
-                'summary' => $this->cleanText((string) ($item->description ?? '')),
+                'summary' => $parsed['summary'],
                 'published_at' => trim((string) ($item->pubDate ?? '')),
+                'image' => $parsed['image'],
             ];
 
             if (count($items) >= $limit) {
@@ -196,7 +358,7 @@ final class RbcNewsParserService
         return $items;
     }
 
-    /** @return list<array{external_id: string, title: string, url: string, summary: string, published_at: string}> */
+    /** @return list<array{external_id: string, title: string, url: string, summary: string, published_at: string, image: string}> */
     private function parseHtmlPage(string $url, int $limit): array
     {
         $html = $this->download($url);
@@ -234,6 +396,7 @@ final class RbcNewsParserService
                     'url' => $link,
                     'summary' => '',
                     'published_at' => '',
+                    'image' => $this->extractImageFromListing($html, $documentId),
                 ];
 
                 if (count($items) >= $limit) {
@@ -260,6 +423,7 @@ final class RbcNewsParserService
                     'url' => $link,
                     'summary' => '',
                     'published_at' => '',
+                    'image' => '',
                 ];
 
                 if (count($items) >= $limit) {

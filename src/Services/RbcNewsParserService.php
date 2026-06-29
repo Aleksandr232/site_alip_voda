@@ -10,7 +10,7 @@ use SimpleXMLElement;
 
 final class RbcNewsParserService
 {
-    public const VERSION = 3;
+    public const VERSION = 4;
 
     private const DEFAULT_HTML_URL = 'https://www.rbc.ru/rubric/finances';
 
@@ -65,23 +65,61 @@ final class RbcNewsParserService
     public function enrichItem(array $item): array
     {
         $item['image'] = trim((string) ($item['image'] ?? ''));
-        $item['summary'] = trim((string) ($item['summary'] ?? ''));
-
-        if ($item['summary'] !== '' && $item['image'] !== '') {
-            return $item;
-        }
-
         $meta = $this->fetchArticleMeta($item['url']);
 
-        if ($item['summary'] === '' && $meta['summary'] !== '') {
-            $item['summary'] = $meta['summary'];
-        }
+        $item['summary'] = $this->pickSummary((string) ($item['summary'] ?? ''), $meta['summary']);
 
         if ($item['image'] === '' && $meta['image'] !== '') {
             $item['image'] = $meta['image'];
         }
 
         return $item;
+    }
+
+    private function pickSummary(string $current, string $fromArticle): string
+    {
+        $current = $this->cleanSummary($current);
+        $fromArticle = $this->cleanSummary($fromArticle);
+
+        if ($fromArticle === '') {
+            return $current;
+        }
+
+        if ($current === '') {
+            return $fromArticle;
+        }
+
+        if ($this->summaryQuality($fromArticle) >= $this->summaryQuality($current)) {
+            return $fromArticle;
+        }
+
+        return $current;
+    }
+
+    private function summaryQuality(string $text): int
+    {
+        $score = strlen($text);
+
+        if (preg_match('/плеер|iframe|подкаст|mave/iu', $text)) {
+            $score -= 500;
+        }
+
+        if (str_contains($text, '⚡')) {
+            $score -= 100;
+        }
+
+        return $score;
+    }
+
+    private function cleanSummary(string $text): string
+    {
+        $text = $this->cleanText($text);
+        $text = preg_replace('/Плеер\s+\S+\s+Подкастов\s+через\s+iframe/iu', '', $text) ?? $text;
+        $text = preg_replace('/\biframe\b/iu', '', $text) ?? $text;
+        $text = preg_replace('/⚡+/u', '', $text) ?? $text;
+        $text = preg_replace('/\s{2,}/u', ' ', $text) ?? $text;
+
+        return trim($text);
     }
 
     /** @return array{summary: string, image: string} */
@@ -97,31 +135,39 @@ final class RbcNewsParserService
             $image = $this->metaContent($html, 'twitter:image');
         }
 
-        $summary = $this->metaContent($html, 'og:description');
+        $summary = $this->extractArticleLead($html);
+        if ($summary === '') {
+            $summary = $this->metaContent($html, 'og:description');
+        }
         if ($summary === '') {
             $summary = $this->metaContent($html, 'description');
         }
 
-        if ($summary === '' && preg_match(
-            '/<div[^>]*class="[^"]*article__text[^"]*"[^>]*>(.*?)<\/div>/isu',
-            $html,
-            $matches
-        )) {
-            $summary = $this->cleanText($matches[1]);
-        }
-
-        if ($summary === '' && preg_match(
-            '/<p[^>]*class="[^"]*article__text__overview[^"]*"[^>]*>(.*?)<\/p>/isu',
-            $html,
-            $matches
-        )) {
-            $summary = $this->cleanText($matches[1]);
-        }
-
         return [
-            'summary' => $summary,
+            'summary' => $this->cleanSummary($summary),
             'image' => $this->normalizeImageUrl($image),
         ];
+    }
+
+    private function extractArticleLead(string $html): string
+    {
+        $patterns = [
+            '/<p[^>]*class="[^"]*article__text__overview[^"]*"[^>]*>(.*?)<\/p>/isu',
+            '/<div[^>]*class="[^"]*article__text__overview[^"]*"[^>]*>(.*?)<\/div>/isu',
+            '/<div[^>]*class="[^"]*article__text[^"]*"[^>]*>\s*<p[^>]*>(.*?)<\/p>/isu',
+            '/<div[^>]*class="[^"]*article__content[^"]*"[^>]*>\s*<p[^>]*>(.*?)<\/p>/isu',
+        ];
+
+        foreach ($patterns as $pattern) {
+            if (preg_match($pattern, $html, $matches)) {
+                $lead = $this->cleanSummary($this->cleanText($matches[1]));
+                if ($lead !== '' && $this->summaryQuality($lead) > 0) {
+                    return $lead;
+                }
+            }
+        }
+
+        return '';
     }
 
     private function metaContent(string $html, string $name): string

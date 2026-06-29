@@ -79,26 +79,32 @@ final class RbcNewsDispatchService
             '<b>' . $this->escapeHtml($item['title']) . '</b>',
         ];
 
-        if ($item['summary'] !== '') {
+        if ($item['summary'] !== '' && $item['summary'] !== $item['title']) {
             $summary = $item['summary'];
-            if (mb_strlen($summary) > 700) {
-                $summary = mb_substr($summary, 0, 697) . '…';
+            if ($this->length($summary) > 700) {
+                $summary = $this->substr($summary, 0, 697) . '…';
             }
             $lines[] = $this->escapeHtml($summary);
         }
 
-        if ($item['published_at'] !== '') {
-            $lines[] = '<i>' . $this->escapeHtml($item['published_at']) . '</i>';
-        }
-
-        $lines[] = '<a href="' . $this->escapeHtml($item['url']) . '">Читать на РБК</a>';
+        $lines[] = '👉 <a href="' . $this->escapeHtml($item['url']) . '">Читать на РБК</a>';
 
         $caption = implode("\n\n", $lines);
-        if (mb_strlen($caption) > self::CAPTION_LIMIT) {
-            $caption = mb_substr($caption, 0, self::CAPTION_LIMIT - 1) . '…';
+        if ($this->length($caption) > self::CAPTION_LIMIT) {
+            $caption = $this->substr($caption, 0, self::CAPTION_LIMIT - 1) . '…';
         }
 
         return $caption;
+    }
+
+    private function length(string $value): int
+    {
+        return function_exists('mb_strlen') ? mb_strlen($value) : strlen($value);
+    }
+
+    private function substr(string $value, int $start, int $length): string
+    {
+        return function_exists('mb_substr') ? mb_substr($value, $start, $length) : substr($value, $start, $length);
     }
 
     private function escapeHtml(string $value): string

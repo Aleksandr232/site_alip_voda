@@ -1408,11 +1408,11 @@ h1, h2, h3, p {
 /* Calculator */
 .calculator-box {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 300px;
+  grid-template-columns: minmax(0, 1fr) minmax(260px, 300px);
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
-  box-shadow: var(--shadow);
+  box-shadow: 0 24px 64px rgba(11, 110, 188, 0.1);
   overflow: hidden;
 }
 
@@ -1423,65 +1423,80 @@ h1, h2, h3, p {
 .calc-table__header,
 .calc-row {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 168px 108px;
+  grid-template-columns: minmax(0, 1fr) auto auto;
   align-items: center;
-  gap: 16px;
+  gap: 16px 24px;
 }
 
 .calc-table__header {
-  padding: 14px 24px;
-  background: var(--bg);
+  padding: 16px 40px;
+  background: linear-gradient(180deg, #f8fbfe 0%, var(--bg) 100%);
   border-bottom: 1px solid var(--border);
-  font-size: 0.75rem;
+  font-size: 0.6875rem;
   font-weight: 700;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--text-muted);
 }
 
+.calc-table__header .calc-table__col:nth-child(2) {
+  min-width: 156px;
+}
+
 .calc-table__col--sum {
   text-align: right;
+  min-width: 96px;
 }
 
 .calc-table__body {
   display: grid;
+  gap: 10px;
+  padding: 16px 20px 20px;
 }
 
 .calc-row {
-  padding: 18px 24px;
-  border-bottom: 1px solid var(--border);
+  padding: 16px 20px;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: #fff;
   cursor: pointer;
   user-select: none;
-  transition: background 0.2s, box-shadow 0.2s;
+  transition: background 0.2s, border-color 0.2s, box-shadow 0.2s, transform 0.15s;
 }
 
 .calc-row:last-child {
-  border-bottom: none;
+  border-bottom: 1px solid var(--border);
 }
 
 .calc-row:hover:not(.is-on) {
-  background: rgba(11, 110, 188, 0.03);
+  background: #f8fbfe;
+  border-color: rgba(11, 110, 188, 0.18);
+  box-shadow: 0 4px 16px rgba(11, 110, 188, 0.06);
 }
 
 .calc-row.is-on {
-  background: linear-gradient(90deg, rgba(11, 110, 188, 0.08) 0%, transparent 100%);
-  box-shadow: inset 3px 0 0 var(--primary);
+  background: linear-gradient(135deg, rgba(11, 110, 188, 0.06) 0%, rgba(255, 255, 255, 1) 55%);
+  border-color: rgba(11, 110, 188, 0.35);
+  box-shadow:
+    inset 4px 0 0 var(--primary),
+    0 6px 20px rgba(11, 110, 188, 0.08);
 }
 
 .calc-row:focus-visible {
   outline: 2px solid var(--primary);
-  outline-offset: -2px;
+  outline-offset: 2px;
 }
 
 .calc-row__qty {
   cursor: default;
   user-select: auto;
+  min-width: 156px;
 }
 
 .calc-row__service {
   display: flex;
-  align-items: center;
-  gap: 12px;
+  align-items: flex-start;
+  gap: 14px;
   min-width: 0;
 }
 
@@ -1490,12 +1505,13 @@ h1, h2, h3, p {
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  width: 40px;
-  height: 40px;
-  border-radius: 10px;
-  background: rgba(11, 110, 188, 0.08);
+  width: 44px;
+  height: 44px;
+  margin-top: 2px;
+  border-radius: 12px;
+  background: linear-gradient(145deg, rgba(11, 110, 188, 0.1), rgba(11, 110, 188, 0.04));
   color: var(--primary);
-  transition: background 0.2s, color 0.2s, box-shadow 0.2s;
+  transition: background 0.2s, color 0.2s, box-shadow 0.2s, transform 0.2s;
 }
 
 .calc-row__icon svg {
@@ -1505,39 +1521,55 @@ h1, h2, h3, p {
 }
 
 .calc-row.is-on .calc-row__icon {
-  background: var(--primary);
+  background: linear-gradient(135deg, var(--primary), #0a8fd4);
   color: #fff;
-  box-shadow: 0 4px 12px rgba(11, 110, 188, 0.25);
+  box-shadow: 0 6px 16px rgba(11, 110, 188, 0.28);
+  transform: scale(1.02);
 }
 
 .calc-row__info {
-  display: grid;
-  gap: 2px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  flex: 1;
   min-width: 0;
 }
 
 .calc-row__name {
-  font-size: 0.9375rem;
+  font-size: 1rem;
   font-weight: 700;
-  line-height: 1.35;
+  line-height: 1.45;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  hyphens: auto;
 }
 
 .calc-row__rate {
-  font-size: 0.8125rem;
-  color: var(--text-muted);
+  display: inline-flex;
+  align-self: flex-start;
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--primary);
+  background: rgba(11, 110, 188, 0.08);
+}
+
+.calc-row.is-on .calc-row__rate {
+  background: rgba(11, 110, 188, 0.14);
 }
 
 .calc-row__qty-field {
   display: flex;
   align-items: center;
   gap: 8px;
-  max-width: 148px;
+  width: 156px;
 }
 
 .calculator__input {
   width: 100%;
   min-width: 0;
-  max-width: 96px;
+  flex: 1;
   padding: 10px 12px;
   border: 1px solid var(--border);
   border-radius: 10px;
@@ -1561,28 +1593,32 @@ h1, h2, h3, p {
 }
 
 .calc-row__unit {
-  font-size: 0.875rem;
+  flex-shrink: 0;
+  font-size: 0.8125rem;
   font-weight: 600;
   color: var(--text-muted);
   white-space: nowrap;
 }
 
 .calc-row__total {
+  min-width: 96px;
   text-align: right;
   font-size: 0.9375rem;
   font-weight: 700;
+  font-variant-numeric: tabular-nums;
   color: var(--text-muted);
 }
 
 .calc-row.has-value .calc-row__total {
   color: var(--primary);
-  font-size: 1rem;
+  font-size: 1.0625rem;
 }
 
 .calculator-box__aside {
   display: flex;
   flex-direction: column;
-  background: linear-gradient(180deg, #f3f9ff 0%, #eef6fc 100%);
+  position: relative;
+  background: linear-gradient(180deg, #f3f9ff 0%, #e8f3fb 100%);
   border-left: 1px solid var(--border);
 }
 
@@ -1633,6 +1669,11 @@ h1, h2, h3, p {
   color: var(--text-muted);
 }
 
+.calculator-box__breakdown li span {
+  min-width: 0;
+  line-height: 1.45;
+}
+
 .calculator-box__breakdown li strong {
   color: var(--text);
   font-weight: 700;
@@ -1657,10 +1698,6 @@ h1, h2, h3, p {
   max-width: 720px;
   margin-inline: auto;
   margin-bottom: 40px;
-}
-
-.calculator-box__aside {
-  position: relative;
 }
 
 .calculator-box__aside::before {
@@ -1934,20 +1971,27 @@ h1, h2, h3, p {
       "service"
       "qty"
       "total";
-    gap: 12px;
-    padding: 16px;
+    gap: 14px;
+    padding: 18px;
   }
 
   .calc-row__service {
     grid-area: service;
+    align-items: center;
+  }
+
+  .calc-row__name {
+    font-size: 1.0625rem;
   }
 
   .calc-row__qty {
     grid-area: qty;
+    min-width: 0;
   }
 
   .calc-row__qty-field {
-    max-width: 180px;
+    width: 100%;
+    max-width: 220px;
   }
 
   .calculator__input {

@@ -1520,26 +1520,29 @@ h1, h2, h3, p {
   min-width: 0;
 }
 
-.calc-row__thumb {
+.calc-row__icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
   flex-shrink: 0;
-  width: 36px;
-  height: 36px;
-  border-radius: 8px;
-  overflow: hidden;
-  background: var(--bg-alt);
-  box-shadow: 0 1px 4px rgba(15, 28, 46, 0.08);
-  transition: box-shadow 0.2s;
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  background: rgba(11, 110, 188, 0.08);
+  color: var(--primary);
+  transition: background 0.2s, color 0.2s, box-shadow 0.2s;
 }
 
-.calc-row__thumb img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
+.calc-row__icon svg {
+  width: 22px;
+  height: 22px;
   display: block;
 }
 
-.calc-row.is-on .calc-row__thumb {
-  box-shadow: 0 0 0 2px var(--primary);
+.calc-row.is-on .calc-row__icon {
+  background: var(--primary);
+  color: #fff;
+  box-shadow: 0 4px 12px rgba(11, 110, 188, 0.25);
 }
 
 .calc-row__info {

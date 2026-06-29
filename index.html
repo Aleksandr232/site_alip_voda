@@ -322,24 +322,34 @@
       </div>
     </section>
 
-    <section class="section section--alt" id="calculator">
+    <section class="section" id="calculator">
       <div class="container">
-        <div class="section__head">
+        <div class="section__head section__head--center">
           <p class="section__label">Калькулятор</p>
           <h2>Рассчитайте ориентировочную стоимость работ</h2>
           <p class="section__desc">Укажите площадь или количество — сумма обновится автоматически. Точный расчёт после осмотра объекта.</p>
         </div>
         <div class="calculator" id="calculator-root">
-          <div class="calculator__layout">
-            <div class="calculator__services" id="calculator-lines"></div>
-            <aside class="calculator__summary">
-              <div class="calculator__summary-card">
-                <p class="calculator__summary-label">Ориентировочная стоимость</p>
-                <p class="calculator__total-value" id="calculator-total">0 ₽</p>
-                <ul class="calculator__breakdown" id="calculator-breakdown" hidden></ul>
-                <p class="calculator__summary-empty" id="calculator-empty">Выберите услуги и укажите площадь или количество</p>
-                <p class="calculator__note">Предварительный расчёт. Точная цена — после осмотра объекта.</p>
-                <a href="#contact" class="btn btn--primary btn--full">Заказать точный расчёт</a>
+          <div class="calculator-box">
+            <div class="calculator-box__main">
+              <div class="calc-table">
+                <div class="calc-table__header" aria-hidden="true">
+                  <span class="calc-table__col calc-table__col--pick"></span>
+                  <span class="calc-table__col">Услуга</span>
+                  <span class="calc-table__col">Количество</span>
+                  <span class="calc-table__col calc-table__col--sum">Сумма</span>
+                </div>
+                <div class="calc-table__body" id="calculator-lines"></div>
+              </div>
+            </div>
+            <aside class="calculator-box__aside">
+              <div class="calculator-box__summary">
+                <p class="calculator-box__label">Итого</p>
+                <p class="calculator-box__total" id="calculator-total">0 ₽</p>
+                <ul class="calculator-box__breakdown" id="calculator-breakdown" hidden></ul>
+                <p class="calculator-box__hint" id="calculator-empty">Отметьте услуги и введите площадь или количество</p>
+                <p class="calculator-box__note">Ориентировочная стоимость. Точный расчёт — после осмотра объекта.</p>
+                <a href="#contact" class="btn btn--primary btn--full">Получить точный расчёт</a>
               </div>
             </aside>
           </div>
@@ -420,6 +430,6 @@
   <script src="js/gallery.js?v=1"></script>
   <script src="/js/blog.js?v=4"></script>
   <script src="js/partners.js?v=4"></script>
-  <script src="js/calculator.js?v=2"></script>
+  <script src="js/calculator.js?v=3"></script>
 </body>
 </html>

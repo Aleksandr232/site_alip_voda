@@ -19,7 +19,6 @@
       label: "Мойка фасада",
       unit: "m2",
       unitLabel: "м²",
-      placeholder: "0",
       hint: "Площадь фасада",
     },
     {
@@ -28,7 +27,6 @@
       label: "Мойка окон",
       unit: "m2",
       unitLabel: "м²",
-      placeholder: "0",
       hint: "Площадь остекления",
     },
     {
@@ -37,7 +35,6 @@
       label: "Уборка снега с кровли",
       unit: "m2",
       unitLabel: "м²",
-      placeholder: "0",
       hint: "Площадь кровли",
     },
     {
@@ -46,7 +43,6 @@
       label: "Установка строительных лесов",
       unit: "m2",
       unitLabel: "м²",
-      placeholder: "0",
       hint: "Площадь под леса",
     },
     {
@@ -55,7 +51,6 @@
       label: "Монтажные работы",
       unit: "pcs",
       unitLabel: "шт.",
-      placeholder: "0",
       hint: "Количество точек",
     },
   ];
@@ -103,48 +98,47 @@
       const icon = ICONS[service.id] || ICONS.facade;
 
       return `
-        <article class="calc-card" data-service="${service.id}">
-          <label class="calc-card__switch" title="Включить услугу">
+        <div class="calc-row" data-service="${service.id}">
+          <label class="calc-row__pick">
             <input type="checkbox" class="calculator__toggle" data-service="${service.id}">
-            <span class="calc-card__switch-ui" aria-hidden="true"></span>
+            <span class="calc-row__check" aria-hidden="true"></span>
           </label>
-          <div class="calc-card__icon">${icon}</div>
-          <div class="calc-card__main">
-            <h3 class="calc-card__title">${service.label}</h3>
-            <span class="calc-card__rate">${formatMoney(price)} <span>${unitText(service)}</span></span>
-            <div class="calc-card__field">
-              <span class="calc-card__field-label">${service.hint}</span>
-              <div class="calc-card__input-wrap">
-                <input
-                  type="number"
-                  class="calculator__input"
-                  data-service="${service.id}"
-                  min="0"
-                  step="1"
-                  inputmode="decimal"
-                  placeholder="${service.placeholder}"
-                  disabled
-                  aria-label="${service.hint}"
-                >
-                <span class="calc-card__unit">${service.unitLabel}</span>
-              </div>
+          <div class="calc-row__service">
+            <span class="calc-row__icon">${icon}</span>
+            <div class="calc-row__info">
+              <strong class="calc-row__name">${service.label}</strong>
+              <span class="calc-row__rate" data-rate="${service.id}">${formatMoney(price)} ${unitText(service)}</span>
             </div>
           </div>
-          <div class="calc-card__sum">
-            <span class="calc-card__sum-label">Сумма</span>
-            <output class="calculator__line-total" data-service="${service.id}">—</output>
+          <div class="calc-row__qty">
+            <label class="calc-row__qty-label visually-hidden">${service.hint}</label>
+            <div class="calc-row__qty-field">
+              <input
+                type="number"
+                class="calculator__input"
+                data-service="${service.id}"
+                min="0"
+                step="1"
+                inputmode="decimal"
+                placeholder="0"
+                disabled
+                aria-label="${service.hint}"
+              >
+              <span class="calc-row__unit">${service.unitLabel}</span>
+            </div>
           </div>
-        </article>
+          <output class="calc-row__total calculator__line-total" data-service="${service.id}">—</output>
+        </div>
       `;
     }).join("");
   }
 
   function updateRates(container) {
     SERVICES.forEach((service) => {
-      const card = container.querySelector(`.calc-card[data-service="${service.id}"]`);
-      const rate = card?.querySelector(".calc-card__rate");
-      if (!rate) return;
-      rate.innerHTML = `${formatMoney(getPrice(service.priceKey))} <span>${unitText(service)}</span>`;
+      const rate = container.querySelector(`[data-rate="${service.id}"]`);
+      if (rate) {
+        rate.textContent = `${formatMoney(getPrice(service.priceKey))} ${unitText(service)}`;
+      }
     });
   }
 
@@ -179,10 +173,10 @@
     const breakdown = [];
 
     SERVICES.forEach((service) => {
-      const card = container.querySelector(`.calc-card[data-service="${service.id}"]`);
-      const toggle = card?.querySelector(".calculator__toggle");
-      const input = card?.querySelector(".calculator__input");
-      const output = card?.querySelector(".calculator__line-total");
+      const row = container.querySelector(`.calc-row[data-service="${service.id}"]`);
+      const toggle = row?.querySelector(".calculator__toggle");
+      const input = row?.querySelector(".calculator__input");
+      const output = row?.querySelector(".calculator__line-total");
       const enabled = Boolean(toggle?.checked);
       const qty = enabled ? parseNumber(input?.value) : 0;
       const sum = qty * getPrice(service.priceKey);
@@ -191,8 +185,8 @@
         input.disabled = !enabled;
       }
 
-      card?.classList.toggle("is-active", enabled);
-      card?.classList.toggle("has-value", enabled && qty > 0);
+      row?.classList.toggle("is-on", enabled);
+      row?.classList.toggle("has-value", enabled && qty > 0);
 
       if (output) {
         if (enabled && qty > 0) {
@@ -245,17 +239,6 @@
 
       calculate(container, totalEl);
     });
-
-    container.addEventListener("click", (event) => {
-      const card = event.target.closest(".calc-card");
-      if (!card || event.target.closest(".calculator__input, .calc-card__switch")) return;
-
-      const toggle = card.querySelector(".calculator__toggle");
-      if (!toggle) return;
-
-      toggle.checked = !toggle.checked;
-      toggle.dispatchEvent(new Event("change", { bubbles: true }));
-    });
   }
 
   async function loadPrices() {
@@ -278,15 +261,14 @@
         }
       });
     } catch (error) {
-      console.warn("Калькулятор: не удалось загрузить цены, используются значения по умолчанию.", error);
+      console.warn("Калькулятор: не удалось загрузить цены.", error);
     }
   }
 
   async function init() {
-    const root = document.getElementById("calculator-root");
     const lines = document.getElementById("calculator-lines");
     const totalEl = document.getElementById("calculator-total");
-    if (!root || !lines) return;
+    if (!lines) return;
 
     await loadPrices();
     renderLines(lines);

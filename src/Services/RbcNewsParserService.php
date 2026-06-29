@@ -10,19 +10,24 @@ use SimpleXMLElement;
 
 final class RbcNewsParserService
 {
-    private const DEFAULT_RSS_URL = 'https://rssexport.rbc.ru/rbcnews/news/20/full.rss';
+    public const VERSION = 2;
 
-    private const RUBRIC_MAP = [
-        'finances' => 'finances',
-        'business' => 'business',
-        'politics' => 'politics',
-        'society' => 'society',
-        'economics' => 'economics',
-        'technology_and_media' => 'technology_and_media',
-        'sport' => 'sport',
-        'auto' => 'auto',
-        'realty' => 'realty',
-        'pro' => 'pro',
+    private const DEFAULT_HTML_URL = 'https://www.rbc.ru/rubric/finances';
+
+    private const DEFAULT_RSS_URL = 'https://rssexport.rbc.ru/rbcnews/news/30/full.rss';
+
+    /** @var array<string, string> */
+    private const RUBRIC_PAGES = [
+        'finances' => 'https://www.rbc.ru/rubric/finances',
+        'business' => 'https://www.rbc.ru/rubric/business',
+        'politics' => 'https://www.rbc.ru/rubric/politics',
+        'society' => 'https://www.rbc.ru/rubric/society',
+        'economics' => 'https://www.rbc.ru/rubric/economics',
+        'technology_and_media' => 'https://www.rbc.ru/rubric/technology_and_media',
+        'sport' => 'https://www.rbc.ru/rubric/sport',
+        'auto' => 'https://www.rbc.ru/rubric/auto',
+        'realty' => 'https://www.rbc.ru/rubric/realty',
+        'quote' => 'https://www.rbc.ru/quote',
     ];
 
     private string $lastDownloadError = '';
@@ -30,23 +35,139 @@ final class RbcNewsParserService
     /** @return list<array{external_id: string, title: string, url: string, summary: string, published_at: string}> */
     public function fetchLatest(int $limit = 20): array
     {
-        $url = $this->resolveFeedUrl();
-        $xml = $this->download($url);
+        $errors = [];
 
+        foreach ($this->resolveSourceChain() as $source) {
+            try {
+                $items = $source['mode'] === 'html'
+                    ? $this->parseHtmlPage($source['url'], $limit)
+                    : $this->parseRssFeed($source['url'], $limit);
+
+                if ($items !== []) {
+                    return $items;
+                }
+
+                $errors[] = $source['label'] . ': новости не найдены';
+            } catch (RuntimeException $e) {
+                $errors[] = $source['label'] . ': ' . $e->getMessage();
+            }
+        }
+
+        throw new RuntimeException(
+            'РБК: не удалось получить новости. ' . implode(' | ', $errors)
+        );
+    }
+
+    /**
+     * @return list<array{mode: 'rss'|'html', url: string, label: string}>
+     */
+    private function resolveSourceChain(): array
+    {
+        $chain = [];
+        $configured = trim((string) (Config::get('RBC_NEWS_RSS_URL') ?? ''));
+
+        if ($configured === '') {
+            $chain[] = $this->source('html', self::DEFAULT_HTML_URL, 'рубрика по умолчанию');
+            $chain[] = $this->source('rss', self::DEFAULT_RSS_URL, 'общий RSS');
+
+            return $chain;
+        }
+
+        if (preg_match('~^https?://(?:www\.)?rbc\.ru/rubric/([a-z0-9_]+)/?~i', $configured, $matches)) {
+            $slug = strtolower($matches[1]);
+            $chain[] = $this->source(
+                'html',
+                self::RUBRIC_PAGES[$slug] ?? $configured,
+                'рубрика ' . $slug
+            );
+
+            return $chain;
+        }
+
+        if (str_starts_with($configured, 'https://www.rbc.ru/quote') || str_starts_with($configured, 'http://www.rbc.ru/quote')) {
+            $chain[] = $this->source('html', 'https://www.rbc.ru/quote', 'инвестиции');
+
+            return $chain;
+        }
+
+        if (preg_match('~^https?://rssexport\.rbc\.ru/rbcnews/([a-z0-9_]+)/~i', $configured, $matches)) {
+            $section = strtolower($matches[1]);
+            $rssUrl = preg_replace('~/(\d+)/full\.rss$~', '/30/full.rss', $configured) ?? $configured;
+
+            if ($section !== 'news' && isset(self::RUBRIC_PAGES[$section])) {
+                $chain[] = $this->source('html', self::RUBRIC_PAGES[$section], 'рубрика ' . $section);
+            }
+
+            $chain[] = $this->source('rss', $rssUrl, 'RSS ' . $section);
+            $chain[] = $this->source('rss', self::DEFAULT_RSS_URL, 'общий RSS');
+            $chain[] = $this->source('html', self::DEFAULT_HTML_URL, 'рубрика finances');
+
+            return $this->uniqueSources($chain);
+        }
+
+        if (str_contains($configured, 'rbc.ru') && !str_contains($configured, 'rssexport')) {
+            $chain[] = $this->source('html', $configured, 'страница РБК');
+
+            return $chain;
+        }
+
+        $chain[] = $this->source('rss', $configured, 'RSS');
+        $chain[] = $this->source('html', self::DEFAULT_HTML_URL, 'рубрика finances');
+        $chain[] = $this->source('rss', self::DEFAULT_RSS_URL, 'общий RSS');
+
+        return $this->uniqueSources($chain);
+    }
+
+    /**
+     * @param list<array{mode: 'rss'|'html', url: string, label: string}> $chain
+     * @return list<array{mode: 'rss'|'html', url: string, label: string}>
+     */
+    private function uniqueSources(array $chain): array
+    {
+        $seen = [];
+        $result = [];
+
+        foreach ($chain as $source) {
+            $key = $source['mode'] . '|' . $source['url'];
+            if (isset($seen[$key])) {
+                continue;
+            }
+
+            $seen[$key] = true;
+            $result[] = $source;
+        }
+
+        return $result;
+    }
+
+    /**
+     * @return array{mode: 'rss'|'html', url: string, label: string}
+     */
+    private function source(string $mode, string $url, string $label): array
+    {
+        return [
+            'mode' => $mode === 'html' ? 'html' : 'rss',
+            'url' => $url,
+            'label' => $label,
+        ];
+    }
+
+    /** @return list<array{external_id: string, title: string, url: string, summary: string, published_at: string}> */
+    private function parseRssFeed(string $url, int $limit): array
+    {
+        $xml = $this->download($url);
         if ($xml === '') {
-            $detail = $this->lastDownloadError !== '' ? ': ' . $this->lastDownloadError : '';
-            throw new RuntimeException('РБК: не удалось загрузить RSS' . $detail);
+            $detail = $this->lastDownloadError !== '' ? $this->lastDownloadError : 'пустой ответ';
+            throw new RuntimeException('RSS ' . $url . ' — ' . $detail);
         }
 
         if (!str_contains($xml, '<rss') && !str_contains($xml, '<feed')) {
-            throw new RuntimeException(
-                'РБК: ответ не похож на RSS. Проверьте RBC_NEWS_RSS_URL — нужен адрес rssexport.rbc.ru, не страница rbc.ru'
-            );
+            throw new RuntimeException('RSS ' . $url . ' — ответ не похож на RSS');
         }
 
         $feed = @simplexml_load_string($xml, SimpleXMLElement::class, LIBXML_NOCDATA);
         if ($feed === false) {
-            throw new RuntimeException('РБК: не удалось разобрать RSS');
+            throw new RuntimeException('RSS ' . $url . ' — не удалось разобрать XML');
         }
 
         $items = [];
@@ -59,15 +180,12 @@ final class RbcNewsParserService
                 continue;
             }
 
-            $summary = $this->cleanText((string) ($item->description ?? ''));
-            $pubDate = trim((string) ($item->pubDate ?? ''));
-
             $items[] = [
                 'external_id' => $this->externalId($link),
                 'title' => $title,
                 'url' => $link,
-                'summary' => $summary,
-                'published_at' => $pubDate,
+                'summary' => $this->cleanText((string) ($item->description ?? '')),
+                'published_at' => trim((string) ($item->pubDate ?? '')),
             ];
 
             if (count($items) >= $limit) {
@@ -75,36 +193,82 @@ final class RbcNewsParserService
             }
         }
 
-        if ($items === []) {
-            throw new RuntimeException('РБК: в RSS нет новостей');
-        }
-
         return $items;
     }
 
-    private function resolveFeedUrl(): string
+    /** @return list<array{external_id: string, title: string, url: string, summary: string, published_at: string}> */
+    private function parseHtmlPage(string $url, int $limit): array
     {
-        $url = trim((string) (Config::get('RBC_NEWS_RSS_URL') ?? ''));
-        if ($url === '') {
-            return self::DEFAULT_RSS_URL;
+        $html = $this->download($url);
+        if ($html === '') {
+            $detail = $this->lastDownloadError !== '' ? $this->lastDownloadError : 'пустой ответ';
+            throw new RuntimeException('страница ' . $url . ' — ' . $detail);
         }
 
-        if (preg_match('~^https?://(?:www\.)?rbc\.ru/rubric/([a-z0-9_]+)/?~i', $url, $matches)) {
-            $slug = strtolower($matches[1]);
-            $section = self::RUBRIC_MAP[$slug] ?? $slug;
+        $items = [];
+        $seen = [];
 
-            return 'https://rssexport.rbc.ru/rbcnews/' . $section . '/20/full.rss';
+        if (preg_match_all(
+            '/data-metronome-document-id="([a-f0-9]{20,32})"[^>]*data-metronome-href="([^"]+)"[^>]*data-metronome-text="([^"]*)"/iu',
+            $html,
+            $matches,
+            PREG_SET_ORDER
+        )) {
+            foreach ($matches as $match) {
+                $documentId = strtolower($match[1]);
+                if (isset($seen[$documentId])) {
+                    continue;
+                }
+
+                $seen[$documentId] = true;
+                $link = html_entity_decode($match[2], ENT_QUOTES | ENT_HTML5, 'UTF-8');
+                $title = $this->cleanText(html_entity_decode($match[3], ENT_QUOTES | ENT_HTML5, 'UTF-8'));
+
+                if ($title === '' || $link === '') {
+                    continue;
+                }
+
+                $items[] = [
+                    'external_id' => 'rbc:' . $documentId,
+                    'title' => $title,
+                    'url' => $link,
+                    'summary' => '',
+                    'published_at' => '',
+                ];
+
+                if (count($items) >= $limit) {
+                    break;
+                }
+            }
         }
 
-        if (preg_match('~^https?://rssexport\.rbc\.ru/~i', $url)) {
-            return $url;
+        if ($items === [] && preg_match_all(
+            '/<meta itemProp="url" content="(https:\/\/www\.rbc\.ru\/[^"]+)"/iu',
+            $html,
+            $urlMatches
+        )) {
+            foreach ($urlMatches[1] as $link) {
+                $id = $this->externalId($link);
+                if (isset($seen[$id])) {
+                    continue;
+                }
+
+                $seen[$id] = true;
+                $items[] = [
+                    'external_id' => $id,
+                    'title' => 'Новость РБК',
+                    'url' => $link,
+                    'summary' => '',
+                    'published_at' => '',
+                ];
+
+                if (count($items) >= $limit) {
+                    break;
+                }
+            }
         }
 
-        if (str_contains($url, 'rbc.ru') && !str_contains($url, 'rssexport')) {
-            return self::DEFAULT_RSS_URL;
-        }
-
-        return $url;
+        return $items;
     }
 
     private function download(string $url): string
@@ -139,10 +303,10 @@ final class RbcNewsParserService
             CURLOPT_SSL_VERIFYPEER => $verifySsl,
             CURLOPT_SSL_VERIFYHOST => $verifySsl ? 2 : 0,
             CURLOPT_HTTPHEADER => [
-                'Accept: application/rss+xml, application/xml, text/xml, */*',
+                'Accept: text/html,application/xhtml+xml,application/rss+xml,application/xml;q=0.9,*/*;q=0.8',
                 'Accept-Language: ru-RU,ru;q=0.9',
             ],
-            CURLOPT_USERAGENT => 'Mozilla/5.0 (compatible; SkayClinBot/1.0; +https://skyclin.ru)',
+            CURLOPT_USERAGENT => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36',
         ]);
 
         $response = curl_exec($handle);
@@ -176,7 +340,7 @@ final class RbcNewsParserService
                 'timeout' => 30,
                 'header' => implode("\r\n", [
                     'User-Agent: Mozilla/5.0 (compatible; SkayClinBot/1.0)',
-                    'Accept: application/rss+xml, application/xml, text/xml, */*',
+                    'Accept: text/html,application/rss+xml,application/xml,*/*',
                     'Accept-Language: ru-RU,ru;q=0.9',
                 ]),
             ],
@@ -199,6 +363,10 @@ final class RbcNewsParserService
     private function externalId(string $url): string
     {
         $normalized = strtolower(rtrim(trim($url), '/'));
+
+        if (preg_match('~/(?:fulltext/)?([a-f0-9]{20,32})~i', $normalized, $matches)) {
+            return 'rbc:' . strtolower($matches[1]);
+        }
 
         if (preg_match('~/(?:fulltext/)?(\d{6,})~', $normalized, $matches)) {
             return 'rbc:' . $matches[1];

@@ -330,14 +330,18 @@
           <p class="section__desc">Укажите площадь или количество — сумма обновится автоматически. Точный расчёт после осмотра объекта.</p>
         </div>
         <div class="calculator" id="calculator-root">
-          <div class="calculator__grid" id="calculator-lines"></div>
-          <div class="calculator__footer">
-            <div class="calculator__total">
-              <span class="calculator__total-label">Итого</span>
-              <strong class="calculator__total-value" id="calculator-total">0 ₽</strong>
-            </div>
-            <p class="calculator__note">* Предварительный расчёт. Финальная стоимость зависит от высоты, степени загрязнения и срочности.</p>
-            <a href="#contact" class="btn btn--primary">Заказать точный расчёт</a>
+          <div class="calculator__layout">
+            <div class="calculator__services" id="calculator-lines"></div>
+            <aside class="calculator__summary">
+              <div class="calculator__summary-card">
+                <p class="calculator__summary-label">Ориентировочная стоимость</p>
+                <p class="calculator__total-value" id="calculator-total">0 ₽</p>
+                <ul class="calculator__breakdown" id="calculator-breakdown" hidden></ul>
+                <p class="calculator__summary-empty" id="calculator-empty">Выберите услуги и укажите площадь или количество</p>
+                <p class="calculator__note">Предварительный расчёт. Точная цена — после осмотра объекта.</p>
+                <a href="#contact" class="btn btn--primary btn--full">Заказать точный расчёт</a>
+              </div>
+            </aside>
           </div>
         </div>
       </div>
@@ -416,6 +420,6 @@
   <script src="js/gallery.js?v=1"></script>
   <script src="/js/blog.js?v=4"></script>
   <script src="js/partners.js?v=4"></script>
-  <script src="js/calculator.js?v=1"></script>
+  <script src="js/calculator.js?v=2"></script>
 </body>
 </html>

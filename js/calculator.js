@@ -1,15 +1,15 @@
 (function () {
-  const ICONS = {
+  const THUMBS = {
     facade:
-      '<svg viewBox="0 0 48 48" fill="none" aria-hidden="true"><path d="M24 4L8 20h10v20h12V20h10L24 4z" stroke="currentColor" stroke-width="2.5" stroke-linejoin="round"/></svg>',
+      "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=96&h=96&fit=crop&q=80",
     windows:
-      '<svg viewBox="0 0 48 48" fill="none" aria-hidden="true"><rect x="8" y="8" width="32" height="32" rx="4" stroke="currentColor" stroke-width="2.5"/><path d="M8 18h32M18 8v32" stroke="currentColor" stroke-width="2.5"/></svg>',
+      "https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=96&h=96&fit=crop&q=80",
     snow:
-      '<svg viewBox="0 0 48 48" fill="none" aria-hidden="true"><path d="M24 6v36M6 24h36M11 11l26 26M37 11L11 37" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/><circle cx="24" cy="24" r="5" stroke="currentColor" stroke-width="2.5"/></svg>',
+      "https://images.unsplash.com/photo-1515165562835-39bbff16e79f?w=96&h=96&fit=crop&q=80",
     scaffolding:
-      '<svg viewBox="0 0 48 48" fill="none" aria-hidden="true"><path d="M10 38V14l14-8 14 8v24" stroke="currentColor" stroke-width="2.5" stroke-linejoin="round"/><path d="M18 38V22h12v16M10 38h28" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg>',
+      "https://images.unsplash.com/photo-1504307651254-71820befef20?w=96&h=96&fit=crop&q=80",
     montage:
-      '<svg viewBox="0 0 48 48" fill="none" aria-hidden="true"><path d="M14 34l10-20 10 20" stroke="currentColor" stroke-width="2.5" stroke-linejoin="round"/><path d="M18 28h12M12 38h24" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg>',
+      "https://images.unsplash.com/photo-1541888946425-d81bb19240f5?w=96&h=96&fit=crop&q=80",
   };
 
   const SERVICES = [
@@ -69,6 +69,14 @@
     return document.querySelector('meta[name="api-settings"]')?.content || "/api/settings.php";
   }
 
+  function escapeHtml(value) {
+    return String(value)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;");
+  }
+
   function formatMoney(value) {
     return new Intl.NumberFormat("ru-RU", {
       style: "currency",
@@ -95,7 +103,7 @@
   function renderLines(container) {
     container.innerHTML = SERVICES.map((service) => {
       const price = getPrice(service.priceKey);
-      const icon = ICONS[service.id] || ICONS.facade;
+      const thumb = THUMBS[service.id] || THUMBS.facade;
 
       return `
         <div class="calc-row" data-service="${service.id}">
@@ -104,7 +112,9 @@
             <span class="calc-row__check" aria-hidden="true"></span>
           </label>
           <div class="calc-row__service">
-            <span class="calc-row__icon">${icon}</span>
+            <span class="calc-row__thumb">
+              <img src="${thumb}" alt="${escapeHtml(service.label)}" width="36" height="36" loading="lazy" decoding="async">
+            </span>
             <div class="calc-row__info">
               <strong class="calc-row__name">${service.label}</strong>
               <span class="calc-row__rate" data-rate="${service.id}">${formatMoney(price)} ${unitText(service)}</span>

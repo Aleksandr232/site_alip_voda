@@ -38,6 +38,9 @@ try {
         'sent' => $result['sent'],
         'skipped' => $result['skipped'],
         'errors' => $result['errors'],
+        'outside_hours' => $result['outside_hours'] ?? false,
+        'moscow_time' => $result['moscow_time'] ?? null,
+        'message' => $result['message'] ?? null,
         'ran_at' => date('c'),
     ]));
 } catch (Throwable $e) {

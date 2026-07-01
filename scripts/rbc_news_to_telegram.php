@@ -24,6 +24,11 @@ try {
     $service = new RbcNewsDispatchService();
     $result = $service->run();
 
+    if (!empty($result['outside_hours'])) {
+        logLine($result['message'] ?? 'Вне окна отправки');
+        exit(0);
+    }
+
     logLine('Готово. Отправлено: ' . $result['sent'] . ', пропущено (уже в базе): ' . $result['skipped']);
 
     foreach ($result['errors'] as $error) {

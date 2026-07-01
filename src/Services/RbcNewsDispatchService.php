@@ -16,10 +16,11 @@ final class RbcNewsDispatchService
         private readonly RbcNewsParserService $parser = new RbcNewsParserService(),
         private readonly RbcNewsSentRepository $sent = new RbcNewsSentRepository(),
         private readonly TelegramService $telegram = new TelegramService(),
+        private readonly TelegramNewsScheduleService $schedule = new TelegramNewsScheduleService(),
     ) {
     }
 
-    /** @return array{sent: int, skipped: int, errors: list<string>} */
+    /** @return array{sent: int, skipped: int, errors: list<string>, outside_hours?: bool, moscow_time?: string, message?: string} */
     public function run(): array
     {
         if (Config::get('TELEGRAM_NEWS_ENABLED', 'true') !== 'true') {
@@ -28,6 +29,18 @@ final class RbcNewsDispatchService
 
         if (!$this->telegram->isConfigured()) {
             throw new RuntimeException('Telegram не настроен');
+        }
+
+        if (!$this->schedule->isAllowedNow()) {
+            return [
+                'sent' => 0,
+                'skipped' => 0,
+                'errors' => [],
+                'outside_hours' => true,
+                'moscow_time' => $this->schedule->moscowTime(),
+                'message' => 'Отправка разрешена только с ' . $this->schedule->windowLabel()
+                    . '. Сейчас ' . $this->schedule->moscowTime() . ' МСК',
+            ];
         }
 
         $maxPerRun = max(1, (int) Config::get('TELEGRAM_NEWS_MAX_PER_RUN', '10'));

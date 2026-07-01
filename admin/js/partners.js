@@ -84,7 +84,7 @@
     editingId = item?.id ?? null;
 
     if (modalTitle) {
-      modalTitle.textContent = item ? "Изменить партнёра" : "Добавить партнёра";
+      modalTitle.textContent = item ? "Изменить клиента" : "Добавить клиента";
     }
 
     if (form) {
@@ -114,7 +114,7 @@
 
     if (!items.length) {
       tbody.innerHTML =
-        '<tr><td colspan="6" style="text-align:center;padding:32px;color:var(--text-muted)">Партнёров пока нет</td></tr>';
+        '<tr><td colspan="6" style="text-align:center;padding:32px;color:var(--text-muted)">Клиентов пока нет</td></tr>';
       return;
     }
 
@@ -193,7 +193,7 @@
   }
 
   async function deleteItem(id) {
-    if (!confirm("Удалить этого партнёра?")) return;
+    if (!confirm("Удалить этого клиента?")) return;
 
     const formData = new FormData();
     formData.append("action", "delete");
@@ -265,7 +265,7 @@
       await loadItems();
     } catch (error) {
       tbody.innerHTML =
-        '<tr><td colspan="6" style="text-align:center;padding:32px;color:var(--text-muted)">Не удалось загрузить партнёров</td></tr>';
+        '<tr><td colspan="6" style="text-align:center;padding:32px;color:var(--text-muted)">Не удалось загрузить клиентов</td></tr>';
       console.error(error);
     }
   });

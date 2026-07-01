@@ -56,13 +56,13 @@
       const partners = (data.partners || []).filter((item) => item.status !== "hidden");
 
       if (!partners.length) {
-        container.innerHTML = '<p class="partners__note">Партнёры скоро появятся.</p>';
+        container.innerHTML = '<p class="partners__note">Клиенты скоро появятся.</p>';
         return;
       }
 
       container.innerHTML = partners.map(renderPartner).join("");
     } catch (error) {
-      container.innerHTML = '<p class="partners__note">Не удалось загрузить партнёров.</p>';
+      container.innerHTML = '<p class="partners__note">Не удалось загрузить клиентов.</p>';
       console.error(error);
     }
   }

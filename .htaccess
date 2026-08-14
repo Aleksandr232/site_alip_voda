@@ -5,26 +5,27 @@ RewriteBase /
 RewriteCond %{HTTP:Authorization} .
 RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
 
-# --- SEO: единый канонический хост ---
-# HTTPS
-RewriteCond %{HTTPS} !=on
-RewriteCond %{HTTP:X-Forwarded-Proto} !https [NC]
-RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [R=301,L]
-
-# www → без www
+# www → без www (HTTPS не форсируем здесь — на Timeweb это даёт цикл)
 RewriteCond %{HTTP_HOST} ^www\.(.+)$ [NC]
 RewriteRule ^ https://%1%{REQUEST_URI} [R=301,L]
 
-# --- SEO: дубли HTML → чистые URL (ДО правил статики!) ---
+# --- SEO: дубли HTML → чистые URL ---
+# Важно: THE_REQUEST — только реальный запрос браузера, не внутренний rewrite /
+RewriteCond %{THE_REQUEST} \s/+index\.html[\s?] [NC]
 RewriteRule ^index\.html$ / [R=301,L]
+
+RewriteCond %{THE_REQUEST} \s/+blog\.html[\s?] [NC]
 RewriteRule ^blog\.html$ /blog [R=301,L]
 
 # Старый URL статьи с ?slug= → /article/slug
-RewriteCond %{QUERY_STRING} (^|&)slug=([a-z0-9][a-z0-9-]*)(&|$) [NC]
+RewriteCond %{THE_REQUEST} \s/+blog-article\.(html|php)\?slug=([a-z0-9][a-z0-9-]*)[\s&] [NC]
 RewriteRule ^blog-article\.(html|php)$ /article/%2? [R=301,L]
 
 # Хвостовой слэш у блога и статей
+RewriteCond %{THE_REQUEST} \s/+blog/\s [NC]
 RewriteRule ^blog/$ /blog [R=301,L]
+
+RewriteCond %{THE_REQUEST} \s/+article/([a-z0-9][a-z0-9-]*)/\s [NC]
 RewriteRule ^article/([a-z0-9][a-z0-9-]*)/$ /article/$1 [R=301,L]
 
 # Favicon для старых браузеров
@@ -39,7 +40,7 @@ RewriteRule ^api(?:/(.*))?$ api/index.php [QSA,L]
 RewriteRule ^robots\.txt$ robots.php [L]
 RewriteRule ^sitemap\.xml$ sitemap.php [L]
 
-# Чистые URL (внутренние rewrite)
+# Чистые URL (внутренние rewrite — без внешнего редиректа)
 RewriteRule ^$ index.html [L]
 RewriteRule ^blog$ blog.html [L]
 RewriteRule ^article/([a-z0-9][a-z0-9-]*)$ blog-article.php?slug=$1 [L,QSA]
@@ -64,13 +65,31 @@ RewriteCond %{REQUEST_FILENAME} -d
 RewriteRule ^ - [L]
 
 # Редиректы со старых адресов админки
+RewriteCond %{THE_REQUEST} \s/+admin/login\.(php|html)[\s?] [NC]
 RewriteRule ^admin/login\.(php|html)$ /login [R=301,L]
+
+RewriteCond %{THE_REQUEST} \s/+admin/dashboard\.html[\s?] [NC]
 RewriteRule ^admin/dashboard\.html$ /dashboard [R=301,L]
+
+RewriteCond %{THE_REQUEST} \s/+admin/requests\.html[\s?] [NC]
 RewriteRule ^admin/requests\.html$ /requests [R=301,L]
+
+RewriteCond %{THE_REQUEST} \s/+admin/clients\.html[\s?] [NC]
 RewriteRule ^admin/clients\.html$ /clients [R=301,L]
+
+RewriteCond %{THE_REQUEST} \s/+admin/blog\.html[\s?] [NC]
 RewriteRule ^admin/blog\.html$ /posts [R=301,L]
+
+RewriteCond %{THE_REQUEST} \s/+admin/reviews\.html[\s?] [NC]
 RewriteRule ^admin/reviews\.html$ /reviews [R=301,L]
+
+RewriteCond %{THE_REQUEST} \s/+admin/gallery\.html[\s?] [NC]
 RewriteRule ^admin/gallery\.html$ /gallery [R=301,L]
+
+RewriteCond %{THE_REQUEST} \s/+admin/partners\.html[\s?] [NC]
 RewriteRule ^admin/partners\.html$ /partners [R=301,L]
+
+RewriteCond %{THE_REQUEST} \s/+admin/settings\.html[\s?] [NC]
 RewriteRule ^admin/settings\.html$ /settings [R=301,L]
+
 RewriteRule ^admin/?$ /login [R=301,L]

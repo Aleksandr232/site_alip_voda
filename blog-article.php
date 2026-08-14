@@ -21,6 +21,19 @@ if (!is_file($template)) {
 
 $html = (string) file_get_contents($template);
 $slug = resolveArticleSlug();
+$requestPath = (string) (parse_url($_SERVER['REQUEST_URI'] ?? '', PHP_URL_PATH) ?: '');
+
+// Старый /blog-article.php?slug=... → канонический /article/slug
+if (
+    $slug !== ''
+    && preg_match('/^[a-z0-9][a-z0-9-]*$/', $slug)
+    && !preg_match('#/article/' . preg_quote($slug, '#') . '/?$#i', $requestPath)
+) {
+    $base = rtrim((string) (Config::get('APP_URL') ?: ''), '/');
+    $location = ($base !== '' ? $base : '') . '/article/' . $slug;
+    header('Location: ' . $location, true, 301);
+    exit;
+}
 
 try {
     if ($slug !== '' && preg_match('/^[a-z0-9][a-z0-9-]*$/', $slug)) {

@@ -5,6 +5,28 @@ RewriteBase /
 RewriteCond %{HTTP:Authorization} .
 RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
 
+# --- SEO: единый канонический хост ---
+# HTTPS
+RewriteCond %{HTTPS} !=on
+RewriteCond %{HTTP:X-Forwarded-Proto} !https [NC]
+RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [R=301,L]
+
+# www → без www
+RewriteCond %{HTTP_HOST} ^www\.(.+)$ [NC]
+RewriteRule ^ https://%1%{REQUEST_URI} [R=301,L]
+
+# --- SEO: дубли HTML → чистые URL (ДО правил статики!) ---
+RewriteRule ^index\.html$ / [R=301,L]
+RewriteRule ^blog\.html$ /blog [R=301,L]
+
+# Старый URL статьи с ?slug= → /article/slug
+RewriteCond %{QUERY_STRING} (^|&)slug=([a-z0-9][a-z0-9-]*)(&|$) [NC]
+RewriteRule ^blog-article\.(html|php)$ /article/%2? [R=301,L]
+
+# Хвостовой слэш у блога и статей
+RewriteRule ^blog/$ /blog [R=301,L]
+RewriteRule ^article/([a-z0-9][a-z0-9-]*)/$ /article/$1 [R=301,L]
+
 # Favicon для старых браузеров
 RewriteRule ^favicon\.ico$ favicon.svg [L]
 RewriteRule ^apple-touch-icon\.png$ apple-touch-icon.php [L]
@@ -17,11 +39,11 @@ RewriteRule ^api(?:/(.*))?$ api/index.php [QSA,L]
 RewriteRule ^robots\.txt$ robots.php [L]
 RewriteRule ^sitemap\.xml$ sitemap.php [L]
 
-# Чистые URL (до проверки статических файлов)
+# Чистые URL (внутренние rewrite)
 RewriteRule ^$ index.html [L]
-RewriteRule ^blog/?$ blog.html [L]
-RewriteRule ^article/([a-z0-9][a-z0-9-]*)/?$ blog-article.html [L]
-RewriteRule ^article/?$ blog [R=301,L]
+RewriteRule ^blog$ blog.html [L]
+RewriteRule ^article/([a-z0-9][a-z0-9-]*)$ blog-article.php?slug=$1 [L,QSA]
+RewriteRule ^article/?$ /blog [R=301,L]
 
 RewriteRule ^login/?$ admin/login.php [L]
 RewriteRule ^dashboard/?$ admin/dashboard.html [L]
@@ -41,17 +63,14 @@ RewriteCond %{REQUEST_FILENAME} -f [OR]
 RewriteCond %{REQUEST_FILENAME} -d
 RewriteRule ^ - [L]
 
-# Редиректы со старых адресов
-RewriteRule ^admin/login\.(php|html)$ login [R=301,L]
-RewriteRule ^admin/dashboard\.html$ dashboard [R=301,L]
-RewriteRule ^admin/requests\.html$ requests [R=301,L]
-RewriteRule ^admin/clients\.html$ clients [R=301,L]
-RewriteRule ^admin/blog\.html$ posts [R=301,L]
-RewriteRule ^admin/reviews\.html$ reviews [R=301,L]
-RewriteRule ^admin/gallery\.html$ gallery [R=301,L]
-RewriteRule ^admin/partners\.html$ partners [R=301,L]
-RewriteRule ^admin/settings\.html$ settings [R=301,L]
-RewriteRule ^admin/?$ login [R=301,L]
-RewriteRule ^index\.html$ / [R=301,L]
-RewriteRule ^blog\.html$ blog [R=301,L]
-RewriteRule ^blog-article\.html$ blog-article.php [L,QSA]
+# Редиректы со старых адресов админки
+RewriteRule ^admin/login\.(php|html)$ /login [R=301,L]
+RewriteRule ^admin/dashboard\.html$ /dashboard [R=301,L]
+RewriteRule ^admin/requests\.html$ /requests [R=301,L]
+RewriteRule ^admin/clients\.html$ /clients [R=301,L]
+RewriteRule ^admin/blog\.html$ /posts [R=301,L]
+RewriteRule ^admin/reviews\.html$ /reviews [R=301,L]
+RewriteRule ^admin/gallery\.html$ /gallery [R=301,L]
+RewriteRule ^admin/partners\.html$ /partners [R=301,L]
+RewriteRule ^admin/settings\.html$ /settings [R=301,L]
+RewriteRule ^admin/?$ /login [R=301,L]

@@ -12,6 +12,27 @@ if ($base !== '' && $base !== '/' && str_starts_with($uri, $base)) {
 
 $path = trim($uri, '/');
 
+// SEO: дубли → канонические URL
+if ($path === 'index.html') {
+    header('Location: ' . ($base !== '' ? $base : '') . '/', true, 301);
+    return true;
+}
+
+if ($path === 'blog.html') {
+    header('Location: ' . ($base !== '' ? $base : '') . '/blog', true, 301);
+    return true;
+}
+
+if ($path === 'blog/') {
+    header('Location: ' . ($base !== '' ? $base : '') . '/blog', true, 301);
+    return true;
+}
+
+if (preg_match('#^article/([a-z0-9][a-z0-9-]*)/$#i', $path, $m)) {
+    header('Location: ' . ($base !== '' ? $base : '') . '/article/' . strtolower($m[1]), true, 301);
+    return true;
+}
+
 if ($path === 'sitemap.xml') {
     require $root . '/sitemap.php';
     return true;

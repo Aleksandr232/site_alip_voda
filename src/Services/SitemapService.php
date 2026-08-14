@@ -44,7 +44,13 @@ final class SitemapService
 
     private function urlEntry(string $path, string $changefreq, string $priority, ?string $lastmod = null): string
     {
-        $loc = htmlspecialchars($this->baseUrl . $path, ENT_XML1);
+        if ($path === '' || $path === '/') {
+            $loc = $this->baseUrl . '/';
+        } else {
+            $loc = $this->baseUrl . '/' . ltrim(rtrim($path, '/'), '/');
+        }
+
+        $loc = htmlspecialchars($loc, ENT_XML1);
         $xml = "  <url>\n    <loc>{$loc}</loc>\n    <changefreq>{$changefreq}</changefreq>\n    <priority>{$priority}</priority>";
 
         if ($lastmod !== null && $lastmod !== '') {

@@ -10,6 +10,7 @@ require $root . '/bootstrap.php';
 Config::load($root);
 
 $baseUrl = rtrim((string) (Config::get('APP_URL') ?: 'https://skyclin.ru'), '/');
+$host = parse_url($baseUrl, PHP_URL_HOST) ?: 'skyclin.ru';
 
 header('Content-Type: text/plain; charset=utf-8');
 header('Cache-Control: public, max-age=86400');
@@ -31,27 +32,31 @@ Disallow: /src/
 Disallow: /vendor/
 Disallow: /scripts/
 Disallow: /content/
+Disallow: /cron/
 Disallow: /index.html
 Disallow: /blog.html
 Disallow: /blog-article.html
+Disallow: /blog-article.php
 Disallow: /*?slug=
 RULES;
 
 echo "# СкайКлин — {$baseUrl}\n";
-echo "# Публичный сайт: главная, блог, статьи\n\n";
+echo "# Канонические URL: /, /blog, /article/{slug}\n\n";
 
 echo "User-agent: *\n";
 echo "Allow: /\n";
 echo "Allow: /blog\n";
 echo "Allow: /article/\n";
-echo $disallow . "\n\n";
+echo $disallow . "\n";
+echo "Clean-param: utm_source&utm_medium&utm_campaign&utm_content&utm_term&yclid&gclid&fbclid&from&ref /\n\n";
 
 echo "User-agent: Yandex\n";
 echo "Allow: /\n";
 echo "Allow: /blog\n";
 echo "Allow: /article/\n";
 echo $disallow . "\n";
-echo "Host: {$baseUrl}\n\n";
+echo "Clean-param: utm_source&utm_medium&utm_campaign&utm_content&utm_term&yclid&gclid&fbclid&from&ref /\n";
+echo "Host: {$host}\n\n";
 
 echo "User-agent: Googlebot\n";
 echo "Allow: /\n";

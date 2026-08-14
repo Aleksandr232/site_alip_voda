@@ -1,8 +1,25 @@
 (function () {
+  function siteOrigin() {
+    const meta = document.querySelector('meta[name="site-url"]');
+    const configured = meta?.content?.trim();
+    if (configured) {
+      return configured.replace(/\/$/, "");
+    }
+    return window.location.origin;
+  }
+
   function absoluteUrl(path) {
-    if (!path) return window.location.origin + "/apple-touch-icon.png";
+    const origin = siteOrigin();
+    if (!path) return origin + "/apple-touch-icon.png";
     if (/^https?:\/\//i.test(path)) return path;
-    return window.location.origin + (path.startsWith("/") ? path : "/" + path);
+    return origin + (path.startsWith("/") ? path : "/" + path);
+  }
+
+  function canonicalUrl(path) {
+    if (!path || path === "/") {
+      return siteOrigin() + "/";
+    }
+    return absoluteUrl(path).replace(/\/$/, "");
   }
 
   function setMeta(selector, content) {
@@ -33,7 +50,7 @@
 
   function applyOpenGraph(meta) {
     const image = absoluteUrl(meta.image || "/apple-touch-icon.png");
-    const url = meta.url || window.location.href;
+    const url = meta.url || canonicalUrl(window.location.pathname);
 
     document.title = meta.title || document.title;
     setMeta('meta[name="description"]', meta.description || "");
@@ -69,7 +86,7 @@
 
     const title = `${post.title} — СкайКлин`;
     const description = post.description || "Статья блога СкайКлин";
-    const url = `${window.location.origin}/article/${encodeURIComponent(post.slug)}`;
+    const url = canonicalUrl(`/article/${post.slug}`);
 
     applyOpenGraph({
       title,

@@ -56,7 +56,7 @@ final class SeoMetaService
 
     public function absoluteUrl(string $path): string
     {
-        if ($path === '') {
+        if ($path === '' || $path === '/') {
             return $this->baseUrl . '/';
         }
 
@@ -65,6 +65,16 @@ final class SeoMetaService
         }
 
         return $this->baseUrl . '/' . ltrim($path, '/');
+    }
+
+    /** Канонический URL без хвостового слэша (кроме главной). */
+    public function canonicalUrl(string $path): string
+    {
+        if ($path === '' || $path === '/') {
+            return $this->baseUrl . '/';
+        }
+
+        return rtrim($this->absoluteUrl($path), '/');
     }
 
     public function defaultImageUrl(): string
@@ -171,7 +181,7 @@ final class SeoMetaService
 
     public function renderArticleJsonLd(BlogPost $post): string
     {
-        $url = $this->absoluteUrl('/article/' . $post->slug);
+        $url = $this->canonicalUrl('/article/' . $post->slug);
         $image = $post->coverImage ? $this->absoluteUrl($post->coverImage) : $this->defaultImageUrl();
 
         $data = [
@@ -182,7 +192,10 @@ final class SeoMetaService
             'image' => [$image],
             'datePublished' => $this->toIso8601($post->createdAt),
             'dateModified' => $this->toIso8601($post->updatedAt ?: $post->createdAt),
-            'mainEntityOfPage' => $url,
+            'mainEntityOfPage' => [
+                '@type' => 'WebPage',
+                '@id' => $url,
+            ],
             'author' => [
                 '@type' => 'Organization',
                 'name' => self::SITE_NAME,
@@ -211,7 +224,7 @@ final class SeoMetaService
                 $description = 'Статья блога ' . self::SITE_NAME;
             }
 
-            $url = $this->absoluteUrl('/article/' . $post->slug);
+            $url = $this->canonicalUrl('/article/' . $post->slug);
             $image = $post->coverImage ? $this->absoluteUrl($post->coverImage) : $this->defaultImageUrl();
 
             $html = preg_replace('#<title>[^<]*</title>#', '<title>' . $this->escape($title) . '</title>', $html, 1) ?? $html;
@@ -245,7 +258,7 @@ final class SeoMetaService
             $replacement = $this->renderSocialMeta([
                 'title' => 'Статья — ' . self::SITE_NAME,
                 'description' => 'Статья блога ' . self::SITE_NAME,
-                'url' => $this->absoluteUrl($path),
+                'url' => $this->canonicalUrl($path),
                 'image' => $this->defaultImageUrl(),
                 'type' => 'article',
             ]);

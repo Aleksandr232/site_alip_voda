@@ -5,7 +5,7 @@ declare(strict_types=1);
 return [
     '' => 'index.html',
     'blog' => 'blog.html',
-    'article' => 'blog-article.html',
+    'article' => 'blog-article.php',
 
     'login' => 'admin/login.php',
     'dashboard' => 'admin/dashboard.html',

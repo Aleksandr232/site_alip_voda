@@ -37,6 +37,7 @@ Disallow: /index.html
 Disallow: /blog.html
 Disallow: /blog-article.html
 Disallow: /blog-article.php
+Disallow: /article.php
 Disallow: /*?slug=
 RULES;
 

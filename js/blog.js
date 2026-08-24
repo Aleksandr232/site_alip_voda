@@ -181,6 +181,9 @@
   async function loadArticle() {
     if (!document.getElementById("article-root")) return;
 
+    const shell = document.getElementById("article-shell");
+    const alreadySsr = shell?.getAttribute("data-ssr") === "1";
+
     const slug = getSlugFromUrl();
     if (!slug) {
       setArticleView("error");
@@ -193,7 +196,9 @@
       return;
     }
 
-    setArticleView("loading");
+    if (!alreadySsr) {
+      setArticleView("loading");
+    }
 
     try {
       const post = await fetchPost(slug);
@@ -264,7 +269,9 @@
         .then((posts) => renderRelatedPosts(posts, post.slug))
         .catch((relatedError) => console.error(relatedError));
     } catch (error) {
-      setArticleView("error");
+      if (!alreadySsr) {
+        setArticleView("error");
+      }
       console.error(error);
     }
   }

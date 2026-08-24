@@ -21,6 +21,18 @@ RewriteRule ^blog\.html$ /blog [R=301,L]
 RewriteCond %{THE_REQUEST} \s/+blog-article\.(html|php)\?slug=([a-z0-9][a-z0-9-]*)[\s&] [NC]
 RewriteRule ^blog-article\.(html|php)$ /article/%2? [R=301,L]
 
+RewriteCond %{THE_REQUEST} \s/+article\.php\?slug=([a-z0-9][a-z0-9-]*)[\s&] [NC]
+RewriteRule ^article\.php$ /article/%1? [R=301,L]
+
+# Прямой заход на шаблон статьи без slug → блог
+RewriteCond %{THE_REQUEST} \s/+blog-article\.(html|php)(?:\s|\?) [NC]
+RewriteCond %{QUERY_STRING} !(^|&)slug= [NC]
+RewriteRule ^blog-article\.(html|php)$ /blog [R=301,L]
+
+RewriteCond %{THE_REQUEST} \s/+article\.php(?:\s|\?) [NC]
+RewriteCond %{QUERY_STRING} !(^|&)slug= [NC]
+RewriteRule ^article\.php$ /blog [R=301,L]
+
 # Хвостовой слэш у блога и статей
 RewriteCond %{THE_REQUEST} \s/+blog/\s [NC]
 RewriteRule ^blog/$ /blog [R=301,L]

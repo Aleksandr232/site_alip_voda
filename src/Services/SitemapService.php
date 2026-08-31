@@ -28,22 +28,36 @@ final class SitemapService
         ];
 
         foreach ($this->posts->all(true) as $post) {
+            $image = null;
+            if ($post->coverImage) {
+                $image = str_starts_with($post->coverImage, 'http')
+                    ? $post->coverImage
+                    : $this->baseUrl . '/' . ltrim($post->coverImage, '/');
+            }
             $entries[] = $this->urlEntry(
                 '/article/' . $post->slug,
                 'monthly',
                 '0.7',
                 $post->updatedAt ?: $post->createdAt,
+                $image,
+                $post->title,
             );
         }
 
         return '<?xml version="1.0" encoding="UTF-8"?>' . "\n"
-            . '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">' . "\n"
+            . '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">' . "\n"
             . implode("\n", $entries)
             . "\n</urlset>\n";
     }
 
-    private function urlEntry(string $path, string $changefreq, string $priority, ?string $lastmod = null): string
-    {
+    private function urlEntry(
+        string $path,
+        string $changefreq,
+        string $priority,
+        ?string $lastmod = null,
+        ?string $image = null,
+        ?string $imageTitle = null,
+    ): string {
         if ($path === '' || $path === '/') {
             $loc = $this->baseUrl . '/';
         } else {
@@ -55,6 +69,15 @@ final class SitemapService
 
         if ($lastmod !== null && $lastmod !== '') {
             $xml .= "\n    <lastmod>" . htmlspecialchars($this->formatLastmod($lastmod), ENT_XML1) . '</lastmod>';
+        }
+
+        if ($image !== null && $image !== '') {
+            $imageLoc = htmlspecialchars($image, ENT_XML1);
+            $xml .= "\n    <image:image>\n      <image:loc>{$imageLoc}</image:loc>";
+            if ($imageTitle !== null && $imageTitle !== '') {
+                $xml .= "\n      <image:title>" . htmlspecialchars($imageTitle, ENT_XML1) . '</image:title>';
+            }
+            $xml .= "\n    </image:image>";
         }
 
         return $xml . "\n  </url>";

@@ -3,8 +3,8 @@
 declare(strict_types=1);
 
 return [
-    '' => 'index.html',
-    'blog' => 'blog.html',
+    '' => 'index.php',
+    'blog' => 'blog.php',
     'article' => 'blog-article.php',
 
     'login' => 'admin/login.php',

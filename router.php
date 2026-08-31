@@ -13,12 +13,12 @@ if ($base !== '' && $base !== '/' && str_starts_with($uri, $base)) {
 $path = trim($uri, '/');
 
 // SEO: дубли → канонические URL
-if ($path === 'index.html') {
+if ($path === 'index.html' || $path === 'index.php') {
     header('Location: ' . ($base !== '' ? $base : '') . '/', true, 301);
     return true;
 }
 
-if ($path === 'blog.html') {
+if ($path === 'blog.html' || $path === 'blog.php') {
     header('Location: ' . ($base !== '' ? $base : '') . '/blog', true, 301);
     return true;
 }
@@ -30,6 +30,11 @@ if ($path === 'blog/') {
 
 if (preg_match('#^article/([a-z0-9][a-z0-9-]*)/$#i', $path, $m)) {
     header('Location: ' . ($base !== '' ? $base : '') . '/article/' . strtolower($m[1]), true, 301);
+    return true;
+}
+
+if ($path === 'rss.xml') {
+    require $root . '/rss.php';
     return true;
 }
 

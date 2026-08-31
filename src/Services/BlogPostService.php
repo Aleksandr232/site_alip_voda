@@ -72,7 +72,9 @@ final class BlogPostService
         $videoPath = $this->uploadIfPresent($files, 'video', $this->videoUploader, 'video_');
 
         try {
-            return $this->posts->create($title, $slug, $description, $keywords, $content, $coverImage, $videoPath, $status);
+            $post = $this->posts->create($title, $slug, $description, $keywords, $content, $coverImage, $videoPath, $status);
+            $this->notifySearchEngines($post);
+            return $post;
         } catch (\Throwable $e) {
             $this->coverUploader->deleteByPublicPath($coverImage);
             $this->videoUploader->deleteByPublicPath($videoPath);
@@ -136,6 +138,7 @@ final class BlogPostService
 
         $this->coverUploader->deleteByPublicPath($oldCover);
         $this->videoUploader->deleteByPublicPath($oldVideo);
+        $this->notifySearchEngines($post);
 
         return $post;
     }
@@ -150,6 +153,7 @@ final class BlogPostService
         $this->posts->delete($id);
         $this->coverUploader->deleteByPublicPath($existing->coverImage);
         $this->videoUploader->deleteByPublicPath($existing->videoPath);
+        SearchPingService::pingSitemap();
     }
 
   /** @param array<string, mixed> $files */
@@ -193,5 +197,14 @@ final class BlogPostService
         }
 
         return $status;
+    }
+
+    private function notifySearchEngines(BlogPost $post): void
+    {
+        if ($post->status !== 'published') {
+            return;
+        }
+
+        SearchPingService::pingSitemap();
     }
 }

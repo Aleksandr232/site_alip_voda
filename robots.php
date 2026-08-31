@@ -34,7 +34,9 @@ Disallow: /scripts/
 Disallow: /content/
 Disallow: /cron/
 Disallow: /index.html
+Disallow: /index.php
 Disallow: /blog.html
+Disallow: /blog.php
 Disallow: /blog-article.html
 Disallow: /blog-article.php
 Disallow: /article.php
@@ -48,6 +50,9 @@ echo "User-agent: *\n";
 echo "Allow: /\n";
 echo "Allow: /blog\n";
 echo "Allow: /article/\n";
+echo "Allow: /uploads/\n";
+echo "Allow: /assets/\n";
+echo "Allow: /rss.xml\n";
 echo $disallow . "\n";
 echo "Clean-param: utm_source&utm_medium&utm_campaign&utm_content&utm_term&yclid&gclid&fbclid&from&ref /\n\n";
 
@@ -55,9 +60,19 @@ echo "User-agent: Yandex\n";
 echo "Allow: /\n";
 echo "Allow: /blog\n";
 echo "Allow: /article/\n";
+echo "Allow: /uploads/\n";
+echo "Allow: /assets/\n";
+echo "Allow: /rss.xml\n";
 echo $disallow . "\n";
 echo "Clean-param: utm_source&utm_medium&utm_campaign&utm_content&utm_term&yclid&gclid&fbclid&from&ref /\n";
 echo "Host: {$host}\n\n";
+
+echo "User-agent: YandexImages\n";
+echo "Allow: /uploads/\n";
+echo "Allow: /assets/\n";
+echo "Allow: /article/\n";
+echo "Disallow: /admin/\n";
+echo "Disallow: /api/\n\n";
 
 echo "User-agent: Googlebot\n";
 echo "Allow: /\n";

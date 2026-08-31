@@ -8,6 +8,7 @@ require $root . '/bootstrap.php';
 
 use App\Config;
 use App\Repositories\BlogPostRepository;
+use App\Services\BlogSsrService;
 use App\Services\SeoMetaService;
 
 Config::load($root);
@@ -56,12 +57,23 @@ try {
 
 try {
     $html = $seo->injectArticleHead($html, $post, $slug);
+    $ssr = BlogSsrService::createDefault();
+    $html = $ssr->injectDiscovery($html);
+    if ($post !== null) {
+        $html = $ssr->injectRelated($html, $post->slug, (new BlogPostRepository())->all(true));
+    }
 } catch (Throwable $e) {
     error_log('blog-article.php SEO: ' . $e->getMessage());
 }
 
 header('Link: <' . $canonical . '>; rel="canonical"', false);
 header('Content-Type: text/html; charset=utf-8');
+if ($post !== null) {
+    $modified = strtotime($post->updatedAt ?: $post->createdAt);
+    if ($modified) {
+        header('Last-Modified: ' . gmdate('D, d M Y H:i:s', $modified) . ' GMT');
+    }
+}
 http_response_code($status);
 echo $html;
 

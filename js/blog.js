@@ -145,6 +145,9 @@
   async function loadBlogList() {
     const grid = document.getElementById("blog-grid");
     if (!grid) return;
+    if (grid.getAttribute("data-ssr") === "1" && grid.querySelector(".blog-card")) {
+      return;
+    }
 
     try {
       const posts = await fetchPosts();
@@ -165,6 +168,9 @@
   async function loadBlogPreview() {
     const grid = document.getElementById("blog-preview-grid");
     if (!grid) return;
+    if (grid.getAttribute("data-ssr") === "1" && grid.querySelector(".blog-card")) {
+      return;
+    }
 
     try {
       const posts = (await fetchPosts()).slice(0, 2);
@@ -266,7 +272,12 @@
       setArticleView("article");
 
       fetchPosts()
-        .then((posts) => renderRelatedPosts(posts, post.slug))
+        .then((posts) => {
+          if (document.getElementById("article-related-wrap")?.getAttribute("data-ssr") === "1") {
+            return;
+          }
+          renderRelatedPosts(posts, post.slug);
+        })
         .catch((relatedError) => console.error(relatedError));
     } catch (error) {
       if (!alreadySsr) {

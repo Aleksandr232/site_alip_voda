@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use App\Config;
+use App\Services\SearchPingService;
 use App\Services\SitemapService;
 
 $root = __DIR__;
@@ -13,11 +14,12 @@ Config::load($root);
 header('Content-Type: application/xml; charset=utf-8');
 header('Cache-Control: public, max-age=3600');
 
+$service = SitemapService::createDefault();
+
 try {
-    \App\Database::connection();
-    echo SitemapService::createDefault()->render();
+    echo $service->render();
+    SearchPingService::pingDaily();
 } catch (Throwable $e) {
     error_log('sitemap.php: ' . $e->getMessage());
-    http_response_code(500);
-    echo "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<urlset xmlns=\"http://www.sitemaps.org/schemas/sitemap/0.9\"></urlset>\n";
+    echo $service->fallback();
 }

@@ -14,6 +14,23 @@ $host = parse_url($baseUrl, PHP_URL_HOST) ?: 'skyclin.ru';
 
 header('Content-Type: text/plain; charset=utf-8');
 header('Cache-Control: public, max-age=86400');
+header('Link: <' . $baseUrl . '/sitemap.xml>; rel="sitemap"', false);
+
+$allow = <<<'RULES'
+Allow: /
+Allow: /blog
+Allow: /article/
+Allow: /uploads/
+Allow: /assets/
+Allow: /css/
+Allow: /js/
+Allow: /rss.xml
+Allow: /sitemap.xml
+Allow: /api/posts.php
+Allow: /api/partners.php
+Allow: /api/gallery.php
+Allow: /api/settings.php
+RULES;
 
 $disallow = <<<'RULES'
 Disallow: /login
@@ -40,44 +57,39 @@ Disallow: /blog.php
 Disallow: /blog-article.html
 Disallow: /blog-article.php
 Disallow: /article.php
-Disallow: /*?slug=
+Disallow: /blog-article.php?
+Disallow: /article.php?
+Disallow: /blog-article.html?
 RULES;
+
+$clean = 'Clean-param: utm_source&utm_medium&utm_campaign&utm_content&utm_term&yclid&gclid&fbclid&from&ref /';
 
 echo "# СкайКлин — {$baseUrl}\n";
 echo "# Канонические URL: /, /blog, /article/{slug}\n\n";
 
 echo "User-agent: *\n";
-echo "Allow: /\n";
-echo "Allow: /blog\n";
-echo "Allow: /article/\n";
-echo "Allow: /uploads/\n";
-echo "Allow: /assets/\n";
-echo "Allow: /rss.xml\n";
+echo $allow . "\n";
 echo $disallow . "\n";
-echo "Clean-param: utm_source&utm_medium&utm_campaign&utm_content&utm_term&yclid&gclid&fbclid&from&ref /\n\n";
+echo $clean . "\n\n";
 
-echo "User-agent: Yandex\n";
-echo "Allow: /\n";
-echo "Allow: /blog\n";
-echo "Allow: /article/\n";
-echo "Allow: /uploads/\n";
-echo "Allow: /assets/\n";
-echo "Allow: /rss.xml\n";
-echo $disallow . "\n";
-echo "Clean-param: utm_source&utm_medium&utm_campaign&utm_content&utm_term&yclid&gclid&fbclid&from&ref /\n";
-echo "Host: {$host}\n\n";
+foreach (['Yandex', 'YandexBot'] as $agent) {
+    echo "User-agent: {$agent}\n";
+    echo $allow . "\n";
+    echo $disallow . "\n";
+    echo $clean . "\n";
+    echo "Host: {$baseUrl}\n\n";
+}
 
 echo "User-agent: YandexImages\n";
 echo "Allow: /uploads/\n";
 echo "Allow: /assets/\n";
 echo "Allow: /article/\n";
+echo "Allow: /css/\n";
 echo "Disallow: /admin/\n";
 echo "Disallow: /api/\n\n";
 
 echo "User-agent: Googlebot\n";
-echo "Allow: /\n";
-echo "Allow: /blog\n";
-echo "Allow: /article/\n";
+echo $allow . "\n";
 echo $disallow . "\n\n";
 
 echo "Sitemap: {$baseUrl}/sitemap.xml\n";

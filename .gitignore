@@ -1,6 +1,7 @@
 /vendor/
 composer.lock
 /storage/schema.lock
+/storage/indexnow.last
 /uploads/gallery/*
 !/uploads/gallery/.gitkeep
 /uploads/blog/images/*

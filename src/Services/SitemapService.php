@@ -22,12 +22,23 @@ final class SitemapService
 
     public function render(): string
     {
+        $posts = [];
+        try {
+            $posts = $this->posts->all(true);
+        } catch (\Throwable) {
+            $posts = [];
+        }
+
+        $latest = $posts !== []
+            ? ($posts[0]->updatedAt ?: $posts[0]->createdAt)
+            : gmdate('c');
+
         $entries = [
-            $this->urlEntry('/', 'weekly', '1.0'),
-            $this->urlEntry('/blog', 'weekly', '0.8'),
+            $this->urlEntry('/', 'daily', '1.0', $latest),
+            $this->urlEntry('/blog', 'daily', '0.9', $latest),
         ];
 
-        foreach ($this->posts->all(true) as $post) {
+        foreach ($posts as $post) {
             $image = null;
             if ($post->coverImage) {
                 $image = str_starts_with($post->coverImage, 'http')
@@ -36,8 +47,8 @@ final class SitemapService
             }
             $entries[] = $this->urlEntry(
                 '/article/' . $post->slug,
-                'monthly',
-                '0.7',
+                'weekly',
+                '0.8',
                 $post->updatedAt ?: $post->createdAt,
                 $image,
                 $post->title,
@@ -48,6 +59,17 @@ final class SitemapService
             . '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">' . "\n"
             . implode("\n", $entries)
             . "\n</urlset>\n";
+    }
+
+    public function fallback(): string
+    {
+        $today = gmdate('Y-m-d');
+
+        return '<?xml version="1.0" encoding="UTF-8"?>' . "\n"
+            . '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">' . "\n"
+            . $this->urlEntry('/', 'daily', '1.0', $today) . "\n"
+            . $this->urlEntry('/blog', 'daily', '0.9', $today) . "\n"
+            . "</urlset>\n";
     }
 
     private function urlEntry(
@@ -64,18 +86,14 @@ final class SitemapService
             $loc = $this->baseUrl . '/' . ltrim(rtrim($path, '/'), '/');
         }
 
-        $loc = htmlspecialchars($loc, ENT_XML1);
-        $xml = "  <url>\n    <loc>{$loc}</loc>\n    <changefreq>{$changefreq}</changefreq>\n    <priority>{$priority}</priority>";
-
-        if ($lastmod !== null && $lastmod !== '') {
-            $xml .= "\n    <lastmod>" . htmlspecialchars($this->formatLastmod($lastmod), ENT_XML1) . '</lastmod>';
-        }
+        $loc = $this->xml($loc);
+        $xml = "  <url>\n    <loc>{$loc}</loc>\n    <lastmod>" . $this->xml($this->formatLastmod($lastmod ?? '')) . "</lastmod>\n    <changefreq>{$changefreq}</changefreq>\n    <priority>{$priority}</priority>";
 
         if ($image !== null && $image !== '') {
-            $imageLoc = htmlspecialchars($image, ENT_XML1);
+            $imageLoc = $this->xml($image);
             $xml .= "\n    <image:image>\n      <image:loc>{$imageLoc}</image:loc>";
             if ($imageTitle !== null && $imageTitle !== '') {
-                $xml .= "\n      <image:title>" . htmlspecialchars($imageTitle, ENT_XML1) . '</image:title>';
+                $xml .= "\n      <image:title>" . $this->xml($imageTitle) . '</image:title>';
             }
             $xml .= "\n    </image:image>";
         }
@@ -85,9 +103,14 @@ final class SitemapService
 
     private function formatLastmod(string $datetime): string
     {
-        $timestamp = strtotime($datetime);
+        $timestamp = $datetime !== '' ? strtotime($datetime) : false;
 
         return $timestamp ? gmdate('Y-m-d', $timestamp) : gmdate('Y-m-d');
+    }
+
+    private function xml(string $value): string
+    {
+        return htmlspecialchars($value, ENT_XML1 | ENT_SUBSTITUTE, 'UTF-8');
     }
 
     private static function resolveBaseUrl(): string

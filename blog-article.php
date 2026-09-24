@@ -49,10 +49,12 @@ try {
         $canonical = $seo->articleCanonicalUrl($post->slug);
     } else {
         $status = 404;
+        $canonical = $seo->canonicalUrl('/blog');
     }
 } catch (Throwable $e) {
     error_log('blog-article.php: ' . $e->getMessage());
     $status = 404;
+    $canonical = $seo->canonicalUrl('/blog');
 }
 
 try {
@@ -67,12 +69,15 @@ try {
 }
 
 header('Link: <' . $canonical . '>; rel="canonical"', false);
+header('Link: <' . $seo->canonicalUrl('/sitemap.xml') . '>; rel="sitemap"', false);
 header('Content-Type: text/html; charset=utf-8');
 if ($post !== null) {
     $modified = strtotime($post->updatedAt ?: $post->createdAt);
     if ($modified) {
         header('Last-Modified: ' . gmdate('D, d M Y H:i:s', $modified) . ' GMT');
     }
+} else {
+    header('X-Robots-Tag: noindex, follow', false);
 }
 http_response_code($status);
 echo $html;

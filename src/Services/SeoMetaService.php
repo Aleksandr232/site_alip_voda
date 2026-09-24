@@ -265,21 +265,37 @@ final class SeoMetaService
                 return $html;
             }
 
-            $canonicalSlug = $slug && preg_match('/^[a-z0-9][a-z0-9-]*$/', $slug) ? $slug : null;
-            $path = $canonicalSlug ? '/article/' . $canonicalSlug : '/blog';
             $replacement = $this->renderSocialMeta([
-                'title' => 'Статья — ' . self::SITE_NAME,
+                'title' => 'Статья не найдена — ' . self::SITE_NAME,
                 'description' => 'Статья блога ' . self::SITE_NAME,
-                'url' => $this->canonicalUrl($path),
+                'url' => $this->canonicalUrl('/blog'),
                 'image' => $this->defaultImageUrl(),
-                'type' => 'article',
-            ]);
+                'type' => 'website',
+            ]) . "\n  <meta name=\"robots\" content=\"noindex,follow\">";
 
-            if ($canonicalSlug === null) {
-                $replacement .= "\n  <meta name=\"robots\" content=\"noindex,follow\">";
-            }
+            $html = preg_replace(
+                '#<meta name="robots" content="[^"]*">#',
+                '<meta name="robots" content="noindex,follow">',
+                $html,
+                1,
+            ) ?? $html;
 
-            return $this->replaceSeoMeta($html, $replacement);
+            $html = preg_replace('#<title>[^<]*</title>#', '<title>Статья не найдена — ' . self::SITE_NAME . '</title>', $html, 1) ?? $html;
+            $html = $this->replaceSeoMeta($html, $replacement);
+            $html = preg_replace(
+                '#<div class="article-state" id="article-loading"[^>]*>#',
+                '<div class="article-state" id="article-loading" hidden>',
+                $html,
+                1,
+            ) ?? $html;
+            $html = preg_replace(
+                '#<div class="article-state" id="article-error"[^>]*>#',
+                '<div class="article-state" id="article-error">',
+                $html,
+                1,
+            ) ?? $html;
+
+            return $html;
         } catch (Throwable) {
             return $html;
         }
@@ -307,15 +323,15 @@ final class SeoMetaService
         $contentHtml = $this->renderArticleContent($post->content ?? '');
 
         $html = preg_replace(
-            '#id="article-loading"[^>]*>#',
-            'id="article-loading" hidden>',
+            '#<div class="article-state" id="article-loading"[^>]*>#',
+            '<div class="article-state" id="article-loading" hidden>',
             $html,
             1,
         ) ?? $html;
 
         $html = preg_replace(
-            '#id="article-error"[^>]*\s*hidden#',
-            'id="article-error" hidden',
+            '#<div class="article-state" id="article-error"[^>]*>#',
+            '<div class="article-state" id="article-error" hidden>',
             $html,
             1,
         ) ?? $html;

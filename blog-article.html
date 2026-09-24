@@ -14,6 +14,7 @@
   <meta name="api-submit" content="/api/requests.php">
   <meta name="api-captcha" content="/api/captcha.php">
   <meta name="api-settings" content="/api/settings.php">
+  <meta name="google-site-verification" content="Z2Y78xjwWEZcYv9CmjCjkPoRra-f8iXDRyCs_Ruol_o">
   <meta name="yandex-verification" content="d1ed3cbaf813266b">
   <link rel="alternate" type="application/rss+xml" title="СкайКлин — блог" href="https://skyclin.ru/rss.xml">
   <title>Статья — СкайКлин</title>
@@ -48,6 +49,7 @@
 
   <main id="article-root" class="article-page">
     <div class="article-state" id="article-loading">
+      <!--noindex-->
       <div class="container article-state__inner">
         <div class="article-skeleton">
           <div class="article-skeleton__line article-skeleton__line--sm"></div>
@@ -59,15 +61,18 @@
           <div class="article-skeleton__line article-skeleton__line--short"></div>
         </div>
       </div>
+      <!--/noindex-->
     </div>
 
     <div class="article-state" id="article-error" hidden>
+      <!--noindex-->
       <div class="container article-state__inner article-state__inner--center">
         <p class="section__label">Блог</p>
         <h1>Статья не найдена</h1>
         <p class="article-state__text">Возможно, ссылка устарела или статья была удалена.</p>
         <a href="/blog" class="btn btn--primary">← Все статьи</a>
       </div>
+      <!--/noindex-->
     </div>
 
     <article class="article" id="article-shell" hidden>

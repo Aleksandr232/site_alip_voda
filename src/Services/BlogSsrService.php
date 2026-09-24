@@ -227,6 +227,15 @@ final class BlogSsrService
             ) ?? $html;
         }
 
+        if (!str_contains($html, 'google-site-verification')) {
+            $html = preg_replace(
+                '#</head>#',
+                '  <meta name="google-site-verification" content="Z2Y78xjwWEZcYv9CmjCjkPoRra-f8iXDRyCs_Ruol_o">'."\n</head>",
+                $html,
+                1,
+            ) ?? $html;
+        }
+
         return $html;
     }
 
@@ -275,6 +284,6 @@ final class BlogSsrService
 
     private function escapeXml(string $value): string
     {
-        return htmlspecialchars($value, ENT_XML1 | ENT_QUOTES, 'UTF-8');
+        return htmlspecialchars($value, ENT_XML1 | ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
     }
 }

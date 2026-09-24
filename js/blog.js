@@ -189,6 +189,9 @@
 
     const shell = document.getElementById("article-shell");
     const alreadySsr = shell?.getAttribute("data-ssr") === "1";
+    if (alreadySsr) {
+      setArticleView("article");
+    }
 
     const slug = getSlugFromUrl();
     if (!slug) {

@@ -43,6 +43,16 @@ if ($path === 'sitemap.xml') {
     return true;
 }
 
+if (preg_match('#^[A-Za-z0-9_-]{8,128}\.txt$#', $path)) {
+    $keyFile = $root . '/' . $path;
+    if (is_file($keyFile)) {
+        header('Content-Type: text/plain; charset=utf-8');
+        header('Cache-Control: public, max-age=86400');
+        readfile($keyFile);
+        return true;
+    }
+}
+
 if (preg_match('#^article/([a-z0-9][a-z0-9-]*)$#i', $path, $articleMatch)) {
     $_GET['slug'] = strtolower($articleMatch[1]);
     $file = $root . '/blog-article.php';

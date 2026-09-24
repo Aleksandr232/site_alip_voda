@@ -27,4 +27,5 @@ try {
 
 header('Content-Type: text/html; charset=utf-8');
 header('Cache-Control: public, max-age=300');
+header('Link: <https://skyclin.ru/sitemap.xml>; rel="sitemap"', false);
 echo $html;

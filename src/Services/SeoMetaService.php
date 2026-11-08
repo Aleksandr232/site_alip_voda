@@ -135,19 +135,19 @@ final class SeoMetaService
             'url' => $this->baseUrl . '/',
             'image' => $this->defaultImageUrl(),
             'logo' => $this->absoluteUrl('/favicon.svg'),
-            'description' => 'Мойка фасадов и окон, монтажные работы, уборка снега с кровли альпинистами. Москва и область.',
+            'description' => 'Мойка фасадов и окон, монтажные работы, уборка снега с кровли альпинистами. Казань и Татарстан.',
             'telephone' => $phone,
             'email' => $email,
             'priceRange' => '₽₽',
             'address' => [
                 '@type' => 'PostalAddress',
-                'addressLocality' => 'Москва',
-                'addressRegion' => 'Московская область',
+                'addressLocality' => 'Казань',
+                'addressRegion' => 'Республика Татарстан',
                 'addressCountry' => 'RU',
             ],
             'areaServed' => [
-                ['@type' => 'City', 'name' => 'Москва'],
-                ['@type' => 'AdministrativeArea', 'name' => 'Московская область'],
+                ['@type' => 'City', 'name' => 'Казань'],
+                ['@type' => 'AdministrativeArea', 'name' => 'Республика Татарстан'],
             ],
             'openingHoursSpecification' => [
                 [
@@ -168,7 +168,7 @@ final class SeoMetaService
                             'name' => $service['name'],
                             'description' => $service['description'],
                             'provider' => ['@id' => $organizationId],
-                            'areaServed' => 'Москва и Московская область',
+                            'areaServed' => 'Казань и Республика Татарстан',
                         ],
                     ],
                     self::SERVICES,
@@ -177,6 +177,19 @@ final class SeoMetaService
         ];
 
         return $this->renderJsonLd($data);
+    }
+
+    public function injectHome(string $html): string
+    {
+        $jsonLd = $this->renderLocalBusinessJsonLd();
+        $replaced = preg_replace(
+            '#<script type="application/ld\+json">\{"@context":"https://schema.org","@type":"LocalBusiness".*?</script>#s',
+            $jsonLd,
+            $html,
+            1,
+        );
+
+        return is_string($replaced) ? $replaced : $html;
     }
 
     public function renderArticleJsonLd(BlogPost $post): string

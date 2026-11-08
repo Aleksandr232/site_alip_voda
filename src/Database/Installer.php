@@ -232,6 +232,11 @@ SQL,
         $pdo = self::connect();
         \App\Database::adopt($pdo);
 
+        try {
+            self::ensureKazanHeroSettings($pdo);
+        } catch (\Throwable) {
+        }
+
         if (!self::tableExists($pdo, 'partners')) {
             return;
         }
@@ -377,6 +382,7 @@ SQL,
         self::ensureSetting($pdo, 'phone_visible', '1');
         self::ensureCalculatorSettings($pdo);
         self::ensureRbcNewsTable($pdo);
+        self::ensureKazanHeroSettings($pdo);
     }
 
     private static function ensureRbcNewsTable(PDO $pdo): void
@@ -427,6 +433,37 @@ SQL,
         $insert->execute(['key' => $key, 'value' => $value]);
     }
 
+    private static function ensureKazanHeroSettings(PDO $pdo): void
+    {
+        if (!self::tableExists($pdo, 'site_settings')) {
+            return;
+        }
+
+        $replacements = [
+            'hero_title' => [
+                'old' => 'Моем любые объекты на высоте — осмос и WFP',
+                'new' => 'Моем любые объекты на высоте в Казани — осмос и WFP',
+            ],
+            'hero_lead' => [
+                'old' => 'Мойка фасадов и окон, монтажные работы и зимняя уборка снега с кровли — промышленными альпинистами. Высокое давление, обратный осмос, допуски СРО.',
+                'new' => 'Мойка фасадов и окон в Казани, монтажные работы и зимняя уборка снега с кровли — промышленными альпинистами. Высокое давление, обратный осмос, допуски СРО.',
+            ],
+        ];
+
+        $stmt = $pdo->prepare(
+            'UPDATE site_settings SET setting_value = :new_value
+             WHERE setting_key = :key AND setting_value = :old_value'
+        );
+
+        foreach ($replacements as $key => $pair) {
+            $stmt->execute([
+                'new_value' => $pair['new'],
+                'key' => $key,
+                'old_value' => $pair['old'],
+            ]);
+        }
+    }
+
     private static function seedSiteSettings(PDO $pdo): void
     {
         if (!self::tableExists($pdo, 'site_settings')) {
@@ -438,8 +475,8 @@ SQL,
             'phone_visible' => '1',
             'email' => 'info@skyclin.ru',
             'hours' => 'Пн–Сб, 8:00–20:00',
-            'hero_title' => 'Моем любые объекты на высоте — осмос и WFP',
-            'hero_lead' => 'Мойка фасадов и окон, монтажные работы и зимняя уборка снега с кровли — промышленными альпинистами. Высокое давление, обратный осмос, допуски СРО.',
+            'hero_title' => 'Моем любые объекты на высоте в Казани — осмос и WFP',
+            'hero_lead' => 'Мойка фасадов и окон в Казани, монтажные работы и зимняя уборка снега с кровли — промышленными альпинистами. Высокое давление, обратный осмос, допуски СРО.',
             'stat_years' => '12+',
             'stat_objects' => '500+',
         ];

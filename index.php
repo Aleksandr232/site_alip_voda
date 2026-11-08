@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use App\Config;
 use App\Services\BlogSsrService;
+use App\Services\SeoMetaService;
 
 $root = __DIR__;
 
@@ -21,6 +22,7 @@ $html = (string) file_get_contents($template);
 
 try {
     $html = BlogSsrService::createDefault()->injectHome($html);
+    $html = SeoMetaService::createDefault()->injectHome($html);
 } catch (Throwable $e) {
     error_log('index.php: ' . $e->getMessage());
 }

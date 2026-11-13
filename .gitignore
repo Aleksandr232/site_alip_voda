@@ -1,5 +1,7 @@
 /vendor/
 .env
+.env.*
+!.env.example
 composer.lock
 /storage/schema.lock
 /storage/indexnow.last
